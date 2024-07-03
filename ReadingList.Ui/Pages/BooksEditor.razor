@@ -1,0 +1,156 @@
+﻿@page "/books/edit/{id:long}"
+@page "/books/create"
+
+<link href="/css/blazorValidation.css" rel="stylesheet" />
+
+<h4 class="bg-@Theme text-center text-white p-2">Books @Mode</h4>
+
+<EditForm Model="BookData" OnValidSubmit="HandleValidSubmit">
+
+    <DataAnnotationsValidator />
+
+    @if (Mode == "Edit")
+    {
+        <div class="form-group">
+            <label>ID</label>
+            <InputNumber class="form-control" @bind-Value="BookData.Id" readonly />
+        </div>
+    }
+    <div class="form-group">
+        <label>Name</label>
+        <ValidationMessage For="@(() => BookData.Name)" />
+        <InputText class="form-control" @bind-Value="BookData.Name" />
+    </div>
+    <div class="form-group">
+        <label>ISBN/ASIN</label>
+        <ValidationMessage For="@(() => BookData.ISBN)" />
+        <InputText class="form-control" @bind-Value="BookData.ISBN" DisplayName="ISBN/ASIN" />
+    </div>
+    <div class="form-group">
+        <label>Author</label>
+        <ValidationMessage For="@(() => BookData.Author)" />
+        <InputText class="form-control" @bind-Value="BookData.Author" />
+    </div>
+    <div class="form-group">
+        <label>Tags</label>
+        <ValidationMessage For="@(() => BookData.Tags)" />
+        <InputText class="form-control" @bind-Value="BookData.Tags" />
+    </div>
+    <div class="form-group">
+        <label>Sequence</label>
+        <ValidationMessage For="@(() => BookData.Sequence)" />
+        <InputNumber class="form-control" @bind-Value="BookData.Sequence" />
+    </div>
+    <div class="form-group">
+        <label>Read Dates</label>
+        <ValidationMessage For="@(() => BookData.ReadDates)" />
+        <InputText class="form-control" @bind-Value="BookData.ReadDates" DisplayName="Read Dates" />
+    </div>
+    <div class="form-group">
+        <label>Image URL</label>
+        <ValidationMessage For="@(() => BookData.ImageUrl)" />
+        <InputText class="form-control" @bind-Value="BookData.ImageUrl" DisplayName="Cover Image URL" />
+    </div>
+    <div class="form-group">
+        <label>Recommend</label>
+        <ValidationMessage For="@(() => BookData.Recommend)" />
+        <InputCheckbox class="form-control" @bind-Value="BookData.Recommend" />
+    </div>
+    <div class="form-group">
+        <label>Source</label>
+        <ValidationMessage For="@(() => BookData.Source)" />
+        <InputText class="form-control" @bind-Value="BookData.Source" />
+    </div>
+    @*<div class="form-group">
+            <label>Author</label>
+            <ValidationMessage For="@(() => BookData.Author)" />
+            <select @bind="BookData.Author" class="form-control">
+                <option selected disabled value="0">Choose an Author</option>
+                @foreach (var author in Authors)
+                {
+                    <option value="@author">@author</option>
+                }
+            </select>
+        </div>*@
+    <div class="text-center">
+        <ValidButton type="submit" BtnTheme="@Theme">Save</ValidButton>
+        <NavLink class="btn btn-secondary" href="books">Back</NavLink>
+    </div>
+</EditForm>
+
+@code {
+
+    [Inject]
+    public HttpClient? Http { get; set; }
+
+    [Inject]
+    public NavigationManager? NavManager { get; set; }
+
+    [Parameter]
+    public long Id { get; set; }
+
+    public BookDTO BookData { get; set; } = new BookDTO() { Name = string.Empty };
+
+    //public AuthorDTO[] Authors { get; set; } = new AuthorDTO[];
+    //public DataDTO[] Data { get; set; } = new DataDTO[];
+    //public SourceDTO[] Sources { get; set; } = new SourceDTO[];
+
+    protected async override Task OnParametersSetAsync()
+    {
+        if (Http != null)
+        {
+            if (Mode == "Edit")
+            {
+                BookData = await Http.GetFromJsonAsync<BookDTO>($"/api/r1/books/{Id}") ?? new() { Name = string.Empty };
+            }
+            //Authors = (await Http.GetFromJsonAsync<AuthorDTO[]>("/api/r1/authors"));
+            //Data = (await Http.GetFromJsonAsync<DataDTO[]>("/api/r1/data"));
+            //Sources = (await Http.GetFromJsonAsync<SourceDTO[]>("/api/r1/sources"));
+        }
+    }
+
+    public string Theme => Id == 0 ? "primary" : "warning";
+    public string Mode => Id == 0 ? "Create" : "Edit";
+
+    public async Task HandleValidSubmit()
+    {
+        if (Http != null)
+        {
+            if (Mode == "Create")
+            {
+                await Http.PostAsJsonAsync("/api/r1/books",
+                    new BookBindingTarget
+                        {
+                            Name = BookData.Name,
+                            Sequence = BookData.Sequence,
+                            Recommend = BookData.Recommend,
+                            ISBN = BookData.ISBN,
+                            ReadDates = BookData.ReadDates,
+                            ImageUrl = BookData.ImageUrl ?? Book.DefaultCoverImageUrl,
+                            Author = BookData.Author,
+                            Tags = BookData.Tags,
+                            Source = BookData.Source
+                        });
+            }
+            else
+            {
+                await Http.PutAsJsonAsync("/api/r1/books",
+                    new BookUpdateBindingTarget
+                        {
+                            Id = BookData.Id,
+                            Name = BookData.Name,
+                            Sequence = BookData.Sequence,
+                            Recommend = BookData.Recommend,
+                            ISBN = BookData.ISBN,
+                            ReadDates = BookData.ReadDates,
+                            ImageUrl = BookData.ImageUrl ?? Book.DefaultCoverImageUrl,
+                            Author = BookData.Author,
+                            Tags = BookData.Tags,
+                            Source = BookData.Source
+                        });
+            }
+
+            NavManager?.NavigateTo("books");
+        }
+    }
+}

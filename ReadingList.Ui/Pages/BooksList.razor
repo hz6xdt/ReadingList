@@ -1,0 +1,69 @@
+﻿@page "/books"
+@page "/books/list"
+
+<h5 class="bg-primary text-white text-center p-2">Books</h5>
+
+<table class="table table-sm table-striped table-bordered">
+    <thead><tr><th>ID</th><th>Name</th><th>Author</th><th>Cover</th><th></th></tr></thead>
+    <tbody>
+        @if (Books.Count() == 0)
+        {
+            <tr><th colspan="5" class="p-4 text-center">Loading Data...</th></tr>
+        }
+        else
+        {
+            @foreach (BookDTO b in Books)
+            {
+                <tr>
+                    <td>@b.Id</td>
+                    <td>@b.Name</td>
+                    <td>@b.Author</td>
+                    <td><img src="@b.ImageUrl" /></td>
+                    <td class="text-center">
+                        <NavLink class="btn btn-sm btn-info" href="@GetDetailsUrl(b.Id)">Details</NavLink>
+                        <NavLink class="btn btn-sm btn-warning" href="@GetEditUrl(b.Id)">Edit</NavLink>
+                        <button class="btn btn-sm btn-danger" @onclick="@(() => HandleDelete(b))">Delete</button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+<NavLink class="btn btn-primary" href="books/create">Create</NavLink>
+
+@code {
+
+    [Inject]
+    public HttpClient? Http { get; set; }
+
+    public BookDTO[] Books { get; set; } = Array.Empty<BookDTO>();
+
+    protected async override Task OnInitializedAsync()
+    {
+        await UpdateData();
+    }
+
+    private async Task UpdateData()
+    {
+        if (Http != null)
+        {
+            Books = await Http.GetFromJsonAsync<BookDTO[]>("/api/r1/books") ?? Array.Empty<BookDTO>();
+        }
+    }
+
+    string GetDetailsUrl(long id) => $"books/details/{id}";
+    string GetEditUrl(long id) => $"books/edit/{id}";
+
+    public async Task HandleDelete(BookDTO b)
+    {
+        if (Http != null)
+        {
+            HttpResponseMessage resp = await Http.DeleteAsync($"/api/r1/books/{b.Id}");
+            if (resp.IsSuccessStatusCode)
+            {
+                await UpdateData();
+            }
+        }
+    }
+}

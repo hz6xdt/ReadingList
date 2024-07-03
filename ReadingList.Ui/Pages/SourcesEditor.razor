@@ -1,0 +1,83 @@
+﻿@page "/sources/edit/{id:long}"
+@page "/sources/create"
+
+<link href="/css/blazorValidation.css" rel="stylesheet" />
+
+<h4 class="bg-@Theme text-center text-white p-2">Sources @Mode</h4>
+
+<EditForm Model="SourceData" OnValidSubmit="HandleValidSubmit">
+
+    <DataAnnotationsValidator />
+
+    @if (Mode == "Edit")
+    {
+        <div class="form-group">
+            <label>ID</label>
+            <InputNumber class="form-control" @bind-Value="SourceData.Id" readonly />
+        </div>
+    }
+    <div class="form-group">
+        <label>Name</label>
+        <ValidationMessage For="@(() => SourceData.Name)" />
+        <InputText class="form-control" @bind-Value="SourceData.Name" />
+    </div>
+    <div class="text-center">
+        <button type="submit" class="btn btn-@Theme">Save</button>
+        <NavLink class="btn btn-secondary" href="sources">Back</NavLink>
+    </div>
+</EditForm>
+
+
+@code {
+
+    [Inject]
+    public HttpClient? Http { get; set; }
+
+    [Inject]
+    public NavigationManager? NavManager { get; set; }
+
+    [Parameter]
+    public long Id { get; set; }
+
+    public SourceDTO SourceData { get; set; } = new SourceDTO() { Name = string.Empty };
+
+    protected async override Task OnParametersSetAsync()
+    {
+        if (Http != null)
+        {
+            if (Mode == "Edit")
+            {
+                SourceData = await Http.GetFromJsonAsync<SourceDTO>($"/api/v1/sources/{Id}") ?? new() { Name = string.Empty };
+            }
+        }
+    }
+
+    public string Theme => Id == 0 ? "primary" : "warning";
+    public string Mode => Id == 0 ? "Create" : "Edit";
+
+    public async Task HandleValidSubmit()
+    {
+        if (Http != null)
+        {
+            if (Mode == "Create")
+            {
+                await Http.PostAsJsonAsync("/api/v1/sources",
+                    new SourceBindingTarget
+                        {
+                            Name = SourceData.Name ?? string.Empty
+                        });
+            }
+            else
+            {
+                await Http.PutAsJsonAsync("/api/v1/sources",
+                    new SourceUpdateBindingTarget
+                        {
+                            Id = SourceData.Id,
+                            Name = SourceData.Name ?? string.Empty
+                        });
+            }
+
+            NavManager?.NavigateTo("sources");
+        }
+    }
+}

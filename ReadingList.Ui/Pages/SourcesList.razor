@@ -1,0 +1,66 @@
+﻿@page "/sources"
+@page "/sources/list"
+
+<h5 class="bg-primary text-white text-center p-2">Sources</h5>
+
+<table class="table table-sm table-striped table-bordered">
+    <thead><tr><th>ID</th><th>Name</th><th>Books</th><th></th></tr></thead>
+    <tbody>
+        @if (Sources.Count() == 0)
+        {
+            <tr><th colspan="5" class="p-4 text-center">Loading Data...</th></tr>
+        }
+        else
+        {
+            @foreach (SourceDTO s in Sources)
+            {
+                <tr>
+                    <td>@s.Id</td>
+                    <td>@s.Name</td>
+                    <td>@s.Books</td>
+                    <td class="text-center">
+                        <NavLink class="btn btn-sm btn-warning" href="@GetEditUrl(s.Id)">Edit</NavLink>
+                        <button class="btn btn-sm btn-danger" @onclick="@(() => HandleDelete(s))">Delete</button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+<NavLink class="btn btn-primary" href="sources/create">Create</NavLink>
+
+@code {
+
+    [Inject]
+    public HttpClient? Http { get; set; }
+
+    public SourceDTO[] Sources { get; set; } = Array.Empty<SourceDTO>();
+
+    protected async override Task OnInitializedAsync()
+    {
+        await UpdateData();
+    }
+
+    private async Task UpdateData()
+    {
+        if (Http != null)
+        {
+            Sources = await Http.GetFromJsonAsync<SourceDTO[]>("/api/r1/sources") ?? Array.Empty<SourceDTO>();
+        }
+    }
+
+    string GetEditUrl(long id) => $"sources/edit/{id}";
+
+    public async Task HandleDelete(SourceDTO s)
+    {
+        if (Http != null)
+        {
+            HttpResponseMessage resp = await Http.DeleteAsync($"/api/r1/sources/{s.Id}");
+            if (resp.IsSuccessStatusCode)
+            {
+                await UpdateData();
+            }
+        }
+    }
+}

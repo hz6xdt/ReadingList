@@ -1,0 +1,67 @@
+﻿@page "/authors"
+@page "/authors/list"
+
+<h5 class="bg-primary text-white text-center p-2">Authors</h5>
+
+<table class="table table-sm table-striped table-bordered">
+    <thead><tr><th>ID</th><th>Name</th><th>Books</th><th></th></tr></thead>
+    <tbody>
+        @if (Authors.Count() == 0)
+        {
+            <tr><th colspan="5" class="p-4 text-center">Loading Data...</th></tr>
+        }
+        else
+        {
+            @foreach (AuthorDTO a in Authors)
+            {
+                <tr>
+                    <td>@a.Id</td>
+                    <td>@a.Name</td>
+                    <td>@a.Books</td>
+                    <td class="text-center">
+                        <NavLink class="btn btn-sm btn-warning" href="@GetEditUrl(a.Id)">Edit</NavLink>
+                        <button class="btn btn-sm btn-danger" @onclick="@(() => HandleDelete(a))">Delete</button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+<NavLink class="btn btn-primary" href="authors/create">Create</NavLink>
+
+
+@code {
+
+    [Inject]
+    public HttpClient? Http { get; set; }
+
+    public AuthorDTO[] Authors { get; set; } = Array.Empty<AuthorDTO>();
+
+    protected async override Task OnInitializedAsync()
+    {
+        await UpdateData();
+    }
+
+    private async Task UpdateData()
+    {
+        if (Http != null)
+        {
+            Authors = await Http.GetFromJsonAsync<AuthorDTO[]>("/api/r1/authors") ?? Array.Empty<AuthorDTO>();
+        }
+    }
+
+    string GetEditUrl(long id) => $"authors/edit/{id}";
+
+    public async Task HandleDelete(AuthorDTO a)
+    {
+        if (Http != null)
+        {
+            HttpResponseMessage resp = await Http.DeleteAsync($"/api/r1/authors/{a.Id}");
+            if (resp.IsSuccessStatusCode)
+            {
+                await UpdateData();
+            }
+        }
+    }
+}
