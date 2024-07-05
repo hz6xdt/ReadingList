@@ -7,6 +7,6 @@ namespace ReadingList.Models
         [Required(ErrorMessage = "Please enter the source's name."), StringLength(256)]
         public required string Name { get; set; }
 
-        public Source ToSource() => new Source { Name = Name };
+        public Source ToSource() => new() { Name = Name };
     }
 }

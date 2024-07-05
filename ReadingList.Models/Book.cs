@@ -37,9 +37,9 @@ namespace ReadingList.Models
                 Sequence = Sequence,
                 Recommend = Recommend,
                 ReadDates = (from brd in BookReadDates
-                             select brd.ReadDate.ToString("yyyy-MM-dd")).Aggregate((x, y) => (x + "; " + y)),
+                             select brd.ReadDate.ToString("yyyy-MM-dd")).DefaultIfEmpty(string.Empty).Aggregate((x, y) => (x + "; " + y)),
                 Tags = (from bt in BookTags
-                        select bt.Tag.Data).Aggregate((x, y) => (x + "; " + y)),
+                        select bt.Tag.Data).DefaultIfEmpty(string.Empty).Aggregate((x, y) => (x + "; " + y)),
                 Source = Source == null ? string.Empty : Source.Name,
                 ImageUrl = ImageUrl
             };

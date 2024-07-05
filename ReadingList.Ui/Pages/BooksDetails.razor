@@ -1,10 +1,11 @@
 ﻿@page "/books/details/{id:long}"
+@inject ILogger<BooksDetails> Logger
 
 <h4 class="bg-info text-center text-white p-2">Book Details</h4>
 
 <div class="form-group">
     <label>ID</label>
-    <input class="form-control" value="@BookData.Id" disabled />
+    <input type="number" class="form-control" value="@BookData.Id" disabled />
 </div>
 <div class="form-group">
     <label>Name</label>
@@ -32,7 +33,7 @@
 </div>
 <div class="form-group">
     <label>Sequence</label>
-    <input class="form-control" value="@BookData.Sequence" disabled />
+    <input type="number" class="form-control" value="@BookData.Sequence" disabled />
 </div>
 <div class="form-group">
     <label>Dates Read</label>
@@ -40,15 +41,22 @@
 </div>
 <div class="form-group">
     <label>Recommend</label>
-    <input class="form-control" value="@BookData.Recommend" disabled />
+    @if (BookData.Recommend)
+    {
+        <input type="checkbox" class="form-control" checked disabled />
+    }
+    else
+    {
+        <input type="checkbox" class="form-control" disabled />
+    }
 </div>
 <div class="form-group">
     <label>Source</label>
     <input class="form-control" value="@BookData.Source" disabled />
 </div>
 <div class="text-center">
-    <NavLink class="btn btn-info" href="@GetEditUrl(Id)">Edit</NavLink>
-    <NavLink class="btn btn-secondary" href="books">Back</NavLink>
+    <NavLink class="btn btn-info m-2" href="@GetEditUrl(Id)">Edit</NavLink>
+    <NavLink class="btn btn-secondary m-2" href="books">Back</NavLink>
 </div>
 
 @code {
@@ -69,6 +77,10 @@
         if (Http != null)
         {
             BookData = await Http.GetFromJsonAsync<BookDTO>($"/api/r1/books/{Id}") ?? new() { Name = string.Empty };
+
+            Logger.LogInformation("Received BookData -- Id: {Id}, Name: {Name}, ISBN: {ISBN}, Tags: {Tags}, ReadDates: {ReadDates}, Sequence: {Sequence}, Author: {Author}, " +
+                "ImageUrl: {ImageUrl}, Recommend: {Recommend}.",
+                BookData?.Id, BookData?.Name, BookData?.ISBN, BookData?.Tags, BookData?.ReadDates, BookData?.Sequence, BookData?.Author, BookData?.ImageUrl, BookData?.Recommend);
         }
     }
 

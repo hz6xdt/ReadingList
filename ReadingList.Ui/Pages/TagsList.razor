@@ -1,0 +1,67 @@
+﻿@page "/tags"
+@page "/tags/list"
+
+<h5 class="bg-primary text-white text-center p-2">Tags</h5>
+
+<table class="table table-sm table-striped table-bordered">
+    <thead><tr><th>ID</th><th>Data</th><th>Books</th><th></th></tr></thead>
+    <tbody>
+        @if (Tags.Count() == 0)
+        {
+            <tr><th colspan="5" class="p-4 text-center">Loading Data...</th></tr>
+        }
+        else
+        {
+            @foreach (TagDTO t in Tags)
+            {
+                <tr>
+                    <td>@t.Id</td>
+                    <td>@t.Data</td>
+                    <td>@t.Books</td>
+                    <td class="text-center">
+                        <NavLink class="btn btn-sm btn-warning" href="@GetEditUrl(t.Id)">Edit</NavLink>
+                        <button class="btn btn-sm btn-danger" @onclick="@(() => HandleDelete(t))">Delete</button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+<NavLink class="btn btn-primary" href="tags/create">Create</NavLink>
+
+
+@code {
+
+    [Inject]
+    public HttpClient? Http { get; set; }
+
+    public TagDTO[] Tags { get; set; } = Array.Empty<TagDTO>();
+
+    protected async override Task OnInitializedAsync()
+    {
+        await UpdateData();
+    }
+
+    private async Task UpdateData()
+    {
+        if (Http != null)
+        {
+            Tags = await Http.GetFromJsonAsync<TagDTO[]>("/api/r1/tags") ?? Array.Empty<TagDTO>();
+        }
+    }
+
+    string GetEditUrl(long id) => $"tags/edit/{id}";
+
+    public async Task HandleDelete(TagDTO t)
+    {
+        if (Http != null)
+        {
+            HttpResponseMessage resp = await Http.DeleteAsync($"/api/r1/tags/{t.Id}");
+            if (resp.IsSuccessStatusCode)
+            {
+                await UpdateData();
+            }
+        }
+    }
+}

@@ -4,7 +4,7 @@
 <h5 class="bg-primary text-white text-center p-2">Books</h5>
 
 <table class="table table-sm table-striped table-bordered">
-    <thead><tr><th>ID</th><th>Name</th><th>Author</th><th>Cover</th><th></th></tr></thead>
+    <thead><tr><th>ID</th><th>Cover</th><th>Title</th><th>Author</th><th></th></tr></thead>
     <tbody>
         @if (Books.Count() == 0)
         {
@@ -16,9 +16,9 @@
             {
                 <tr>
                     <td>@b.Id</td>
+                    <td><img src="@b.ImageUrl" /></td>
                     <td>@b.Name</td>
                     <td>@b.Author</td>
-                    <td><img src="@b.ImageUrl" /></td>
                     <td class="text-center">
                         <NavLink class="btn btn-sm btn-info" href="@GetDetailsUrl(b.Id)">Details</NavLink>
                         <NavLink class="btn btn-sm btn-warning" href="@GetEditUrl(b.Id)">Edit</NavLink>

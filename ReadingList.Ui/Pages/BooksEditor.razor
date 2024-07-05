@@ -17,7 +17,7 @@
         </div>
     }
     <div class="form-group">
-        <label>Name</label>
+        <label>Title</label>
         <ValidationMessage For="@(() => BookData.Name)" />
         <InputText class="form-control" @bind-Value="BookData.Name" />
     </div>
@@ -74,7 +74,7 @@
         </div>*@
     <div class="text-center">
         <ValidButton type="submit" BtnTheme="@Theme">Save</ValidButton>
-        <NavLink class="btn btn-secondary" href="books">Back</NavLink>
+        <NavLink class="btn btn-secondary mt-2" href="books">Back</NavLink>
     </div>
 </EditForm>
 

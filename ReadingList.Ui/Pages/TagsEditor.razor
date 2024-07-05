@@ -1,11 +1,11 @@
-﻿@page "/authors/edit/{id:long}"
-@page "/authors/create"
+@page "/tags/edit/{id:long}"
+@page "/tags/create"
 
 <link href="/css/blazorValidation.css" rel="stylesheet" />
 
-<h4 class="bg-@Theme text-center text-white p-2">Authors @Mode</h4>
+<h4 class="bg-@Theme text-center text-white p-2">Tags @Mode</h4>
 
-<EditForm Model="AuthorData" OnValidSubmit="HandleValidSubmit">
+<EditForm Model="TagData" OnValidSubmit="HandleValidSubmit">
 
     <DataAnnotationsValidator />
 
@@ -13,17 +13,17 @@
     {
         <div class="form-group">
             <label>ID</label>
-            <InputNumber class="form-control" @bind-Value="AuthorData.Id" readonly />
+            <InputNumber class="form-control" @bind-Value="TagData.Id" readonly />
         </div>
     }
     <div class="form-group">
-        <label>Name</label>
-        <ValidationMessage For="@(() => AuthorData.Name)" />
-        <InputText class="form-control" @bind-Value="AuthorData.Name" />
+        <label>Data</label>
+        <ValidationMessage For="@(() => TagData.Data)" />
+        <InputText class="form-control" @bind-Value="TagData.Data" />
     </div>
     <div class="text-center" p-2>
         <ValidButton type="submit" BtnTheme="@Theme">Save</ValidButton>
-        <NavLink class="btn btn-secondary mt-2" href="authors">Back</NavLink>
+        <NavLink class="btn btn-secondary mt-2" href="tags">Back</NavLink>
     </div>
 </EditForm>
 
@@ -39,7 +39,7 @@
     [Parameter]
     public long Id { get; set; }
 
-    public AuthorDTO AuthorData { get; set; } = new AuthorDTO() { Name = string.Empty };
+    public TagDTO TagData { get; set; } = new TagDTO() { Data = string.Empty };
 
     protected async override Task OnParametersSetAsync()
     {
@@ -47,7 +47,7 @@
         {
             if (Mode == "Edit")
             {
-                AuthorData = await Http.GetFromJsonAsync<AuthorDTO>($"/api/r1/authors/{Id}") ?? new() { Name = string.Empty };
+                TagData = await Http.GetFromJsonAsync<TagDTO>($"/api/r1/tags/{Id}") ?? new() { Data = string.Empty };
             }
         }
     }
@@ -61,23 +61,23 @@
         {
             if (Mode == "Create")
             {
-                await Http.PostAsJsonAsync("/api/r1/authors",
-                    new AuthorBindingTarget
+                await Http.PostAsJsonAsync("/api/r1/tags",
+                    new TagBindingTarget
                         {
-                            Name = AuthorData.Name
+                            Data = TagData.Data ?? string.Empty
                         });
             }
             else
             {
-                await Http.PutAsJsonAsync("/api/r1/authors",
-                    new AuthorUpdateBindingTarget
+                await Http.PutAsJsonAsync("/api/r1/tags",
+                    new TagUpdateBindingTarget
                         {
-                            Id = AuthorData.Id,
-                            Name = AuthorData.Name
+                            Id = TagData.Id,
+                            Data = TagData.Data ?? string.Empty
                         });
             }
 
-            NavManager?.NavigateTo("authors");
+            NavManager?.NavigateTo("tags");
         }
     }
 }

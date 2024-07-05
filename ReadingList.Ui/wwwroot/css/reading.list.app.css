@@ -1,0 +1,8 @@
+﻿img {
+    height: 260px;
+}
+
+input.form-control[type=checkbox] {
+    appearance: auto;
+    height: 34px;
+}

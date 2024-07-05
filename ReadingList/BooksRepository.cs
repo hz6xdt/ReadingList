@@ -53,8 +53,8 @@ namespace ReadingList.Models
                               Author = b.Author,
                               Sequence = b.Sequence,
                               Recommend = b.Recommend,
-                              ReadDates = b.ReadDates.Aggregate((x, y) => (x + "; " + y)),
-                              Tags = b.Tags.Aggregate((x, y) => (x + "; " + y)),
+                              ReadDates = b.ReadDates.DefaultIfEmpty(string.Empty).Aggregate((x, y) => (x + "; " + y)),
+                              Tags = b.Tags.DefaultIfEmpty(string.Empty).Aggregate((x, y) => (x + "; " + y)),
                               Source = b.Source,
                               ImageUrl = b.ImageUrl
                           });
@@ -95,8 +95,8 @@ namespace ReadingList.Models
                                 Author = b.Author,
                                 Sequence = b.Sequence,
                                 Recommend = b.Recommend,
-                                ReadDates = b.ReadDates.Aggregate((x, y) => (x + "; " + y)),
-                                Tags = b.Tags.Aggregate((x, y) => (x + "; " + y)),
+                                ReadDates = b.ReadDates.DefaultIfEmpty(string.Empty).Aggregate((x, y) => (x + "; " + y)),
+                                Tags = b.Tags.DefaultIfEmpty(string.Empty).Aggregate((x, y) => (x + "; " + y)),
                                 Source = b.Source,
                                 ImageUrl = b.ImageUrl
                             });
@@ -145,8 +145,8 @@ namespace ReadingList.Models
                 Author = book.Author,
                 Sequence = book.Sequence,
                 Recommend = book.Recommend,
-                ReadDates = book.ReadDates.Aggregate((x, y) => (x + "; " + y)),
-                Tags = book.Tags.Aggregate((x, y) => (x + "; " + y)),
+                ReadDates = book.ReadDates.DefaultIfEmpty(string.Empty).Aggregate((x, y) => (x + "; " + y)),
+                Tags = book.Tags.DefaultIfEmpty(string.Empty).Aggregate((x, y) => (x + "; " + y)),
                 Source = book.Source,
                 ImageUrl = book.ImageUrl
             };
