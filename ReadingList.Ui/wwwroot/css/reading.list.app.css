@@ -1,5 +1,6 @@
-﻿img {
-    height: 260px;
+﻿.img-max {
+    max-width: 160px;
+    width: 100%;
 }
 
 input.form-control[type=checkbox] {
