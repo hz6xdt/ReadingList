@@ -7,3 +7,9 @@ input.form-control[type=checkbox] {
     appearance: auto;
     height: 34px;
 }
+
+.navbar-dark .navbar-brand {
+    font-size: 1.5rem;
+    color: #f2bc36;
+}
+

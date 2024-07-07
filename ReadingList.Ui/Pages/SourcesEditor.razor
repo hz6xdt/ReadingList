@@ -3,6 +3,7 @@
 
 <link href="/css/blazorValidation.css" rel="stylesheet" />
 
+<PageTitle>Sources @Mode | Reading List</PageTitle>
 <h4 class="bg-@Theme text-center text-white p-2">Sources @Mode</h4>
 
 <EditForm Model="SourceData" OnValidSubmit="HandleValidSubmit">
@@ -47,7 +48,7 @@
         {
             if (Mode == "Edit")
             {
-                SourceData = await Http.GetFromJsonAsync<SourceDTO>($"/api/v1/sources/{Id}") ?? new() { Name = string.Empty };
+                SourceData = await Http.GetFromJsonAsync<SourceDTO>($"/api/r1/sources/{Id}") ?? new() { Name = string.Empty };
             }
         }
     }
@@ -61,7 +62,7 @@
         {
             if (Mode == "Create")
             {
-                await Http.PostAsJsonAsync("/api/v1/sources",
+                await Http.PostAsJsonAsync("/api/r1/sources",
                     new SourceBindingTarget
                         {
                             Name = SourceData.Name ?? string.Empty
@@ -69,7 +70,7 @@
             }
             else
             {
-                await Http.PutAsJsonAsync("/api/v1/sources",
+                await Http.PutAsJsonAsync("/api/r1/sources",
                     new SourceUpdateBindingTarget
                         {
                             Id = SourceData.Id,
