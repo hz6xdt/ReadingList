@@ -8,8 +8,7 @@ input.form-control[type=checkbox] {
     height: 34px;
 }
 
-.navbar-dark .navbar-brand {
-    font-size: 1.5rem;
-    color: #f2bc36;
+nav {
+    margin-bottom: 2rem;
 }
 
