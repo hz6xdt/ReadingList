@@ -11910,3 +11910,7 @@ footer {
   padding: 0.5rem 1rem 0 0;
   height: 9rem;
 }
+
+footer p {
+  font-size: 0.75rem;
+}
