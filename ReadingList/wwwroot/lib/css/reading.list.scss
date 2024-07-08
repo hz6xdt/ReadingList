@@ -6,11 +6,11 @@
 
 // 2. Include any default variable overrides here
 $body-bg: #f7f4e9;
-$bg-dark: rgb(35 24 0);
+$dark: #352400;
 
 $navbar-brand-font-size: 1.5rem;
-$navbar-dark-brand-color: #f2bc36;
-$navbar-dark-brand-hover-color: #f8c84f;
+$navbar-dark-brand-color: #ebb42b;
+$navbar-dark-brand-hover-color: #f2bc36;
 $navbar-padding-y: 2rem;
 
 $primary: rgb(68 117 68);
@@ -68,3 +68,25 @@ $warning: #dbc581;
 
 
 // 5. Add additional custom code here
+
+.img-max {
+    max-width: 160px;
+    width: 100%;
+}
+
+input.form-control[type=checkbox] {
+    appearance: auto;
+    height: 34px;
+}
+
+nav {
+    margin-bottom: 2rem;
+}
+
+footer {
+    background-color: $dark;
+    color: $navbar-dark-color;
+    margin-top: 15rem;
+    padding: .5rem 1rem 0 0;
+    height: 9rem;
+}
