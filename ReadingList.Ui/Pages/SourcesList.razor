@@ -29,6 +29,8 @@
     </tbody>
 </table>
 
+<Popup @ref="popup" />
+
 <NavLink class="btn btn-primary" href="sources/create">Create</NavLink>
 
 @code {
@@ -37,6 +39,8 @@
     public HttpClient? Http { get; set; }
 
     public SourceDTO[] Sources { get; set; } = Array.Empty<SourceDTO>();
+
+    private Popup popup;
 
     protected async override Task OnInitializedAsync()
     {
@@ -61,6 +65,11 @@
             if (resp.IsSuccessStatusCode)
             {
                 await UpdateData();
+            }
+            else
+            {
+                popup.Show("There was an error deleting this source.  Verify that any book with this source has been deleted first, and then try again.",
+                    "Error on Delete");
             }
         }
     }

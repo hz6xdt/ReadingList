@@ -23,8 +23,8 @@
     public bool Disabled { get; set; }
 
     public string ButtonClass => Disabled
-        ? $"btn btn-{BtnTheme} {DisabledClass} mt-2"
-        : $"btn btn-{BtnTheme} mt-2";
+        ? $"btn btn-{BtnTheme} {DisabledClass} mt-2 mb-5"
+        : $"btn btn-{BtnTheme} mt-2 mb-5";
 
     protected override void OnInitialized()
     {

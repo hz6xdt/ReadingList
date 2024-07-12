@@ -79,22 +79,22 @@ namespace ReadingList.Models
                     Author = a3
                 };
 
-                BookReadDate brd1 = new BookReadDate { Book = b6, ReadDate = new DateTime(1989, 3, 28) };
-                BookReadDate brd2 = new BookReadDate { Book = b6, ReadDate = new DateTime(1996, 1, 05) };
-                BookReadDate brd3 = new BookReadDate { Book = b6, ReadDate = new DateTime(1999, 9, 12) };
-                BookReadDate brd4 = new BookReadDate { Book = b6, ReadDate = new DateTime(2015, 9, 7) };
-                BookReadDate brd5 = new BookReadDate { Book = b7, ReadDate = new DateTime(1991, 1, 8) };
-                BookReadDate brd6 = new BookReadDate { Book = b7, ReadDate = new DateTime(1996, 4, 6) };
-                BookReadDate brd7 = new BookReadDate { Book = b7, ReadDate = new DateTime(2015, 12, 29) };
-                BookReadDate brd8 = new BookReadDate { Book = b4, ReadDate = new DateTime(1988, 3, 14) };
-                BookReadDate brd9 = new BookReadDate { Book = b4, ReadDate = new DateTime(1997, 5, 3) };
-                BookReadDate brd10 = new BookReadDate { Book = b4, ReadDate = new DateTime(2021, 6, 23) };
-                BookReadDate brd11 = new BookReadDate { Book = b5, ReadDate = new DateTime(1997, 7, 6) };
-                BookReadDate brd12 = new BookReadDate { Book = b5, ReadDate = new DateTime(2021, 8, 7) };
-                BookReadDate brd13 = new BookReadDate { Book = b1, ReadDate = new DateTime(1989, 11, 4) };
-                BookReadDate brd14 = new BookReadDate { Book = b1, ReadDate = new DateTime(2009, 12, 22) };
-                BookReadDate brd15 = new BookReadDate { Book = b2, ReadDate = new DateTime(1989, 2, 5) };
-                BookReadDate brd16 = new BookReadDate { Book = b3, ReadDate = new DateTime(1988, 3, 6) };
+                BookReadDate brd1 = new BookReadDate { Book = b6, ReadDate = new DateOnly(1989, 3, 28) };
+                BookReadDate brd2 = new BookReadDate { Book = b6, ReadDate = new DateOnly(1996, 1, 05) };
+                BookReadDate brd3 = new BookReadDate { Book = b6, ReadDate = new DateOnly(1999, 9, 12) };
+                BookReadDate brd4 = new BookReadDate { Book = b6, ReadDate = new DateOnly(2015, 9, 7) };
+                BookReadDate brd5 = new BookReadDate { Book = b7, ReadDate = new DateOnly(1991, 1, 8) };
+                BookReadDate brd6 = new BookReadDate { Book = b7, ReadDate = new DateOnly(1996, 4, 6) };
+                BookReadDate brd7 = new BookReadDate { Book = b7, ReadDate = new DateOnly(2015, 12, 29) };
+                BookReadDate brd8 = new BookReadDate { Book = b4, ReadDate = new DateOnly(1988, 3, 14) };
+                BookReadDate brd9 = new BookReadDate { Book = b4, ReadDate = new DateOnly(1997, 5, 3) };
+                BookReadDate brd10 = new BookReadDate { Book = b4, ReadDate = new DateOnly(2021, 6, 23) };
+                BookReadDate brd11 = new BookReadDate { Book = b5, ReadDate = new DateOnly(1997, 7, 6) };
+                BookReadDate brd12 = new BookReadDate { Book = b5, ReadDate = new DateOnly(2021, 8, 7) };
+                BookReadDate brd13 = new BookReadDate { Book = b1, ReadDate = new DateOnly(1989, 11, 4) };
+                BookReadDate brd14 = new BookReadDate { Book = b1, ReadDate = new DateOnly(2009, 12, 22) };
+                BookReadDate brd15 = new BookReadDate { Book = b2, ReadDate = new DateOnly(1989, 2, 5) };
+                BookReadDate brd16 = new BookReadDate { Book = b3, ReadDate = new DateOnly(1988, 3, 6) };
 
                 Tag t1 = new Tag { Data = "Amber" };
                 Tag t2 = new Tag { Data = "Parallel Worlds" };

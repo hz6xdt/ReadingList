@@ -8,7 +8,7 @@ using ReadingList.Models;
 
 #nullable disable
 
-namespace ReadingList.Migrations
+namespace ReadingList.Models.Migrations
 {
     [DbContext(typeof(DataContext))]
     partial class DataContextModelSnapshot : ModelSnapshot
@@ -17,7 +17,7 @@ namespace ReadingList.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.4")
+                .HasAnnotation("ProductVersion", "8.0.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -90,8 +90,8 @@ namespace ReadingList.Migrations
                     b.Property<long>("BookId")
                         .HasColumnType("bigint");
 
-                    b.Property<DateTime>("ReadDate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateOnly>("ReadDate")
+                        .HasColumnType("Date");
 
                     b.HasKey("BookReadDateId");
 

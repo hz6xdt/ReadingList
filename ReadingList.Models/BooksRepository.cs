@@ -22,7 +22,7 @@ namespace ReadingList.Models
         {
             logger.LogDebug("GetReadingList");
 
-            DateTime sixMonthsAgo = DateTime.Now.Date.AddMonths(-6);
+            DateOnly sixMonthsAgo = DateOnly.FromDateTime(DateTime.Now).AddMonths(-6);
 
             var result = (from b in dataContext.Books
                             .Include(b => b.Author)
@@ -168,8 +168,8 @@ namespace ReadingList.Models
             }
 
 
-            Author author = dataContext.Authors.Find(authorId) ?? new Author { Name = string.Empty };
-            Source source = dataContext.Sources.Find(sourceId) ?? new Source { Name = string.Empty };
+            Author? author = dataContext.Authors.Find(authorId);
+            Source? source = dataContext.Sources.Find(sourceId);
 
 
             Book book = new() { Name = string.Empty };
@@ -442,7 +442,7 @@ namespace ReadingList.Models
 
                 foreach (var item in newBook.ReadDates.Split(';'))
                 {
-                    if (DateTime.TryParse(item.Trim(), out DateTime readDate))
+                    if (DateOnly.TryParse(item.Trim(), out DateOnly readDate))
                     {
                         bookReadDates.Add(new BookReadDate { ReadDate = readDate, Book = book });
                     }
@@ -572,7 +572,7 @@ namespace ReadingList.Models
 
                 foreach (var item in changedBook.ReadDates.Split(';'))
                 {
-                    if (DateTime.TryParse(item.Trim(), out DateTime readDate))
+                    if (DateOnly.TryParse(item.Trim(), out DateOnly readDate))
                     {
                         bookReadDates.Add(new BookReadDate { ReadDate = readDate, Book = book });
                     }
@@ -963,9 +963,14 @@ namespace ReadingList.Models
                 {
                     await dataContext.SaveChangesAsync();
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateConcurrencyException x)
                 {
-                    logger.LogDebug($"DbUpdateConcurrencyException.");
+                    logger.LogDebug("DbUpdateConcurrencyException: {x}", x.ToString());
+                    return null;
+                }
+                catch (DbUpdateException x)
+                {
+                    logger.LogDebug("DbUpdateException: {x}", x.ToString());
                     return null;
                 }
 

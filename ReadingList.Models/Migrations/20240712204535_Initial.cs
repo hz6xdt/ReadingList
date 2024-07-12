@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace ReadingList.Migrations
+namespace ReadingList.Models.Migrations
 {
     /// <inheritdoc />
     public partial class Initial : Migration
@@ -86,7 +86,7 @@ namespace ReadingList.Migrations
                     BookReadDateId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     BookId = table.Column<long>(type: "bigint", nullable: false),
-                    ReadDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    ReadDate = table.Column<DateOnly>(type: "Date", nullable: false)
                 },
                 constraints: table =>
                 {

@@ -7,7 +7,7 @@ namespace ReadingList.Models
     public class ReadBindingTarget
     {
         [Required(ErrorMessage = "Please enter the date that the book was read."), ReadDateRange]
-        public DateTime ReadDate { get; set; } = DateTime.Now;
+        public DateOnly ReadDate { get; set; } = DateOnly.FromDateTime(DateTime.Now);
 
         [DisplayName("Title")]
         [Required(ErrorMessage = "Please enter the book's title."), StringLength(256)]

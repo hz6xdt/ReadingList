@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ReadingList.Models
 {
@@ -9,7 +10,8 @@ namespace ReadingList.Models
         public long BookId { get; set; }
         public required Book Book { get; set; }
 
+        [Column(TypeName = "Date")]
         [DataType(DataType.Date)]
-        public required DateTime ReadDate { get; set; } = DateTime.Now;
+        public required DateOnly ReadDate { get; set; } = DateOnly.FromDateTime(DateTime.Now);
     }
 }
