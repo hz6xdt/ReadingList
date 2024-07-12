@@ -1,0 +1,170 @@
+﻿@page "/"
+
+<PageTitle>Reading List</PageTitle>
+
+<div class="row">
+
+    <div class="col-md-5">
+
+        <h5 class="bg-primary text-white p-2">Add New Entry:</h5>
+
+
+        <EditForm Model="BookData" OnValidSubmit="HandleValidSubmit">
+
+            <DataAnnotationsValidator />
+
+            <div class="form-group">
+                <label>Read Date</label>
+                <ValidationMessage For="@(() => BookData.ReadDate)" />
+                <InputDate Type="InputDateType.Date" class="form-control" @bind-Value="BookData.ReadDate" DisplayName="Read Date" />
+            </div>
+            <div class="form-group">
+                <label>Title</label>
+                <ValidationMessage For="@(() => BookData.Name)" />
+                <InputText class="form-control" @bind-Value="BookData.Name" />
+            </div>
+            <div class="form-group">
+                <label>ISBN/ASIN</label>
+                <ValidationMessage For="@(() => BookData.ISBN)" />
+                <InputText class="form-control" @bind-Value="BookData.ISBN" DisplayName="ISBN/ASIN" />
+            </div>
+            <div class="form-group">
+                <label>Author</label>
+                <ValidationMessage For="@(() => BookData.Author)" />
+                <InputText class="form-control" @bind-Value="BookData.Author" />
+            </div>
+            <div class="form-group">
+                <label>Tags</label>
+                <ValidationMessage For="@(() => BookData.Tags)" />
+                <InputText class="form-control" @bind-Value="BookData.Tags" />
+            </div>
+            <div class="form-group">
+                <label>Sequence</label>
+                <ValidationMessage For="@(() => BookData.Sequence)" />
+                <InputNumber class="form-control" @bind-Value="BookData.Sequence" />
+            </div>
+            <div class="form-group">
+                <label>Image URL</label>
+                <ValidationMessage For="@(() => BookData.ImageUrl)" />
+                <InputText class="form-control" @bind-Value="BookData.ImageUrl" DisplayName="Cover Image URL" />
+            </div>
+            <div class="form-group">
+                <label>Recommend</label>
+                <ValidationMessage For="@(() => BookData.Recommend)" />
+                <InputCheckbox class="form-control" @bind-Value="BookData.Recommend" />
+            </div>
+            <div class="form-group">
+                <label>Source</label>
+                <ValidationMessage For="@(() => BookData.Source)" />
+                <InputText class="form-control" @bind-Value="BookData.Source" />
+            </div>
+            <div class="text-center">
+                <ValidButton type="submit" BtnTheme="primary">Save</ValidButton>
+                <NavLink class="btn btn-secondary mt-2" href="books">Back</NavLink>
+            </div>
+        </EditForm>
+
+    </div>
+
+
+    <div class="col-md-offset-1 col-md-6">
+
+        <h5 class="bg-primary text-white p-2">Recent List:</h5>
+
+        @if (RecentBooks.Count() == 0)
+        {
+            <div>Loading Data...</div>
+        }
+        else
+        {
+            <ul>
+                @foreach (BookDTO b in RecentBooks)
+                {
+                    <li>
+                        <div style="clear: left;"><span class="title">@b.Name</span></div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <img class="coverImage" src="@b.ImageUrl" alt="cover art" />
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div style="margin-top: 1em;">Read Dates: &nbsp;&nbsp;@b.ReadDates</div>
+                            <div>Author: &nbsp;&nbsp;@b.Author</div>
+                            <div>Tags: &nbsp;&nbsp;@b.Tags</div>
+                            @if (@b.ISBN != null)
+                            {
+                                <div>ISBN/ASIN: &nbsp;&nbsp;@b.ISBN</div>
+                            }
+                            @if (@b.Sequence != null)
+                            {
+                                <div>Sequence: &nbsp;&nbsp;@b.Sequence</div>
+                            }
+                            @if (@b.Source != null)
+                            {
+                                <div>Source: &nbsp;&nbsp;@b.Source</div>
+                            }
+                            <div>Recommend: &nbsp;&nbsp;@b.Recommend</div>
+                        </div>
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+
+</div>
+
+
+
+
+@code {
+
+    [Inject]
+    public HttpClient? Http { get; set; }
+
+    [Inject]
+    public NavigationManager? NavManager { get; set; }
+
+    [Parameter]
+    public long Id { get; set; }
+
+
+    public ReadBindingTarget BookData { get; set; } = new ReadBindingTarget() { Name = string.Empty };
+    public BookDTO[] RecentBooks { get; set; } = Array.Empty<BookDTO>();
+
+
+    protected async override Task OnInitializedAsync()
+    {
+        await UpdateData();
+    }
+
+    private async Task UpdateData()
+    {
+        if (Http != null)
+        {
+            BookData = new ReadBindingTarget() { Name = string.Empty };
+            RecentBooks = await Http.GetFromJsonAsync<BookDTO[]>("/api/r1/readList") ?? Array.Empty<BookDTO>();
+        }
+    }
+
+    public async Task HandleValidSubmit()
+    {
+        if (Http != null)
+        {
+            await Http.PostAsJsonAsync("/api/r1/readList",
+                new ReadBindingTarget
+                    {
+                        Name = BookData.Name,
+                        Sequence = BookData.Sequence,
+                        Recommend = BookData.Recommend,
+                        ISBN = BookData.ISBN,
+                        ReadDate = BookData.ReadDate,
+                        ImageUrl = BookData.ImageUrl ?? Book.DefaultCoverImageUrl,
+                        Author = BookData.Author,
+                        Tags = BookData.Tags,
+                        Source = BookData.Source
+                    });
+
+            NavManager?.NavigateTo("/");
+        }
+    }
+}

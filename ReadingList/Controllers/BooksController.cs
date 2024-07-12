@@ -6,17 +6,8 @@ namespace ReadingList.Controllers
 {
     [ApiController]
     [Route("api/r1/[controller]")]
-    public class BooksController : ControllerBase
+    public class BooksController(IBooksRepository repository, ILogger<BooksController> logger) : ControllerBase
     {
-        private IBooksRepository repository;
-        private ILogger<BooksController> logger;
-
-        public BooksController(IBooksRepository repository, ILogger<BooksController> logger)
-        {
-            this.repository = repository;
-            this.logger = logger;
-        }
-
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<BookDTO>))]
         public IEnumerable<BookDTO> GetBooks()

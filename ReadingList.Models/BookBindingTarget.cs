@@ -32,7 +32,7 @@ namespace ReadingList.Models
         [StringLength(256)]
         public string? Source { get; set; }
 
-        public Book ToBook() => new Book
+        public Book ToBook() => new()
         {
             Name = Name,
             Sequence = Sequence,

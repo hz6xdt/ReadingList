@@ -44,7 +44,7 @@ namespace ReadingList.Models
                               Tags = from bt in b.BookTags
                                      select bt.Tag.Data,
                               Source = b.Source == null ? string.Empty : b.Source.Name,
-                              ImageUrl = b.ImageUrl == null ? "http://2.bp.blogspot.com/_aDCnyPs488U/SyAtBDSHFHI/AAAAAAAAGDI/tFkGgFeISHI/s400/BookCoverGreenBrown.jpg" : b.ImageUrl
+                              ImageUrl = b.ImageUrl ?? "http://2.bp.blogspot.com/_aDCnyPs488U/SyAtBDSHFHI/AAAAAAAAGDI/tFkGgFeISHI/s400/BookCoverGreenBrown.jpg"
                           }).ToList()
                           .Select(b => new BookDTO
                           {
@@ -62,6 +62,192 @@ namespace ReadingList.Models
 
             return result;
         }
+
+        public async Task<BookDTO> AddReadingListEntry(ReadBindingTarget readingListEntry)
+        {
+            logger.LogDebug("AddReadingListEntry: {JsonSerializer.Serialize(readingListEntry)}", JsonSerializer.Serialize(readingListEntry));
+
+            //is this a new book, or one already in the database?
+            var bookId = await (from b in dataContext.Books
+                                where b.Name == readingListEntry.Name
+                                select b.BookId).FirstOrDefaultAsync();
+
+            //is this a new author, or one already in the database?
+            var authorId = await (from a in dataContext.Authors
+                                  where a.Name == readingListEntry.Author
+                                  select a.AuthorId).FirstOrDefaultAsync();
+
+            Dictionary<string, long> tagList = [];
+
+            foreach (var item in (readingListEntry.Tags ?? string.Empty).Split(';'))
+            {
+                var data = item.Trim();
+                var tagId = await (from t in dataContext.Tags
+                                   where t.Data == data
+                                   select t.TagId).FirstOrDefaultAsync();
+
+                tagList.Add(data, tagId);
+            }
+
+            var sourceId = await (from s in dataContext.Sources
+                                  where s.Name == readingListEntry.Source
+                                  select s.SourceId).FirstOrDefaultAsync();
+
+            var bookReadId = await (from br in dataContext.BookReadDates
+                                    where br.BookId == bookId
+                                       && br.ReadDate == readingListEntry.ReadDate
+                                    select br.BookId).FirstOrDefaultAsync();
+
+            List<long> bookTagIds = [];
+
+            foreach (var tagId in tagList.Values)
+            {
+                var bookTag = await (from b in dataContext.Books
+                                     .Include("BookTags")
+                                     where b.BookId == bookId
+                                     select new
+                                     {
+                                         tag = (from t in b.BookTags
+                                                where t.TagId == tagId
+                                                select new
+                                                {
+                                                    Id = t.TagId
+                                                }).FirstOrDefault()
+                                     }).FirstOrDefaultAsync();
+
+                if (bookTag != null && bookTag.tag != null)
+                {
+                    bookTagIds.Add(bookTag.tag.Id);
+                }
+            }
+
+
+            if (readingListEntry.Source != null && sourceId == 0)
+            {
+                Source newSource = new() { Name = readingListEntry.Source };
+
+                dataContext.Sources.Add(newSource);
+                dataContext.SaveChanges();
+
+                sourceId = newSource.SourceId;
+            }
+
+
+            if (readingListEntry.Author != null && authorId == 0)
+            {
+                Author newAuthor = new() { Name = readingListEntry.Author };
+
+                dataContext.Authors.Add(newAuthor);
+                dataContext.SaveChanges();
+
+                authorId = newAuthor.AuthorId;
+            }
+
+
+            Dictionary<string, long> newTagListIds = [];
+
+            foreach (var tagEntry in tagList)
+            {
+                if (tagEntry.Value == 0)
+                {
+                    Tag newTag = new() { Data = tagEntry.Key };
+
+                    dataContext.Tags.Add(newTag);
+                    dataContext.SaveChanges();
+
+                    // save for update, to avoid problem with continuing enumeration
+                    // of this list after it is updated.
+                    newTagListIds.Add(tagEntry.Key, newTag.TagId);
+                }
+            }
+
+            //now it's safe to update the list with new values, if any.
+            foreach (var item in newTagListIds)
+            {
+                tagList[item.Key] = item.Value;
+            }
+
+
+            Author author = dataContext.Authors.Find(authorId) ?? new Author { Name = string.Empty };
+            Source source = dataContext.Sources.Find(sourceId) ?? new Source { Name = string.Empty };
+
+
+            Book book = new() { Name = string.Empty };
+
+
+            //adding new book, or updating exiting?
+            if (bookId == 0)
+            {
+                book = new Book()
+                {
+                    Name = readingListEntry.Name,
+                    ISBN = readingListEntry.ISBN,
+                    Author = author,
+                    Sequence = readingListEntry.Sequence,
+                    Recommend = readingListEntry.Recommend,
+                    Source = source,
+                    ImageUrl = readingListEntry.ImageUrl ?? Book.DefaultCoverImageUrl
+                };
+
+                book.BookReadDates = [];
+                book.BookReadDates.Add(new BookReadDate() { Book = book, ReadDate = readingListEntry.ReadDate });
+
+                foreach (var tagEntry in tagList)
+                {
+                    Tag? tag = dataContext.Tags.Find(tagEntry.Value);
+                    if (tag != null)
+                    {
+                        book.BookTags = [new BookTag { Book = book, Tag = tag }];
+                    }
+                }
+
+                dataContext.Books.Add(book);
+                dataContext.SaveChanges();
+
+                bookId = book.BookId;
+            }
+            else
+            {
+                book = await (from b in dataContext.Books
+                            .Include("Tags")
+                              where b.BookId == bookId
+                              select b).FirstAsync();
+                book.ISBN = readingListEntry.ISBN;
+                book.Author = author;
+                book.Sequence = readingListEntry.Sequence;
+                book.Recommend = readingListEntry.Recommend;
+                book.Source = source;
+                book.ImageUrl = readingListEntry.ImageUrl ?? Book.DefaultCoverImageUrl;
+
+
+                if (bookReadId == 0)
+                {
+                    book.BookReadDates ??= [];
+                    book.BookReadDates.Add(new BookReadDate() { Book = book, ReadDate = readingListEntry.ReadDate });
+                }
+
+                book.BookTags ??= [];
+
+                foreach (var tagEntry in tagList)
+                {
+                    if (!book.BookTags.Any(d => d.Tag.Data == tagEntry.Key))
+                    {
+                        book.BookTags.Add(new BookTag() { Book = book, Tag = new() { Data = tagEntry.Key } });
+                    }
+                }
+
+                dataContext.SaveChanges();
+            }
+
+
+            logger.LogDebug("added/updated book: {book.Name}", book.Name);
+
+            return book.ToBookDTO();
+        }
+
+
+
+
 
 
         public IEnumerable<BookDTO> GetBooks()

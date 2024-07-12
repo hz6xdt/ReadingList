@@ -23,8 +23,8 @@ namespace ReadingList.Models
         public long? SourceId { get; set; }
         public Source? Source { get; set; }
 
-        public IEnumerable<BookReadDate>? BookReadDates { get; set; }
-        public IEnumerable<BookTag>? BookTags { get; set; }
+        public ICollection<BookReadDate>? BookReadDates { get; set; }
+        public ICollection<BookTag>? BookTags { get; set; }
 
         public BookDTO ToBookDTO()
         {

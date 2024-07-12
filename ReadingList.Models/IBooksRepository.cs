@@ -5,6 +5,7 @@ namespace ReadingList.Models
     public interface IBooksRepository
     {
         IEnumerable<BookDTO> GetReadingList();
+        Task<BookDTO> AddReadingListEntry(ReadBindingTarget readingListEntry);
 
         IEnumerable<BookDTO> GetBooks();
         Task<BookDTO?> GetBook(long id);
