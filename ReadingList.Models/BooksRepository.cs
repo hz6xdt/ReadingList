@@ -6,18 +6,8 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ReadingList.Models
 {
-    public class BooksRepository : IBooksRepository
+    public class BooksRepository(DataContext dataContext, ILogger<BooksRepository> logger) : IBooksRepository
     {
-        private DataContext dataContext;
-        private ILogger<BooksRepository> logger;
-
-        public BooksRepository(DataContext dataContext, ILogger<BooksRepository> logger)
-        {
-            this.dataContext = dataContext;
-            this.logger = logger;
-        }
-
-
         public IEnumerable<BookDTO> GetReadingList()
         {
             logger.LogDebug("GetReadingList");
@@ -178,7 +168,7 @@ namespace ReadingList.Models
             //adding new book, or updating exiting?
             if (bookId == 0)
             {
-                book = new Book()
+                book = new()
                 {
                     Name = readingListEntry.Name,
                     ISBN = readingListEntry.ISBN,
@@ -186,18 +176,17 @@ namespace ReadingList.Models
                     Sequence = readingListEntry.Sequence,
                     Recommend = readingListEntry.Recommend,
                     Source = source,
-                    ImageUrl = readingListEntry.ImageUrl ?? Book.DefaultCoverImageUrl
+                    ImageUrl = readingListEntry.ImageUrl ?? Book.DefaultCoverImageUrl,
+                    BookReadDates = []
                 };
-
-                book.BookReadDates = [];
-                book.BookReadDates.Add(new BookReadDate() { Book = book, ReadDate = readingListEntry.ReadDate });
+                book.BookReadDates.Add(new() { Book = book, ReadDate = readingListEntry.ReadDate });
 
                 foreach (var tagEntry in tagList)
                 {
                     Tag? tag = dataContext.Tags.Find(tagEntry.Value);
                     if (tag != null)
                     {
-                        book.BookTags = [new BookTag { Book = book, Tag = tag }];
+                        book.BookTags = [new() { Book = book, Tag = tag }];
                     }
                 }
 
@@ -223,7 +212,7 @@ namespace ReadingList.Models
                 if (bookReadId == 0)
                 {
                     book.BookReadDates ??= [];
-                    book.BookReadDates.Add(new BookReadDate() { Book = book, ReadDate = readingListEntry.ReadDate });
+                    book.BookReadDates.Add(new() { Book = book, ReadDate = readingListEntry.ReadDate });
                 }
 
                 book.BookTags ??= [];
@@ -232,7 +221,7 @@ namespace ReadingList.Models
                 {
                     if (!book.BookTags.Any(d => d.Tag.Data == tagEntry.Key))
                     {
-                        book.BookTags.Add(new BookTag() { Book = book, Tag = new() { Data = tagEntry.Key } });
+                        book.BookTags.Add(new() { Book = book, Tag = new() { Data = tagEntry.Key } });
                     }
                 }
 
@@ -272,7 +261,7 @@ namespace ReadingList.Models
                                 Tags = from bt in b.BookTags
                                        select bt.Tag.Data,
                                 Source = b.Source == null ? string.Empty : b.Source.Name,
-                                ImageUrl = b.ImageUrl == null ? "http://2.bp.blogspot.com/_aDCnyPs488U/SyAtBDSHFHI/AAAAAAAAGDI/tFkGgFeISHI/s400/BookCoverGreenBrown.jpg" : b.ImageUrl
+                                ImageUrl = b.ImageUrl ?? "http://2.bp.blogspot.com/_aDCnyPs488U/SyAtBDSHFHI/AAAAAAAAGDI/tFkGgFeISHI/s400/BookCoverGreenBrown.jpg"
                             }).ToList()
                             .Select(b => new BookDTO
                             {
@@ -294,7 +283,7 @@ namespace ReadingList.Models
 
         public async Task<BookDTO?> GetBook(long id)
         {
-            logger.LogDebug($"GetBook: {id}");
+            logger.LogDebug("GetBook: {id}", id);
 
             var book = await (from b in dataContext.Books
                                 .Include(b => b.Author)
@@ -313,16 +302,16 @@ namespace ReadingList.Models
                                   Tags = from bd in b.BookTags
                                          select bd.Tag.Data,
                                   Source = b.Source == null ? string.Empty : b.Source.Name,
-                                  ImageUrl = b.ImageUrl == null ? "http://2.bp.blogspot.com/_aDCnyPs488U/SyAtBDSHFHI/AAAAAAAAGDI/tFkGgFeISHI/s400/BookCoverGreenBrown.jpg" : b.ImageUrl
+                                  ImageUrl = b.ImageUrl ?? "http://2.bp.blogspot.com/_aDCnyPs488U/SyAtBDSHFHI/AAAAAAAAGDI/tFkGgFeISHI/s400/BookCoverGreenBrown.jpg"
                               }).FirstOrDefaultAsync();
 
             if (book == null)
             {
-                logger.LogDebug($"book with id: {id} not found");
+                logger.LogDebug("book with id: {id} not found", id);
                 return null;
             }
 
-            logger.LogDebug($"returning book: {book.Name}");
+            logger.LogDebug("returning book: {book.Name}", book.Name);
 
             var result = new BookDTO
             {
@@ -344,7 +333,7 @@ namespace ReadingList.Models
 
         public async Task<BookDTO> AddBook(BookBindingTarget newBook)
         {
-            logger.LogDebug($"AddBook: {JsonSerializer.Serialize(newBook)}");
+            logger.LogDebug("AddBook: {JsonSerializer.Serialize(newBook)}", JsonSerializer.Serialize(newBook));
 
             //is this a new author, or one already in the database?
             var authorId = await (from a in dataContext.Authors
@@ -353,7 +342,7 @@ namespace ReadingList.Models
 
             if (!string.IsNullOrWhiteSpace(newBook.Author) && authorId == 0)
             {
-                Author newAuthor = new Author() { Name = newBook.Author };
+                Author newAuthor = new() { Name = newBook.Author };
 
                 await dataContext.Authors.AddAsync(newAuthor);
                 await dataContext.SaveChangesAsync();
@@ -369,7 +358,7 @@ namespace ReadingList.Models
 
             if (!string.IsNullOrWhiteSpace(newBook.Source) && sourceId == 0)
             {
-                Source newSource = new Source() { Name = newBook.Source };
+                Source newSource = new() { Name = newBook.Source };
 
                 await dataContext.Sources.AddAsync(newSource);
                 await dataContext.SaveChangesAsync();
@@ -378,7 +367,7 @@ namespace ReadingList.Models
             }
 
 
-            Dictionary<string, long?> tagList = new Dictionary<string, long?>();
+            Dictionary<string, long?> tagList = [];
 
             //new or existing tags?
             if (!string.IsNullOrWhiteSpace(newBook.Tags))
@@ -396,7 +385,7 @@ namespace ReadingList.Models
                 {
                     if (tagEntry.Value == 0)
                     {
-                        Tag newTag = new Tag() { Data = tagEntry.Key };
+                        Tag newTag = new() { Data = tagEntry.Key };
 
                         await dataContext.Tags.AddAsync(newTag);
                         await dataContext.SaveChangesAsync();
@@ -411,7 +400,7 @@ namespace ReadingList.Models
             Source? source = await dataContext.Sources.FindAsync(sourceId);
 
 
-            Book book = new Book()
+            Book book = new()
             {
                 ISBN = newBook.ISBN,
                 Name = newBook.Name,
@@ -430,7 +419,7 @@ namespace ReadingList.Models
                 Tag? tag = await dataContext.Tags.FindAsync(tagEntry.Value);
                 if (tag != null)
                 {
-                    bookTags.Add(new BookTag { Tag = tag, Book = book });
+                    bookTags.Add(new() { Tag = tag, Book = book });
                 }
             }
             book.BookTags = bookTags;
@@ -444,7 +433,7 @@ namespace ReadingList.Models
                 {
                     if (DateOnly.TryParse(item.Trim(), out DateOnly readDate))
                     {
-                        bookReadDates.Add(new BookReadDate { ReadDate = readDate, Book = book });
+                        bookReadDates.Add(new() { ReadDate = readDate, Book = book });
                     }
                 }
                 book.BookReadDates = bookReadDates;
@@ -455,7 +444,7 @@ namespace ReadingList.Models
             await dataContext.SaveChangesAsync();
 
 
-            logger.LogDebug($"added book: {book.Name}");
+            logger.LogDebug("added book: {book.Name}", book.Name);
 
             return book.ToBookDTO();
         }
@@ -463,7 +452,7 @@ namespace ReadingList.Models
 
         public async Task<BookDTO?> UpdateBook(BookUpdateBindingTarget changedBook)
         {
-            logger.LogDebug($"UpdateBook: {JsonSerializer.Serialize(changedBook)}");
+            logger.LogDebug("UpdateBook: {JsonSerializer.Serialize(changedBook)}", JsonSerializer.Serialize(changedBook));
 
             Book? book = await dataContext.Books
                         .Include(b => b.Author)
@@ -474,7 +463,7 @@ namespace ReadingList.Models
 
             if (book == null)
             {
-                logger.LogDebug($"No book with given ID: {changedBook.Id} is available to update.");
+                logger.LogDebug("No book with given ID: {changedBook.Id} is available to update.", changedBook.Id);
                 return null;
             }
 
@@ -486,7 +475,7 @@ namespace ReadingList.Models
 
             if (!string.IsNullOrWhiteSpace(changedBook.Author) && authorId == 0)
             {
-                Author newAuthor = new Author() { Name = changedBook.Author };
+                Author newAuthor = new() { Name = changedBook.Author };
 
                 await dataContext.Authors.AddAsync(newAuthor);
                 await dataContext.SaveChangesAsync();
@@ -502,7 +491,7 @@ namespace ReadingList.Models
 
             if (!string.IsNullOrWhiteSpace(changedBook.Source) && sourceId == 0)
             {
-                Source newSource = new Source() { Name = changedBook.Source };
+                Source newSource = new() { Name = changedBook.Source };
 
                 await dataContext.Sources.AddAsync(newSource);
                 await dataContext.SaveChangesAsync();
@@ -511,7 +500,7 @@ namespace ReadingList.Models
             }
 
 
-            Dictionary<string, long?> tagList = new Dictionary<string, long?>();
+            Dictionary<string, long?> tagList = [];
 
             //new or existing tags?
             if (!string.IsNullOrWhiteSpace(changedBook.Tags))
@@ -529,7 +518,7 @@ namespace ReadingList.Models
                 {
                     if (tagEntry.Value == 0)
                     {
-                        Tag newTag = new Tag() { Data = tagEntry.Key };
+                        Tag newTag = new() { Data = tagEntry.Key };
 
                         await dataContext.Tags.AddAsync(newTag);
                         await dataContext.SaveChangesAsync();
@@ -560,7 +549,7 @@ namespace ReadingList.Models
                 Tag? tag = await dataContext.Tags.FindAsync(tagEntry.Value);
                 if (tag != null)
                 {
-                    bookTags.Add(new BookTag { Tag = tag , Book = book});
+                    bookTags.Add(new() { Tag = tag , Book = book});
                 }
             }
             book.BookTags = bookTags;
@@ -574,7 +563,7 @@ namespace ReadingList.Models
                 {
                     if (DateOnly.TryParse(item.Trim(), out DateOnly readDate))
                     {
-                        bookReadDates.Add(new BookReadDate { ReadDate = readDate, Book = book });
+                        bookReadDates.Add(new() { ReadDate = readDate, Book = book });
                     }
                 }
                 book.BookReadDates = bookReadDates;
@@ -585,14 +574,14 @@ namespace ReadingList.Models
             await dataContext.SaveChangesAsync();
 
 
-            logger.LogDebug($"updated book: {book.Name}");
+            logger.LogDebug("updated book: {book.Name}", book.Name);
 
             return book.ToBookDTO();
         }
 
         public async Task<Book?> DeleteBook(long id)
         {
-            logger.LogDebug($"DeleteBook: {id}");
+            logger.LogDebug("DeleteBook: {id}", id);
 
             Book? book = await dataContext.Books.FindAsync(id);
             if (book != null)
@@ -604,11 +593,11 @@ namespace ReadingList.Models
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    logger.LogDebug($"DbUpdateConcurrencyException.");
+                    logger.LogDebug("DbUpdateConcurrencyException.");
                     return null;
                 }
 
-                logger.LogDebug($"deleted book: {book.Name}");
+                logger.LogDebug("deleted book: {book.Name}", book.Name);
             }
 
             return book;
@@ -643,7 +632,7 @@ namespace ReadingList.Models
 
         public async Task<AuthorDTO?> GetAuthor(long id)
         {
-            logger.LogDebug($"GetAuthor: {id}");
+            logger.LogDebug("GetAuthor: {id}", id);
 
             var author = await (from a in dataContext.Authors
                                 .Include(a => a.Books)
@@ -658,7 +647,7 @@ namespace ReadingList.Models
 
             if (author == null)
             {
-                logger.LogDebug($"No author with given ID: {id} was found.");
+                logger.LogDebug("No author with given ID: {id} was found.", id);
                 return null;
             }
 
@@ -669,7 +658,7 @@ namespace ReadingList.Models
                 Books = author.Books.DefaultIfEmpty(string.Empty).Aggregate((x, y) => (x + "; " + y))
             };
 
-            logger.LogDebug($"returning author: {author.Name}");
+            logger.LogDebug("returning author: {author.Name}", author.Name);
 
             return result;
         }
@@ -677,13 +666,13 @@ namespace ReadingList.Models
 
         public async Task<AuthorDTO> AddAuthor(AuthorBindingTarget newAuthor)
         {
-            logger.LogDebug($"AddAuthor: {JsonSerializer.Serialize(newAuthor)}");
+            logger.LogDebug("AddAuthor: {JsonSerializer.Serialize(newAuthor)}", JsonSerializer.Serialize(newAuthor));
 
             Author author = newAuthor.ToAuthor();
             await dataContext.Authors.AddAsync(author);
             await dataContext.SaveChangesAsync();
 
-            logger.LogDebug($"added author: {author.Name}");
+            logger.LogDebug("added author: {author.Name}", author.Name);
 
             return author.ToAuthorDTO();
         }
@@ -691,13 +680,13 @@ namespace ReadingList.Models
 
         public async Task<AuthorDTO?> UpdateAuthor(AuthorUpdateBindingTarget changedAuthor)
         {
-            logger.LogDebug($"UpdateAuthor: {JsonSerializer.Serialize(changedAuthor)}");
+            logger.LogDebug("UpdateAuthor: {JsonSerializer.Serialize(changedAuthor)}", JsonSerializer.Serialize(changedAuthor));
 
             Author? author = await dataContext.Authors.FindAsync(changedAuthor.Id);
 
             if (author == null)
             {
-                logger.LogDebug($"No author with given ID: {changedAuthor.Id} was found to update.");
+                logger.LogDebug("No author with given ID: {changedAuthor.Id} was found to update.", changedAuthor.Id);
                 return null;
             }
 
@@ -705,7 +694,7 @@ namespace ReadingList.Models
             dataContext.Authors.Update(author);
             await dataContext.SaveChangesAsync();
 
-            logger.LogDebug($"updated author: {author.Name}");
+            logger.LogDebug("updated author: {author.Name}", author.Name);
 
             return author.ToAuthorDTO();
         }
@@ -713,7 +702,7 @@ namespace ReadingList.Models
 
         public async Task<Author?> DeleteAuthor(long id)
         {
-            logger.LogDebug($"DeleteAuthor: {id}");
+            logger.LogDebug("DeleteAuthor: {id}", id);
 
             Author? author = await dataContext.Authors.FindAsync(id);
             if (author != null)
@@ -725,11 +714,11 @@ namespace ReadingList.Models
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    logger.LogDebug($"DbUpdateConcurrencyException.");
+                    logger.LogDebug("DbUpdateConcurrencyException.");
                     return null;
                 }
 
-                logger.LogDebug($"deleted author: {author.Name}");
+                logger.LogDebug("deleted author: {author.Name}", author.Name);
             }
 
             return author;
@@ -763,7 +752,7 @@ namespace ReadingList.Models
 
         public async Task<TagDTO?> GetTag(long id)
         {
-            logger.LogDebug($"GetTag: {id}");
+            logger.LogDebug("GetTag: {id}", id);
 
             var tag = await (from t in dataContext.Tags
                              .Include(bt => bt.BookTags!)
@@ -778,7 +767,7 @@ namespace ReadingList.Models
 
             if (tag == null)
             {
-                logger.LogDebug($"No tag with given ID: {id} was found.");
+                logger.LogDebug("No tag with given ID: {id} was found.", id);
                 return null;
             }
 
@@ -789,7 +778,7 @@ namespace ReadingList.Models
                 Books = tag.Books
             };
 
-            logger.LogDebug($"returning tag: {tag.Data}");
+            logger.LogDebug("returning tag: {tag.Data}", tag.Data);
 
             return result;
         }
@@ -797,13 +786,13 @@ namespace ReadingList.Models
 
         public async Task<TagDTO> AddTag(TagBindingTarget newTag)
         {
-            logger.LogDebug($"AddTag: {JsonSerializer.Serialize(newTag)}");
+            logger.LogDebug("AddTag: {JsonSerializer.Serialize(newTag)}", JsonSerializer.Serialize(newTag));
 
             Tag tag = newTag.ToTag();
             await dataContext.Tags.AddAsync(tag);
             await dataContext.SaveChangesAsync();
 
-            logger.LogDebug($"added tag: {tag.Data}");
+            logger.LogDebug("added tag: {tag.Data}", tag.Data);
 
             return tag.ToTagDTO();
         }
@@ -811,13 +800,13 @@ namespace ReadingList.Models
 
         public async Task<TagDTO?> UpdateTag(TagUpdateBindingTarget changedTag)
         {
-            logger.LogDebug($"UpdateDatum: {JsonSerializer.Serialize(changedTag)}");
+            logger.LogDebug("UpdateTag: {JsonSerializer.Serialize(changedTag)}", JsonSerializer.Serialize(changedTag));
 
             Tag? tag = await dataContext.Tags.FindAsync(changedTag.Id);
 
             if (tag == null)
             {
-                logger.LogDebug($"No tag with given ID: {changedTag.Id} was found to update.");
+                logger.LogDebug("No tag with given ID: {changedTag.Id} was found to update.", changedTag.Id);
                 return null;
             }
 
@@ -825,7 +814,7 @@ namespace ReadingList.Models
             dataContext.Tags.Update(tag);
             await dataContext.SaveChangesAsync();
 
-            logger.LogDebug($"updated tag: {tag.Data}");
+            logger.LogDebug("updated tag: {tag.Data}", tag.Data);
 
             return tag.ToTagDTO();
         }
@@ -833,7 +822,7 @@ namespace ReadingList.Models
 
         public async Task<Tag?> DeleteTag(long id)
         {
-            logger.LogDebug($"DeleteTag: {id}");
+            logger.LogDebug("DeleteTag: {id}", id);
 
             Tag? tag = await dataContext.Tags.FindAsync(id);
             if (tag != null)
@@ -845,11 +834,11 @@ namespace ReadingList.Models
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    logger.LogDebug($"DbUpdateConcurrencyException.");
+                    logger.LogDebug("DbUpdateConcurrencyException.");
                     return null;
                 }
 
-                logger.LogDebug($"deleted tag: {tag.Data}");
+                logger.LogDebug("deleted tag: {tag.Data}", tag.Data);
             }
 
             return tag;
@@ -883,7 +872,7 @@ namespace ReadingList.Models
 
         public async Task<SourceDTO?> GetSource(long id)
         {
-            logger.LogDebug($"GetSource: {id}");
+            logger.LogDebug("GetSource: {id}", id);
 
             var source = await (from s in dataContext.Sources
                                 .Include(b => b.Books)
@@ -898,7 +887,7 @@ namespace ReadingList.Models
 
             if (source == null)
             {
-                logger.LogDebug($"no source found with id: {id}");
+                logger.LogDebug("no source found with id: {id}", id);
                 return null;
             }
 
@@ -909,7 +898,7 @@ namespace ReadingList.Models
                 Books = source.Books.DefaultIfEmpty(string.Empty).Aggregate((x, y) => (x + "; " + y))
             };
 
-            logger.LogDebug($"returning source: {source.Name}");
+            logger.LogDebug("returning source: {source.Name}", source.Name);
 
             return result;
         }
@@ -917,13 +906,13 @@ namespace ReadingList.Models
 
         public async Task<SourceDTO> AddSource(SourceBindingTarget newSource)
         {
-            logger.LogDebug($"AddSource: {JsonSerializer.Serialize(newSource)}");
+            logger.LogDebug("AddSource: {JsonSerializer.Serialize(newSource)}", JsonSerializer.Serialize(newSource));
 
             Source source = newSource.ToSource();
             await dataContext.Sources.AddAsync(source);
             await dataContext.SaveChangesAsync();
 
-            logger.LogDebug($"added source: {source.Name}");
+            logger.LogDebug("added source: {source.Name}", source.Name);
 
             return source.ToSourceDTO();
         }
@@ -931,13 +920,13 @@ namespace ReadingList.Models
 
         public async Task<SourceDTO?> UpdateSource(SourceUpdateBindingTarget changedSource)
         {
-            logger.LogDebug($"UpdateSource: {JsonSerializer.Serialize(changedSource)}");
+            logger.LogDebug("UpdateSource: {JsonSerializer.Serialize(changedSource)}", JsonSerializer.Serialize(changedSource));
 
             Source? source = await dataContext.Sources.FindAsync(changedSource.Id);
 
             if (source == null)
             {
-                logger.LogDebug($"No source with given ID: {changedSource.Id} was found to update.");
+                logger.LogDebug("No source with given ID: {changedSource.Id} was found to update.", changedSource.Id);
                 return null;
             }
 
@@ -945,7 +934,7 @@ namespace ReadingList.Models
             dataContext.Sources.Update(source);
             await dataContext.SaveChangesAsync();
 
-            logger.LogDebug($"updated source: {source.Name}");
+            logger.LogDebug("updated source: {source.Name}", source.Name);
 
             return source.ToSourceDTO();
         }
@@ -953,7 +942,7 @@ namespace ReadingList.Models
 
         public async Task<Source?> DeleteSource(long id)
         {
-            logger.LogDebug($"DeleteSource: {id}");
+            logger.LogDebug("DeleteSource: {id}", id);
 
             Source? source = await dataContext.Sources.FindAsync(id);
             if (source != null)
@@ -974,7 +963,7 @@ namespace ReadingList.Models
                     return null;
                 }
 
-                logger.LogDebug($"deleted source: {source.Name}");
+                logger.LogDebug("deleted source: {source.Name}", source.Name);
             }
 
             return source;
