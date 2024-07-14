@@ -14,8 +14,7 @@ namespace ReadingList.Validation
         {
             if (DbContextType != null && DataType != null)
             {
-                DbContext? dataContext = validationContext.GetRequiredService(DbContextType) as DbContext;
-                if (dataContext != null && dataContext.Find(DataType, value) == null)
+                if (validationContext.GetRequiredService(DbContextType) is DbContext dataContext && dataContext.Find(DataType, value) == null)
                 {
                     return new ValidationResult(ErrorMessage ?? $"Enter an existing {DataType.ToString().Split('.').LastOrDefault()} ID value.");
                 }

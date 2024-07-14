@@ -28,7 +28,7 @@ namespace ReadingList.Models
         [StringLength(256)]
         public string? Source { get; set; }
 
-        [DataType(DataType.ImageUrl), StringLength(512)]
+        [DataType(DataType.ImageUrl), StringLength(512), Url(ErrorMessage = "Please enter the fully-qualified URL of the book's cover image.")]
         public string? ImageUrl { get; set; }
 
         public bool Recommend { get; set; } = false;

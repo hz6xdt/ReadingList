@@ -40,7 +40,7 @@
 
     public SourceDTO[] Sources { get; set; } = Array.Empty<SourceDTO>();
 
-    private Popup popup;
+    private Popup? popup;
 
     protected async override Task OnInitializedAsync()
     {
@@ -68,7 +68,7 @@
             }
             else
             {
-                popup.Show("There was an error deleting this source.  Verify that any book with this source has been deleted first, and then try again.",
+                popup?.Show("There was an error deleting this source.  Verify that any book with this source has been deleted first, and then try again.",
                     "Error on Delete");
             }
         }

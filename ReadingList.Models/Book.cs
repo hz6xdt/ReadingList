@@ -5,7 +5,7 @@ namespace ReadingList.Models
 {
     public class Book
     {
-        public const string DefaultCoverImageUrl = "http://2.bp.blogspot.com/_aDCnyPs488U/SyAtBDSHFHI/AAAAAAAAGDI/tFkGgFeISHI/s400/BookCoverGreenBrown.jpg";
+        public const string DefaultCoverImageUrl = "https://2.bp.blogspot.com/_aDCnyPs488U/SyAtBDSHFHI/AAAAAAAAGDI/tFkGgFeISHI/s400/BookCoverGreenBrown.jpg";
 
         public long BookId { get; set; }
 

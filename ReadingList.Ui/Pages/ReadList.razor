@@ -41,7 +41,7 @@
             <div class="form-group">
                 <label>Sequence</label>
                 <ValidationMessage For="@(() => BookData.Sequence)" />
-                <InputNumber class="form-control" @bind-Value="BookData.Sequence" />
+                <InputNumber class="form-control" @bind-Value="BookData.Sequence" min="1" max="200" />
             </div>
             <div class="form-group">
                 <label>Image URL</label>
@@ -51,7 +51,7 @@
             <div class="form-group">
                 <label>Recommend</label>
                 <ValidationMessage For="@(() => BookData.Recommend)" />
-                <InputCheckbox class="form-control" @bind-Value="BookData.Recommend" />
+                <InputCheckbox class="form-control read-input" @bind-Value="BookData.Recommend" />
             </div>
             <div class="form-group">
                 <label>Source</label>
@@ -59,15 +59,15 @@
                 <InputText class="form-control" @bind-Value="BookData.Source" />
             </div>
             <div class="text-center">
+                <button class="btn btn-secondary mt-2 mb-5" @onclick="ResetClick">Reset</button>
                 <ValidButton type="submit" BtnTheme="primary">Save</ValidButton>
-                <NavLink class="btn btn-secondary mt-2 mb-5" href="books">Back</NavLink>
             </div>
         </EditForm>
 
     </div>
 
 
-    <div class="col-md-offset-1 col-md-6">
+    <div class="col-md-offset-1 col-md-7">
 
         <h5 class="bg-primary text-white p-2">Recent List:</h5>
 
@@ -86,24 +86,33 @@
                             <div class="col-md-4">
                                 <img class="coverImage" src="@b.ImageUrl" alt="cover art" />
                             </div>
-                        </div>
-                        <div class="col-md-8">
-                            <div style="margin-top: 1em;">Read Dates: &nbsp;&nbsp;@b.ReadDates</div>
-                            <div>Author: &nbsp;&nbsp;@b.Author</div>
-                            <div>Tags: &nbsp;&nbsp;@b.Tags</div>
-                            @if (@b.ISBN != null)
-                            {
-                                <div>ISBN/ASIN: &nbsp;&nbsp;@b.ISBN</div>
-                            }
-                            @if (@b.Sequence != null)
-                            {
-                                <div>Sequence: &nbsp;&nbsp;@b.Sequence</div>
-                            }
-                            @if (@b.Source != null)
-                            {
-                                <div>Source: &nbsp;&nbsp;@b.Source</div>
-                            }
-                            <div>Recommend: &nbsp;&nbsp;@b.Recommend</div>
+                            <div class="col-md-8">
+                                <div style="margin-top: 1em;">Read Dates: &nbsp;&nbsp;@b.ReadDates</div>
+                                @if (@b.Author != null)
+                                {
+                                    <div>Author: &nbsp;&nbsp;@b.Author</div>
+                                }
+                                @if (@b.Tags != null)
+                                {
+                                    <div>Tags: &nbsp;&nbsp;@b.Tags</div>
+                                }
+                                @if (@b.ISBN != null)
+                                {
+                                    <div>ISBN/ASIN: &nbsp;&nbsp;@b.ISBN</div>
+                                }
+                                @if (@b.Sequence != null)
+                                {
+                                    <div>Sequence: &nbsp;&nbsp;@b.Sequence</div>
+                                }
+                                @if (@b.Source != null)
+                                {
+                                    <div>Source: &nbsp;&nbsp;@b.Source</div>
+                                }
+                                @if (b.Recommend)
+                                {
+                                    <div>Recommend: &nbsp;&nbsp;@b.Recommend</div>
+                                }
+                            </div>
                         </div>
                     </li>
                 }
@@ -130,6 +139,12 @@
 
     public ReadBindingTarget BookData { get; set; } = new ReadBindingTarget() { Name = string.Empty };
     public BookDTO[] RecentBooks { get; set; } = Array.Empty<BookDTO>();
+
+
+    private void ResetClick()
+    {
+        BookData = new ReadBindingTarget() { Name = string.Empty };
+    }
 
 
     protected async override Task OnInitializedAsync()
@@ -164,7 +179,7 @@
                         Source = BookData.Source
                     });
 
-            NavManager?.NavigateTo("/");
+            RecentBooks = await Http.GetFromJsonAsync<BookDTO[]>("/api/r1/readList") ?? Array.Empty<BookDTO>();
         }
     }
 }

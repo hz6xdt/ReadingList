@@ -26,14 +26,14 @@ namespace ReadingList.Models
                               b.BookId,
                               b.Name,
                               b.ISBN,
-                              Author = b.Author == null ? string.Empty : b.Author.Name,
+                              Author = b.Author == null ? null : b.Author.Name,
                               b.Sequence,
                               b.Recommend,
                               ReadDates = from brd in b.BookReadDates
                                           select brd.ReadDate.ToString("yyyy-MM-dd"),
                               Tags = from bt in b.BookTags
                                      select bt.Tag.Data,
-                              Source = b.Source == null ? string.Empty : b.Source.Name,
+                              Source = b.Source == null ? null : b.Source.Name,
                               ImageUrl = b.ImageUrl ?? "http://2.bp.blogspot.com/_aDCnyPs488U/SyAtBDSHFHI/AAAAAAAAGDI/tFkGgFeISHI/s400/BookCoverGreenBrown.jpg"
                           }).ToList()
                           .Select(b => new BookDTO
@@ -186,7 +186,8 @@ namespace ReadingList.Models
                     Tag? tag = dataContext.Tags.Find(tagEntry.Value);
                     if (tag != null)
                     {
-                        book.BookTags = [new() { Book = book, Tag = tag }];
+                        book.BookTags ??= [];
+                        book.BookTags.Add(new() { Book = book, Tag = tag });
                     }
                 }
 
@@ -198,7 +199,7 @@ namespace ReadingList.Models
             else
             {
                 book = await (from b in dataContext.Books
-                            .Include("Tags")
+                              .Include("Tags")
                               where b.BookId == bookId
                               select b).FirstAsync();
                 book.ISBN = readingListEntry.ISBN;
