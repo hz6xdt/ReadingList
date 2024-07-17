@@ -44,8 +44,8 @@ namespace ReadingList.Models
                               Author = b.Author,
                               Sequence = b.Sequence,
                               Recommend = b.Recommend,
-                              ReadDates = b.ReadDates.DefaultIfEmpty(string.Empty).Aggregate((x, y) => (x + "; " + y)),
-                              Tags = b.Tags.DefaultIfEmpty(string.Empty).Aggregate((x, y) => (x + "; " + y)),
+                              ReadDates = b.ReadDates.DefaultIfEmpty(null).Aggregate((x, y) => (x + "; " + y)),
+                              Tags = b.Tags.DefaultIfEmpty(null).Aggregate((x, y) => (x + "; " + y)),
                               Source = b.Source,
                               ImageUrl = b.ImageUrl
                           });
@@ -69,14 +69,17 @@ namespace ReadingList.Models
 
             Dictionary<string, long> tagList = [];
 
-            foreach (var item in (readingListEntry.Tags ?? string.Empty).Split(';'))
+            if (!string.IsNullOrWhiteSpace(readingListEntry.Tags))
             {
-                var data = item.Trim();
-                var tagId = await (from t in dataContext.Tags
-                                   where t.Data == data
-                                   select t.TagId).FirstOrDefaultAsync();
+                foreach (var item in (readingListEntry.Tags).Split(';'))
+                {
+                    var data = item.Trim();
+                    var tagId = await (from t in dataContext.Tags
+                                       where t.Data == data
+                                       select t.TagId).FirstOrDefaultAsync();
 
-                tagList.Add(data, tagId);
+                    tagList.Add(data, tagId);
+                }
             }
 
             var sourceId = await (from s in dataContext.Sources
@@ -199,14 +202,16 @@ namespace ReadingList.Models
             else
             {
                 book = await (from b in dataContext.Books
-                              .Include("Tags")
+                              .Include("BookTags")
                               where b.BookId == bookId
                               select b).FirstAsync();
                 book.ISBN = readingListEntry.ISBN;
                 book.Author = author;
+                book.AuthorId = authorId == 0 ? null : authorId;
                 book.Sequence = readingListEntry.Sequence;
                 book.Recommend = readingListEntry.Recommend;
                 book.Source = source;
+                book.SourceId = sourceId == 0 ? null : sourceId;
                 book.ImageUrl = readingListEntry.ImageUrl ?? Book.DefaultCoverImageUrl;
 
 
@@ -220,9 +225,12 @@ namespace ReadingList.Models
 
                 foreach (var tagEntry in tagList)
                 {
-                    if (!book.BookTags.Any(d => d.Tag.Data == tagEntry.Key))
+                    if (!book.BookTags.Any(bt => bt.TagId == tagEntry.Value))
                     {
-                        book.BookTags.Add(new() { Book = book, Tag = new() { Data = tagEntry.Key } });
+                        Tag tag = await (from t in dataContext.Tags
+                                          where t.Data == tagEntry.Key
+                                          select t).FirstAsync();
+                        book.BookTags.Add(new() { Book = book, Tag = tag });
                     }
                 }
 
@@ -272,8 +280,8 @@ namespace ReadingList.Models
                                 Author = b.Author,
                                 Sequence = b.Sequence,
                                 Recommend = b.Recommend,
-                                ReadDates = b.ReadDates.DefaultIfEmpty(string.Empty).Aggregate((x, y) => (x + "; " + y)),
-                                Tags = b.Tags.DefaultIfEmpty(string.Empty).Aggregate((x, y) => (x + "; " + y)),
+                                ReadDates = b.ReadDates.DefaultIfEmpty(null).Aggregate((x, y) => (x + "; " + y)),
+                                Tags = b.Tags.DefaultIfEmpty(null).Aggregate((x, y) => (x + "; " + y)),
                                 Source = b.Source,
                                 ImageUrl = b.ImageUrl
                             });
@@ -322,8 +330,8 @@ namespace ReadingList.Models
                 Author = book.Author,
                 Sequence = book.Sequence,
                 Recommend = book.Recommend,
-                ReadDates = book.ReadDates.DefaultIfEmpty(string.Empty).Aggregate((x, y) => (x + "; " + y)),
-                Tags = book.Tags.DefaultIfEmpty(string.Empty).Aggregate((x, y) => (x + "; " + y)),
+                ReadDates = book.ReadDates.DefaultIfEmpty(null).Aggregate((x, y) => (x + "; " + y)),
+                Tags = book.Tags.DefaultIfEmpty(null).Aggregate((x, y) => (x + "; " + y)),
                 Source = book.Source,
                 ImageUrl = book.ImageUrl
             };
@@ -624,7 +632,7 @@ namespace ReadingList.Models
                 {
                     Id = a.AuthorId,
                     Name = a.Name,
-                    Books = a.Books.DefaultIfEmpty(string.Empty).Aggregate((x, y) => (x + "; " + y))
+                    Books = a.Books.DefaultIfEmpty(null).Aggregate((x, y) => (x + "; " + y))
                 });
 
             return result;
@@ -656,7 +664,7 @@ namespace ReadingList.Models
             {
                 Id = author.AuthorId,
                 Name = author.Name,
-                Books = author.Books.DefaultIfEmpty(string.Empty).Aggregate((x, y) => (x + "; " + y))
+                Books = author.Books.DefaultIfEmpty(null).Aggregate((x, y) => (x + "; " + y))
             };
 
             logger.LogDebug("returning author: {author.Name}", author.Name);
@@ -865,7 +873,7 @@ namespace ReadingList.Models
                             {
                                 Id = s.SourceId,
                                 Name = s.Name,
-                                Books = s.Books.DefaultIfEmpty(string.Empty).Aggregate((x, y) => (x + "; " + y))
+                                Books = s.Books.DefaultIfEmpty(null).Aggregate((x, y) => (x + "; " + y))
                             });
 
             return result;
@@ -896,7 +904,7 @@ namespace ReadingList.Models
             {
                 Id = source.SourceId,
                 Name = source.Name,
-                Books = source.Books.DefaultIfEmpty(string.Empty).Aggregate((x, y) => (x + "; " + y))
+                Books = source.Books.DefaultIfEmpty(null).Aggregate((x, y) => (x + "; " + y))
             };
 
             logger.LogDebug("returning source: {source.Name}", source.Name);

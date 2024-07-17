@@ -28,21 +28,22 @@ namespace ReadingList.Models
 
         public BookDTO ToBookDTO()
         {
-            return new BookDTO
+            BookDTO bookDTO = new()
             {
                 Id = BookId,
                 Name = Name,
                 ISBN = ISBN,
-                Author = Author == null ? string.Empty : Author.Name,
+                Author = Author?.Name,
                 Sequence = Sequence,
                 Recommend = Recommend,
                 ReadDates = (from brd in BookReadDates
-                             select brd.ReadDate.ToString("yyyy-MM-dd")).DefaultIfEmpty(string.Empty).Aggregate((x, y) => (x + "; " + y)),
+                             select brd.ReadDate.ToString("yyyy-MM-dd")).DefaultIfEmpty(null).Aggregate((x, y) => (x + "; " + y)),
                 Tags = (from bt in BookTags
-                        select bt.Tag.Data).DefaultIfEmpty(string.Empty).Aggregate((x, y) => (x + "; " + y)),
-                Source = Source == null ? string.Empty : Source.Name,
+                        select bt.Tag.Data).DefaultIfEmpty(null).Aggregate((x, y) => (x + "; " + y)),
+                Source = Source?.Name,
                 ImageUrl = ImageUrl
             };
+            return bookDTO;
         }
     }
 }

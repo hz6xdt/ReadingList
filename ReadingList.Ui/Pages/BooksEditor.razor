@@ -1,5 +1,7 @@
 ﻿@page "/books/edit/{id:long}"
+@page "/books/delete/{id:long}"
 @page "/books/create"
+@inject ILogger<BooksEditor> Logger
 
 <link href="/lib/css/blazorValidation.css" rel="stylesheet" />
 
@@ -10,74 +12,114 @@
 
     <DataAnnotationsValidator />
 
-    @if (Mode == "Edit")
+    @if (Mode == "Delete")
     {
         <div class="form-group">
             <label>ID</label>
             <InputNumber class="form-control" @bind-Value="BookData.Id" readonly />
         </div>
+        <div class="form-group">
+            <label>Title</label>
+            <InputText class="form-control" @bind-Value="BookData.Name" readonly />
+        </div>
+        <div class="form-group">
+            <label>ISBN/ASIN</label>
+            <InputText class="form-control" @bind-Value="BookData.ISBN" DisplayName="ISBN/ASIN" readonly />
+        </div>
+        <div class="form-group">
+            <label>Author</label>
+            <InputText class="form-control" @bind-Value="BookData.Author" readonly />
+        </div>
+        <div class="form-group">
+            <label>Tags</label>
+            <InputText class="form-control" @bind-Value="BookData.Tags" readonly />
+        </div>
+        <div class="form-group">
+            <label>Sequence</label>
+            <InputNumber class="form-control" @bind-Value="BookData.Sequence" readonly />
+        </div>
+        <div class="form-group">
+            <label>Read Dates</label>
+            <InputText class="form-control" @bind-Value="BookData.ReadDates" DisplayName="Read Dates" readonly />
+        </div>
+        <div class="form-group">
+            <label>Image URL</label>
+            <InputText class="form-control" @bind-Value="BookData.ImageUrl" DisplayName="Cover Image URL" readonly />
+        </div>
+        <div class="form-group">
+            <label>Recommend</label>
+            <InputCheckbox class="form-control" @bind-Value="BookData.Recommend" disabled />
+        </div>
+        <div class="form-group">
+            <label>Source</label>
+            <InputText class="form-control" @bind-Value="BookData.Source" readonly />
+        </div>
+        <div class="text-center">
+            <NavLink class="btn btn-secondary mt-2 mb-5" href="books">Back</NavLink>
+            <ValidButton type="submit" BtnTheme="@Theme">Delete</ValidButton>
+        </div>
     }
-    <div class="form-group">
-        <label>Title</label>
-        <ValidationMessage For="@(() => BookData.Name)" />
-        <InputText class="form-control" @bind-Value="BookData.Name" />
-    </div>
-    <div class="form-group">
-        <label>ISBN/ASIN</label>
-        <ValidationMessage For="@(() => BookData.ISBN)" />
-        <InputText class="form-control" @bind-Value="BookData.ISBN" DisplayName="ISBN/ASIN" />
-    </div>
-    <div class="form-group">
-        <label>Author</label>
-        <ValidationMessage For="@(() => BookData.Author)" />
-        <InputText class="form-control" @bind-Value="BookData.Author" />
-    </div>
-    <div class="form-group">
-        <label>Tags</label>
-        <ValidationMessage For="@(() => BookData.Tags)" />
-        <InputText class="form-control" @bind-Value="BookData.Tags" />
-    </div>
-    <div class="form-group">
-        <label>Sequence</label>
-        <ValidationMessage For="@(() => BookData.Sequence)" />
-        <InputNumber class="form-control" @bind-Value="BookData.Sequence" />
-    </div>
-    <div class="form-group">
-        <label>Read Dates</label>
-        <ValidationMessage For="@(() => BookData.ReadDates)" />
-        <InputText class="form-control" @bind-Value="BookData.ReadDates" DisplayName="Read Dates" />
-    </div>
-    <div class="form-group">
-        <label>Image URL</label>
-        <ValidationMessage For="@(() => BookData.ImageUrl)" />
-        <InputText class="form-control" @bind-Value="BookData.ImageUrl" DisplayName="Cover Image URL" />
-    </div>
-    <div class="form-group">
-        <label>Recommend</label>
-        <ValidationMessage For="@(() => BookData.Recommend)" />
-        <InputCheckbox class="form-control" @bind-Value="BookData.Recommend" />
-    </div>
-    <div class="form-group">
-        <label>Source</label>
-        <ValidationMessage For="@(() => BookData.Source)" />
-        <InputText class="form-control" @bind-Value="BookData.Source" />
-    </div>
-    @*<div class="form-group">
+    else
+    {
+        @if (Mode == "Edit")
+        {
+            <div class="form-group">
+                <label>ID</label>
+                <InputNumber class="form-control" @bind-Value="BookData.Id" readonly />
+            </div>
+        }
+        <div class="form-group">
+            <label>Title</label>
+            <ValidationMessage For="@(() => BookData.Name)" />
+            <InputText class="form-control" @bind-Value="BookData.Name" />
+        </div>
+        <div class="form-group">
+            <label>ISBN/ASIN</label>
+            <ValidationMessage For="@(() => BookData.ISBN)" />
+            <InputText class="form-control" @bind-Value="BookData.ISBN" DisplayName="ISBN/ASIN" />
+        </div>
+        <div class="form-group">
             <label>Author</label>
             <ValidationMessage For="@(() => BookData.Author)" />
-            <select @bind="BookData.Author" class="form-control">
-                <option selected disabled value="0">Choose an Author</option>
-                @foreach (var author in Authors)
-                {
-                    <option value="@author">@author</option>
-                }
-            </select>
-        </div>*@
-    <div class="text-center">
-        <ValidButton type="submit" BtnTheme="@Theme">Save</ValidButton>
-        <NavLink class="btn btn-secondary mt-2 mb-5" href="books">Back</NavLink>
-    </div>
+            <InputText class="form-control" @bind-Value="BookData.Author" />
+        </div>
+        <div class="form-group">
+            <label>Tags</label>
+            <ValidationMessage For="@(() => BookData.Tags)" />
+            <InputText class="form-control" @bind-Value="BookData.Tags" />
+        </div>
+        <div class="form-group">
+            <label>Sequence</label>
+            <ValidationMessage For="@(() => BookData.Sequence)" />
+            <InputNumber class="form-control" @bind-Value="BookData.Sequence" />
+        </div>
+        <div class="form-group">
+            <label>Read Dates</label>
+            <ValidationMessage For="@(() => BookData.ReadDates)" />
+            <InputText class="form-control" @bind-Value="BookData.ReadDates" DisplayName="Read Dates" />
+        </div>
+        <div class="form-group">
+            <label>Image URL</label>
+            <ValidationMessage For="@(() => BookData.ImageUrl)" />
+            <InputText class="form-control" @bind-Value="BookData.ImageUrl" DisplayName="Cover Image URL" />
+        </div>
+        <div class="form-group">
+            <label>Recommend</label>
+            <ValidationMessage For="@(() => BookData.Recommend)" />
+            <InputCheckbox class="form-control" @bind-Value="BookData.Recommend" />
+        </div>
+        <div class="form-group">
+            <label>Source</label>
+            <ValidationMessage For="@(() => BookData.Source)" />
+            <InputText class="form-control" @bind-Value="BookData.Source" />
+        </div>
+        <div class="text-center">
+            <NavLink class="btn btn-secondary mt-2 mb-5" href="books">Back</NavLink>
+            <ValidButton type="submit" BtnTheme="@Theme">Save</ValidButton>
+        </div>
+    }
 </EditForm>
+
 
 @code {
 
@@ -92,26 +134,21 @@
 
     public BookDTO BookData { get; set; } = new BookDTO() { Name = string.Empty };
 
-    //public AuthorDTO[] Authors { get; set; } = new AuthorDTO[];
-    //public DataDTO[] Data { get; set; } = new DataDTO[];
-    //public SourceDTO[] Sources { get; set; } = new SourceDTO[];
 
     protected async override Task OnParametersSetAsync()
     {
         if (Http != null)
         {
-            if (Mode == "Edit")
+            if (Mode == "Edit" || Mode == "Delete")
             {
                 BookData = await Http.GetFromJsonAsync<BookDTO>($"/api/r1/books/{Id}") ?? new() { Name = string.Empty };
             }
-            //Authors = (await Http.GetFromJsonAsync<AuthorDTO[]>("/api/r1/authors"));
-            //Data = (await Http.GetFromJsonAsync<DataDTO[]>("/api/r1/data"));
-            //Sources = (await Http.GetFromJsonAsync<SourceDTO[]>("/api/r1/sources"));
         }
     }
 
-    public string Theme => Id == 0 ? "primary" : "warning";
-    public string Mode => Id == 0 ? "Create" : "Edit";
+    public string Mode => Id == 0 ? "Create" : (NavManager?.Uri.Contains("delete", StringComparison.OrdinalIgnoreCase)) ?? false ? "Delete" : "Edit";
+    public string Theme => Mode == "Create" ? "primary" : Mode == "Delete" ? "danger" : "warning";
+
 
     public async Task HandleValidSubmit()
     {
@@ -132,26 +169,37 @@
                             Tags = BookData.Tags,
                             Source = BookData.Source
                         });
+                NavManager?.NavigateTo("books");
             }
             else
             {
-                await Http.PutAsJsonAsync("/api/r1/books",
-                    new BookUpdateBindingTarget
-                        {
-                            Id = BookData.Id,
-                            Name = BookData.Name,
-                            Sequence = BookData.Sequence,
-                            Recommend = BookData.Recommend,
-                            ISBN = BookData.ISBN,
-                            ReadDates = BookData.ReadDates,
-                            ImageUrl = BookData.ImageUrl ?? Book.DefaultCoverImageUrl,
-                            Author = BookData.Author,
-                            Tags = BookData.Tags,
-                            Source = BookData.Source
-                        });
+                if (Mode == "Edit")
+                {
+                    await Http.PutAsJsonAsync("/api/r1/books",
+                        new BookUpdateBindingTarget
+                            {
+                                Id = BookData.Id,
+                                Name = BookData.Name,
+                                Sequence = BookData.Sequence,
+                                Recommend = BookData.Recommend,
+                                ISBN = BookData.ISBN,
+                                ReadDates = BookData.ReadDates,
+                                ImageUrl = BookData.ImageUrl ?? Book.DefaultCoverImageUrl,
+                                Author = BookData.Author,
+                                Tags = BookData.Tags,
+                                Source = BookData.Source
+                            });
+                    NavManager?.NavigateTo("books");
+                }
+                else
+                {
+                    HttpResponseMessage resp = await Http.DeleteAsync($"/api/r1/books/{BookData.Id}");
+                    if (resp.IsSuccessStatusCode)
+                    {
+                        NavManager?.NavigateTo("books");
+                    }
+                }
             }
-
-            NavManager?.NavigateTo("books");
         }
     }
 }

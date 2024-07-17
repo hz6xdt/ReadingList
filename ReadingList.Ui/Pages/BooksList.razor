@@ -23,7 +23,7 @@
                     <td class="text-center">
                         <NavLink class="btn btn-sm btn-info" href="@GetDetailsUrl(b.Id)">Details</NavLink>
                         <NavLink class="btn btn-sm btn-warning" href="@GetEditUrl(b.Id)">Edit</NavLink>
-                        <button class="btn btn-sm btn-danger" @onclick="@(() => HandleDelete(b))">Delete</button>
+                        <NavLink class="btn btn-sm btn-danger" href="@GetDeleteUrl(b.Id)">Delete</NavLink>
                     </td>
                 </tr>
             }
@@ -55,16 +55,5 @@
 
     string GetDetailsUrl(long id) => $"books/details/{id}";
     string GetEditUrl(long id) => $"books/edit/{id}";
-
-    public async Task HandleDelete(BookDTO b)
-    {
-        if (Http != null)
-        {
-            HttpResponseMessage resp = await Http.DeleteAsync($"/api/r1/books/{b.Id}");
-            if (resp.IsSuccessStatusCode)
-            {
-                await UpdateData();
-            }
-        }
-    }
+    string GetDeleteUrl(long id) => $"books/delete/{id}";
 }

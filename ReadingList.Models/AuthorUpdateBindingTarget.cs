@@ -12,6 +12,6 @@ namespace ReadingList.Models
         [Required(ErrorMessage = "Please enter the author's name in Last, First format."), StringLength(256)]
         public required string Name { get; set; }
 
-        public Author ToAuthor() => new Author { AuthorId = Id, Name = Name };
+        public Author ToAuthor() => new() { AuthorId = Id, Name = Name };
     }
 }
