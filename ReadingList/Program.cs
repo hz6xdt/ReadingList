@@ -41,6 +41,11 @@ builder.Services.AddDbContext<DataContext>(options =>
 });
 
 builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<DataContext>();
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.Password.RequiredLength = 20;
+    options.User.RequireUniqueEmail = true;
+});
 
 builder.Services.AddTransient<IBooksRepository, BooksRepository>();
 
@@ -79,6 +84,9 @@ app.UseSwaggerUI(options =>
 
 
 app.UseStaticFiles();
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapControllers();
 app.MapRazorPages();
 app.UseBlazorFrameworkFiles();
@@ -88,6 +96,7 @@ app.MapFallbackToFile("/{*path:nonfile}", "/index.html");
 
 var context = app.Services.CreateScope().ServiceProvider.GetRequiredService<DataContext>();
 SeedData.SeedDatabase(context);
+IdentitySeedData.CreateAdminAccount(app.Services, app.Configuration);
 
 
 app.Run();

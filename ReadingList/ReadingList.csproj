@@ -23,6 +23,7 @@
 
     <PropertyGroup>
         <IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
+        <UserSecretsId>2ff32c70-b180-4176-9011-1dd1eacf618f</UserSecretsId>
     </PropertyGroup>
     
 </Project>
