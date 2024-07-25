@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ReadingList.Models;
 
 
@@ -6,19 +7,12 @@ namespace ReadingList.Controllers
 {
     [ApiController]
     [Route("api/r1/[controller]")]
-    public class AuthorsController : ControllerBase
+    [Authorize(AuthenticationSchemes = "Identity.Application, Bearer", Roles = "Admin")]
+    public class AuthorsController(IBooksRepository repository, ILogger<AuthorsController> logger) : ControllerBase
     {
-        private IBooksRepository repository;
-        private ILogger<AuthorsController> logger;
-
-        public AuthorsController(IBooksRepository repository, ILogger<AuthorsController> logger)
-        {
-            this.repository = repository;
-            this.logger = logger;
-        }
-
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<AuthorDTO>))]
+        [AllowAnonymous]
         public IEnumerable<AuthorDTO> GetAuthors()
         {
             logger.LogDebug("Response for GET / started");
@@ -29,6 +23,7 @@ namespace ReadingList.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthorDTO))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAuthor(long id)
         {
             logger.LogDebug("Response for GET /id started");

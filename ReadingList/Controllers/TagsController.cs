@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ReadingList.Models;
 
 
@@ -6,6 +7,7 @@ namespace ReadingList.Controllers
 {
     [ApiController]
     [Route("api/r1/[controller]")]
+    [Authorize(AuthenticationSchemes = "Identity.Application, Bearer", Roles = "Admin")]
     public class TagsController : ControllerBase
     {
         private IBooksRepository repository;
@@ -19,6 +21,7 @@ namespace ReadingList.Controllers
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<TagDTO>))]
+        [AllowAnonymous]
         public IEnumerable<TagDTO> GetTags()
         {
             logger.LogDebug("Response for GET / started");
@@ -29,6 +32,7 @@ namespace ReadingList.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TagDTO))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [AllowAnonymous]
         public async Task<IActionResult> GetTag(long id)
         {
             logger.LogDebug("Response for GET /id started");

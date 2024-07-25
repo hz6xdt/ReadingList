@@ -1,4 +1,5 @@
 ﻿@page "/"
+@inject ILoggingService Logging
 
 <PageTitle>Reading List</PageTitle>
 
@@ -165,6 +166,7 @@
     {
         if (Http != null)
         {
+            Logging.Log($"Adding {BookData.Name} to read list.");
             await Http.PostAsJsonAsync("/api/r1/readList",
                 new ReadBindingTarget
                     {
@@ -179,6 +181,7 @@
                         Source = BookData.Source
                     });
 
+            Logging.Log("Getting current read list.");
             RecentBooks = await Http.GetFromJsonAsync<BookDTO[]>("/api/r1/readList") ?? Array.Empty<BookDTO>();
         }
     }

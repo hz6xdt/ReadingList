@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ReadingList.Models;
 
 
@@ -6,10 +7,12 @@ namespace ReadingList.Controllers
 {
     [ApiController]
     [Route("api/r1/[controller]")]
+    [Authorize(AuthenticationSchemes = "Identity.Application, Bearer", Roles = "Admin")]
     public class ReadListController(IBooksRepository repository, ILogger<ReadListController> logger) : ControllerBase
     {
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<BookDTO>))]
+        [AllowAnonymous]
         public IEnumerable<BookDTO> GetReadingList()
         {
             logger.LogDebug("Response for GET / started");

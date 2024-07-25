@@ -1,8 +1,14 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ReadingList.Models;
+using ReadingList.Ui.Services;
+using System.Security.Claims;
+using System.Text;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -46,6 +52,45 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequiredLength = 20;
     options.User.RequireUniqueEmail = true;
 });
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+}).AddCookie(opts =>
+{
+    opts.Events.DisableRedirectForPath(e => e.OnRedirectToLogin, "/api", StatusCodes.Status401Unauthorized);
+    opts.Events.DisableRedirectForPath(e => e.OnRedirectToAccessDenied, "/api", StatusCodes.Status403Forbidden);
+}).AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["Data:JwtSecret"]!)),
+        ValidateAudience = false,
+        ValidateIssuer = false
+    };
+    options.Events = new JwtBearerEvents
+    {
+        OnTokenValidated = async ctx =>
+        {
+            var usrmgr = ctx.HttpContext.RequestServices.GetRequiredService<UserManager<IdentityUser>>();
+            var signinmgr = ctx.HttpContext.RequestServices.GetRequiredService<SignInManager<IdentityUser>>();
+            string? username = ctx.Principal?.FindFirst(ClaimTypes.Name)?.Value;
+            if (username != null)
+            {
+                IdentityUser? idUser = await usrmgr.FindByNameAsync(username);
+                if (idUser != null)
+                {
+                    ctx.Principal = await signinmgr.CreateUserPrincipalAsync(idUser);
+                }
+            }
+        }
+    };
+});
+
 
 builder.Services.AddTransient<IBooksRepository, BooksRepository>();
 
