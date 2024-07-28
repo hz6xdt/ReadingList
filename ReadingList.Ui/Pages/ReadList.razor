@@ -181,6 +181,7 @@
                         Source = BookData.Source
                     });
 
+
             Logging.Log("Getting current read list.");
             RecentBooks = await Http.GetFromJsonAsync<BookDTO[]>("/api/r1/readList") ?? Array.Empty<BookDTO>();
         }

@@ -1,16 +1,19 @@
 ﻿@{
-    var showClass = IsVisible ? "d-block" : "d-none";
+    var showClass = IsVisible ? "d-flex" : "d-none";
+    var showBoxClass = IsVisible ? "d-block" : "d-none";
 }
 
-<div class="toast-container p-3 @showClass" data-bs-autohide="true" data-bs-delay="5000">
-    <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header">
-            <strong class="me-auto">@HeaderText</strong>
-            <button type="button" class="btn-close" aria-label="Close" @onclick="Close"></button>
-        </div>
+<div class="overlay @showClass">
+    <div class="toast-container modal-box p-3 @showBoxClass" data-bs-autohide="true" data-bs-delay="5000">
+        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">@HeaderText</strong>
+                <button type="button" class="btn-close" aria-label="Close" @onclick="Close"></button>
+            </div>
 
-        <div class="toast-body">
-            @BodyText
+            <div class="toast-body">
+                @BodyText
+            </div>
         </div>
     </div>
 </div>

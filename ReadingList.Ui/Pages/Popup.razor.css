@@ -1,0 +1,16 @@
+﻿.overlay {
+    position: fixed; /* Set its position based on the screen */
+    width: 100%; /* Set the width to the full screen width */
+    height: 100%; /* Set the height to the full screen height */
+    top: 0; /* Set its top starting point to 0 */
+    left: 0; /* Set its left starting point to 0 */
+    background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+    justify-content: center; /* Set the children of the overlay horizonally in the center */
+    align-items: center; /* Set the children of the overlay vertically in the center */
+}
+
+.modal-box {
+    background-color: #dbcda6; /* Give it a white background */
+    border-radius: 10px; /* Set the radius of the corners */
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3); /* Little shadow */
+}
