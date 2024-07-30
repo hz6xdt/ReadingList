@@ -17,7 +17,7 @@
             <div class="form-group">
                 <label>Read Date</label>
                 <ValidationMessage For="@(() => BookData.ReadDate)" />
-                <InputDate Type="InputDateType.Date" class="form-control" @bind-Value="BookData.ReadDate" DisplayName="Read Date" />
+                <InputDate TValue="DateOnly" Type="InputDateType.Date" class="form-control" @bind-Value="BookData.ReadDate" DisplayName="Read Date" />
             </div>
             <div class="form-group">
                 <label>Title</label>
@@ -42,7 +42,7 @@
             <div class="form-group">
                 <label>Sequence</label>
                 <ValidationMessage For="@(() => BookData.Sequence)" />
-                <InputNumber class="form-control" @bind-Value="BookData.Sequence" min="1" max="200" />
+                <InputNumber TValue="int?" class="form-control" @bind-Value="BookData.Sequence" min="1" max="200" />
             </div>
             <div class="form-group">
                 <label>Image URL</label>
