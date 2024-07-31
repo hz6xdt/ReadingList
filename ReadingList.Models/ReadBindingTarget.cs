@@ -6,14 +6,15 @@ namespace ReadingList.Models
 {
     public class ReadBindingTarget
     {
-        [Required(ErrorMessage = "Please enter the date that the book was read."), ReadDateRange]
+        [Required(ErrorMessage = "Please enter the date that the book was read.")]
+        [ReadDateRange(ErrorMessage = "Please enter a date between 100 years ago and tomorrow.")]
         public DateOnly ReadDate { get; set; } = DateOnly.FromDateTime(DateTime.Now);
 
         [DisplayName("Title")]
         [Required(ErrorMessage = "Please enter the book's title."), StringLength(256)]
         public required string Name { get; set; }
 
-        [StringLength(16)]
+        [ISBNRange(ErrorMessage = "ISBN must be either 10 or 13 characters (if any).")]
         public string? ISBN { get; set; }
 
         [StringLength(256)]
