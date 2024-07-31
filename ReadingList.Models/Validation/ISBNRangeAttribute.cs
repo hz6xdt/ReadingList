@@ -11,7 +11,14 @@ namespace ReadingList.Models.Validation
     {
         public override bool IsValid(object? value)
         {
-            return (value as string)?.Length == 10 || (value as string)?.Length == 13;
+            if (value == null)
+            {
+                return true;
+            }
+            else
+            {
+                return (value as string)?.Length == 10 || (value as string)?.Length == 13;
+            }            
         }
     }
 }
