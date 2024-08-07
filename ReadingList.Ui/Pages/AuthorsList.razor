@@ -1,7 +1,9 @@
 ﻿@page "/authors"
-@page "/authors/list"
-
+@page "/authors/page/{page:int}"
 <PageTitle>Authors | Reading List</PageTitle>
+
+@inject ILoggingService Logging
+
 <h5 class="bg-primary text-white text-center p-2">Authors</h5>
 
 <table class="table table-sm table-striped table-bordered">
@@ -9,7 +11,7 @@
     <tbody>
         @if (Authors.Count() == 0)
         {
-            <tr><th colspan="5" class="p-4 text-center">Loading Data...</th></tr>
+            <tr><th colspan="5" class="p-4 text-center">@NoBooksMsg</th></tr>
         }
         else
         {
@@ -29,18 +31,34 @@
     </tbody>
 </table>
 
+<PageNavBar TotalItems="@TotalAuthors" CurrentPageNumber="@Page" ItemsPerPage="@PageSize" NavUrl="/authors/page/" />
+
 <NavLink class="btn btn-primary" href="authors/create">Create</NavLink>
 
 
-@code {
+@code
+{
+    [Parameter]
+    public int Page { get; set; } = 1;
+
+    public int PageSize { get; set; } = 10;
+    public int TotalAuthors { get; set; }
 
     [Inject]
     public HttpClient? Http { get; set; }
 
     public AuthorDTO[] Authors { get; set; } = Array.Empty<AuthorDTO>();
 
-    protected async override Task OnInitializedAsync()
+    private string NoBooksMsg { get; set; } = "Loading Data...";
+
+
+    protected async override Task OnParametersSetAsync()
     {
+        Logging.Log($"AuthorsList OnParametersSetAsync - Page: {Page}.");
+        if (Page < 1)
+        {
+            Page = 1;
+        }
         await UpdateData();
     }
 
@@ -48,7 +66,23 @@
     {
         if (Http != null)
         {
-            Authors = await Http.GetFromJsonAsync<AuthorDTO[]>("/api/r1/authors") ?? Array.Empty<AuthorDTO>();
+            Pagination? pagination = await Http.GetFromJsonAsync<Pagination>("/api/r1/pagination/authors");
+
+            TotalAuthors = pagination?.TotalItems ?? 0;
+
+            if (TotalAuthors == 0)
+            {
+                NoBooksMsg = "No authors as of yet.";
+            }
+            else
+            {
+                //Logging.Log($"Page: {Page}.");
+
+                PageSize = pagination?.PageSize ?? 10;
+                //Logging.Log($"PageSize: {PageSize}.");
+
+                Authors = await Http.GetFromJsonAsync<AuthorDTO[]>($"/api/r1/authors/page/{Page}") ?? Array.Empty<AuthorDTO>();
+            }
         }
     }
 

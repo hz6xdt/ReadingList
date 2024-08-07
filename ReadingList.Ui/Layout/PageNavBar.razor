@@ -1,0 +1,95 @@
+﻿@inject ILoggingService Logging
+
+@if (TotalPages > 1)
+{
+    <nav aria-label="Page navigation">
+        <ul class="pagination pagination-primary">
+
+            @if (CurrentPageNumber > 1)
+            {
+                <li class="page-item">
+                    <NavLink class="page-link" href="@GetUrl(1)">
+                        <span aria-hidden="true"><i class="fa-solid fa-chevron-left"></i></span>
+                    </NavLink>
+                </li>
+            }
+
+            @if (StartPage != MaxPage)
+            {
+                @for (int i = StartPage; i <= MaxPage; i++)
+                {
+                    string pageNumber = i.ToString();   //need local variable inside for loop in Blazor components.
+                    string subClass = CurrentPageNumber == i ? "active" : string.Empty;
+                    <li class="page-item @subClass"><NavLink class="page-link" href="@GetUrl(i)">@pageNumber</NavLink></li>
+                }
+            }
+
+            @if (CurrentPageNumber < TotalPages)
+            {
+                <li class="page-item">
+                    <NavLink class="page-link" href="@GetUrl(TotalPages)">
+                        <span aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+                    </NavLink>
+                </li>
+            }
+        </ul>
+    </nav>
+}
+
+
+@code
+{
+    [Parameter] public string NavUrl { get; set; } = string.Empty;
+    [Parameter] public int CurrentPageNumber { get; set; } = 1;
+    [Parameter] public int ItemsPerPage { get; set; } = 10;
+    [Parameter] public int TotalItems { get; set; }
+
+    public int TotalPages
+    {
+        get
+        {
+            if (TotalItems == 0 || ItemsPerPage == 0)
+            {
+                return 1;
+            }
+
+            int result = (int)Math.Ceiling((decimal)TotalItems / ItemsPerPage);
+            //Logging.Log($"TotalPages: {result}.");
+
+            return result;
+        }
+    }
+
+    public int StartPage
+    {
+        get
+        {
+            //Logging.Log($"StartPage -- CurrentPageNumber: {CurrentPageNumber}.");
+            int startPage = CurrentPageNumber - 2;
+            if (startPage < 1)
+            {
+                startPage = 1;
+            }
+
+            return startPage;
+        }
+    }
+
+    public int MaxPage
+    {
+        get
+        {
+            //Logging.Log($"MaxPage -- StartPage: {StartPage}.");
+            int maxPage = StartPage + 4;
+
+            if (maxPage > TotalPages)
+            {
+                maxPage = TotalPages;
+            }
+
+            return maxPage;
+        }
+    }
+
+    public string GetUrl(int page) => $"{NavUrl}{page}";
+}

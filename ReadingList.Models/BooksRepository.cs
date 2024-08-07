@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
 using System.Text.Json;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ReadingList.Models
 {
@@ -247,16 +246,25 @@ namespace ReadingList.Models
 
 
 
-
-        public IEnumerable<BookDTO> GetBooks()
+        public async Task<int> GetBookCount()
         {
-            logger.LogDebug("GetBooks");
+            int result = await dataContext.Books.CountAsync();
+            return result;
+        }
+
+
+
+        public IEnumerable<BookDTO> GetBooks(int pageNumber = 1, int pageSize = 10)
+        {
+            logger.LogDebug("GetBooks -- page: {pageNumber} -- pageSize: {pageSize}", pageNumber, pageSize);
 
             var result = (from b in dataContext.Books
                             .Include(b => b.Author)
                             .Include(b => b.Source)
                             .Include(b => b.BookTags)
                             .OrderBy(b => b.Name)
+                            .Skip((pageNumber - 1) * pageSize)
+                            .Take(pageSize)
                             select new
                             {
                                 b.BookId,
@@ -614,20 +622,29 @@ namespace ReadingList.Models
 
 
 
-        public IEnumerable<AuthorDTO> GetAuthors()
+        public async Task<int> GetAuthorCount()
         {
-            logger.LogDebug("GetAuthors");
+            int result = await dataContext.Authors.CountAsync();
+            return result;
+        }
+
+
+        public IEnumerable<AuthorDTO> GetAuthors(int pageNumber = 1, int pageSize = 10)
+        {
+            logger.LogDebug("GetAuthors -- page: {pageNumber} -- pageSize: {pageSize}", pageNumber, pageSize);
 
             var result = (from a in dataContext.Authors
                 .Include(a => a.Books)
                 .OrderBy(a => a.Name)
-                          select new
-                          {
-                              a.AuthorId,
-                              a.Name,
-                              Books = from b in a.Books
-                                      select b.Name
-                          }).ToList()
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                select new
+                {
+                    a.AuthorId,
+                    a.Name,
+                    Books = from b in a.Books
+                            select b.Name
+                }).ToList()
                 .Select(a => new AuthorDTO
                 {
                     Id = a.AuthorId,
@@ -734,14 +751,23 @@ namespace ReadingList.Models
         }
 
 
-        public IEnumerable<TagDTO> GetTags()
+        public async Task<int> GetTagCount()
         {
-            logger.LogDebug("GetTags");
+            int result = await dataContext.Tags.CountAsync();
+            return result;
+        }
+
+
+        public IEnumerable<TagDTO> GetTags(int pageNumber = 1, int pageSize = 10)
+        {
+            logger.LogDebug("GetTags -- page: {pageNumber} -- pageSize: {pageSize}", pageNumber, pageSize);
 
             var result = (from t in dataContext.Tags
                             .Include(bt => bt.BookTags!)
                             .ThenInclude(b => b.Book)
                             .OrderBy(t => t.Data)
+                            .Skip((pageNumber - 1) * pageSize)
+                            .Take(pageSize)
                             select new
                             {
                                 t.TagId,

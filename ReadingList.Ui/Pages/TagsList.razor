@@ -1,7 +1,9 @@
 ﻿@page "/tags"
-@page "/tags/list"
-
+@page "/tags/page/{page:int}"
 <PageTitle>Tags | Reading List</PageTitle>
+
+@inject ILoggingService Logging
+
 <h5 class="bg-primary text-white text-center p-2">Tags</h5>
 
 <table class="table table-sm table-striped table-bordered">
@@ -9,7 +11,7 @@
     <tbody>
         @if (Tags.Count() == 0)
         {
-            <tr><th colspan="5" class="p-4 text-center">Loading Data...</th></tr>
+            <tr><th colspan="5" class="p-4 text-center">@NoTagsMsg</th></tr>
         }
         else
         {
@@ -29,18 +31,33 @@
     </tbody>
 </table>
 
+<PageNavBar TotalItems="@TotalTags" CurrentPageNumber="@Page" ItemsPerPage="@PageSize" NavUrl="/tags/page/" />
+
 <NavLink class="btn btn-primary" href="tags/create">Create</NavLink>
 
 
-@code {
+@code
+{
+    [Parameter]
+    public int Page { get; set; } = 1;
+
+    public int PageSize { get; set; } = 10;
+    public int TotalTags { get; set; }
 
     [Inject]
     public HttpClient? Http { get; set; }
 
     public TagDTO[] Tags { get; set; } = Array.Empty<TagDTO>();
 
-    protected async override Task OnInitializedAsync()
+    private string NoTagsMsg { get; set; } = "Loading Data...";
+
+    protected async override Task OnParametersSetAsync()
     {
+        Logging.Log($"TagsList OnParametersSetAsync - Page: {Page}.");
+        if (Page < 1)
+        {
+            Page = 1;
+        }
         await UpdateData();
     }
 
@@ -48,7 +65,22 @@
     {
         if (Http != null)
         {
-            Tags = await Http.GetFromJsonAsync<TagDTO[]>("/api/r1/tags") ?? Array.Empty<TagDTO>();
+            Pagination? pagination = await Http.GetFromJsonAsync<Pagination>("/api/r1/pagination/tags");
+
+            TotalTags = pagination?.TotalItems ?? 0;
+            if (TotalTags == 0)
+            {
+                NoTagsMsg = "No tags as of yet.";
+            }
+            else
+            {
+                //Logging.Log($"Page: {Page}.");
+
+                PageSize = pagination?.PageSize ?? 10;
+                //Logging.Log($"PageSize: {PageSize}.");
+
+                Tags = await Http.GetFromJsonAsync<TagDTO[]>($"/api/r1/tags/page/{Page}") ?? Array.Empty<TagDTO>();
+            }
         }
     }
 

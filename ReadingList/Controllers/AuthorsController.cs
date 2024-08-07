@@ -8,16 +8,31 @@ namespace ReadingList.Controllers
     [ApiController]
     [Route("api/r1/[controller]")]
     [Authorize(AuthenticationSchemes = "Identity.Application, Bearer", Roles = "Admin")]
-    public class AuthorsController(IBooksRepository repository, ILogger<AuthorsController> logger) : ControllerBase
+    public class AuthorsController(IBooksRepository repository, ILogger<AuthorsController> logger, IConfiguration configuration) : ControllerBase
     {
         [HttpGet]
+        [AllowAnonymous]
+        public async Task<int> GetAuthorCount()
+        {
+            int result = await repository.GetAuthorCount();
+            return result;
+        }
+
+        [HttpGet("page/{pageNumber:int}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<AuthorDTO>))]
         [AllowAnonymous]
-        public IEnumerable<AuthorDTO> GetAuthors()
+        public IEnumerable<AuthorDTO> GetPageOfAuthors(int pageNumber = 1)
         {
-            logger.LogDebug("Response for GET / started");
+            int pageSize = configuration.GetValue<int>("Data:PageSize", 10);
 
-            return repository.GetAuthors();
+            logger.LogDebug("Response for GET /page/{pageNumber} started, with pageSize: {pageSize}", pageNumber, pageSize);
+
+            if (pageNumber < 1)
+            {
+                pageNumber = 1;
+            }
+
+            return repository.GetAuthors(pageNumber, pageSize);
         }
 
         [HttpGet("{id}")]

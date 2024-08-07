@@ -8,16 +8,31 @@ namespace ReadingList.Controllers
     [ApiController]
     [Route("api/r1/[controller]")]
     [Authorize(AuthenticationSchemes = "Identity.Application, Bearer", Roles = "Admin")]
-    public class BooksController(IBooksRepository repository, ILogger<BooksController> logger) : ControllerBase
+    public class BooksController(IBooksRepository repository, ILogger<BooksController> logger, IConfiguration configuration) : ControllerBase
     {
         [HttpGet]
+        [AllowAnonymous]
+        public async Task<int> GetBookCount()
+        {
+            int result = await repository.GetBookCount();
+            return result;
+        }
+
+        [HttpGet("page/{pageNumber:int}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<BookDTO>))]
         [AllowAnonymous]
-        public IEnumerable<BookDTO> GetBooks()
+        public IEnumerable<BookDTO> GetPageOfBooks(int pageNumber = 1)
         {
-            logger.LogDebug("Response for GET / started");
+            int pageSize = configuration.GetValue<int>("Data:PageSize", 10);
 
-            return repository.GetBooks();
+            logger.LogDebug("Response for GET /page/{pageNumber} started, with pageSize: {pageSize}", pageNumber, pageSize);
+
+            if (pageNumber < 1)
+            {
+                pageNumber = 1;
+            }
+
+            return repository.GetBooks(pageNumber, pageSize);
         }
 
         [HttpGet("{id}")]

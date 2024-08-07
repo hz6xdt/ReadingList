@@ -1,7 +1,9 @@
 ﻿@page "/books"
-@page "/books/list"
+@page "/books/page/{page:int}"
+<PageTitle>Books | Page @Page | Reading List</PageTitle>
 
-<PageTitle>Books | Reading List</PageTitle>
+@inject ILoggingService Logging
+
 <h5 class="bg-primary text-white text-center p-2">Books</h5>
 
 <table class="table table-sm table-striped table-bordered">
@@ -9,7 +11,7 @@
     <tbody>
         @if (Books.Count() == 0)
         {
-            <tr><th colspan="5" class="p-4 text-center">Loading Data...</th></tr>
+            <tr><th colspan="5" class="p-4 text-center">@NoBooksMsg</th></tr>
         }
         else
         {
@@ -31,25 +33,59 @@
     </tbody>
 </table>
 
+<PageNavBar TotalItems="@TotalBooks" CurrentPageNumber="@Page" ItemsPerPage="@PageSize" NavUrl="/books/page/" />
+
 <NavLink class="btn btn-primary" href="books/create">Create</NavLink>
 
-@code {
+@code
+{
+    [Parameter]
+    public int Page { get; set; } = 1;
+
+    public int PageSize { get; set; } = 10;
+    public int TotalBooks { get; set; }
 
     [Inject]
     public HttpClient? Http { get; set; }
 
     public BookDTO[] Books { get; set; } = Array.Empty<BookDTO>();
 
-    protected async override Task OnInitializedAsync()
+    private string NoBooksMsg { get; set; } = "Loading Data...";
+
+
+    protected async override Task OnParametersSetAsync()
     {
+        Logging.Log($"BooksList OnParametersSetAsync - Page: {Page}.");
+        if (Page < 1)
+        {
+            Page = 1;
+        }
         await UpdateData();
     }
 
     private async Task UpdateData()
     {
+        //Logging.Log("UpdateData...");
         if (Http != null)
         {
-            Books = await Http.GetFromJsonAsync<BookDTO[]>("/api/r1/books") ?? Array.Empty<BookDTO>();
+            Pagination? pagination = await Http.GetFromJsonAsync<Pagination>("/api/r1/pagination/books");
+
+            TotalBooks = pagination?.TotalItems ?? 0;
+            //Logging.Log($"TotalBooks: {TotalBooks}.");
+
+            if (TotalBooks == 0)
+            {
+                NoBooksMsg = "No books as of yet.";
+            }
+            else
+            {
+                //Logging.Log($"Page: {Page}.");
+
+                PageSize = pagination?.PageSize ?? 10;
+                //Logging.Log($"PageSize: {PageSize}.");
+
+                Books = await Http.GetFromJsonAsync<BookDTO[]>($"/api/r1/books/page/{Page}") ?? Array.Empty<BookDTO>();
+            }
         }
     }
 

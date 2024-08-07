@@ -8,25 +8,31 @@ namespace ReadingList.Controllers
     [ApiController]
     [Route("api/r1/[controller]")]
     [Authorize(AuthenticationSchemes = "Identity.Application, Bearer", Roles = "Admin")]
-    public class TagsController : ControllerBase
+    public class TagsController(IBooksRepository repository, ILogger<TagsController> logger, IConfiguration configuration) : ControllerBase
     {
-        private IBooksRepository repository;
-        private ILogger<TagsController> logger;
-
-        public TagsController(IBooksRepository repository, ILogger<TagsController> logger)
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<int> GetTagCount()
         {
-            this.repository = repository;
-            this.logger = logger;
+            int result = await repository.GetTagCount();
+            return result;
         }
 
-        [HttpGet]
+        [HttpGet("page/{pageNumber:int}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<TagDTO>))]
         [AllowAnonymous]
-        public IEnumerable<TagDTO> GetTags()
+        public IEnumerable<TagDTO> GetPageOfTags(int pageNumber = 1)
         {
-            logger.LogDebug("Response for GET / started");
+            int pageSize = configuration.GetValue<int>("Data:PageSize", 10);
 
-            return repository.GetTags();
+            logger.LogDebug("Response for GET /page/{pageNumber} started, with pageSize: {pageSize}", pageNumber, pageSize);
+
+            if (pageNumber < 1)
+            {
+                pageNumber = 1;
+            }
+
+            return repository.GetTags(pageNumber, pageSize);
         }
 
         [HttpGet("{id}")]
