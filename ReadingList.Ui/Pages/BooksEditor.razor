@@ -23,8 +23,8 @@
             <InputText class="form-control" @bind-Value="BookData.Name" readonly />
         </div>
         <div class="form-group">
-            <label>ISBN/ASIN</label>
-            <InputText class="form-control" @bind-Value="BookData.ISBN" DisplayName="ISBN/ASIN" readonly />
+            <label>ISBN</label>
+            <InputText class="form-control" @bind-Value="BookData.ISBN" readonly />
         </div>
         <div class="form-group">
             <label>Author</label>
@@ -74,9 +74,9 @@
             <InputText class="form-control" @bind-Value="BookData.Name" />
         </div>
         <div class="form-group">
-            <label>ISBN/ASIN</label>
+            <label>ISBN</label>
             <ValidationMessage For="@(() => BookData.ISBN)" />
-            <InputText class="form-control" @bind-Value="BookData.ISBN" DisplayName="ISBN/ASIN" />
+            <InputText class="form-control" @bind-Value="BookData.ISBN" />
         </div>
         <div class="form-group">
             <label>Author</label>
