@@ -22,8 +22,10 @@
                     <td>@t.Data</td>
                     <td>@t.Books</td>
                     <td class="text-center">
-                        <NavLink class="btn btn-sm btn-warning" href="@GetEditUrl(t.Id)">Edit</NavLink>
-                        <button class="btn btn-sm btn-danger" @onclick="@(() => HandleDelete(t))">Delete</button>
+                        <AuthorizeView Roles="Admin">
+                            <NavLink class="btn btn-sm btn-warning" href="@GetEditUrl(t.Id)">Edit</NavLink>
+                            <button class="btn btn-sm btn-danger" @onclick="@(() => HandleDelete(t))">Delete</button>
+                        </AuthorizeView>
                     </td>
                 </tr>
             }
@@ -33,7 +35,9 @@
 
 <PageNavBar TotalItems="@TotalTags" CurrentPageNumber="@Page" ItemsPerPage="@PageSize" NavUrl="/tags/page/" />
 
-<NavLink class="btn btn-primary" href="tags/create">Create</NavLink>
+<AuthorizeView Roles="Admin">
+    <NavLink class="btn btn-primary" href="tags/create">Create</NavLink>
+</AuthorizeView>
 
 
 @code

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -18,14 +19,11 @@ namespace ReadingList.Controllers
         public async Task<IActionResult> Login([FromBody] Credentials creds)
         {
             Microsoft.AspNetCore.Identity.SignInResult result = await mgr.PasswordSignInAsync(creds.Username, creds.Password, false, false);
-            if (result.Succeeded)
-            {
-                return Ok();
-            }
-            return Unauthorized();
+            return result.Succeeded ? Ok() : Unauthorized();
         }
 
         [HttpPost("logout")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Logout()
         {
             await mgr.SignOutAsync();
@@ -38,40 +36,40 @@ namespace ReadingList.Controllers
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Token([FromBody] Credentials creds)
         {
-            if (await CheckPassword(creds))
+            IdentityUser? user = await usermgr.FindByNameAsync(creds.Username);
+            if (user != null && (await mgr.CheckPasswordSignInAsync(user, creds.Password, true)).Succeeded)
             {
-                JwtSecurityTokenHandler handler = new();
-                byte[] secret = Encoding.ASCII.GetBytes(config["JwtSecret"]!);
-                SecurityTokenDescriptor descriptor = new()
+                List<Claim> claims = [new(ClaimTypes.Name, creds.Username)];
+
+                var roles = await usermgr.GetRolesAsync(user);
+                foreach (var role in roles)
                 {
-                    Subject = new ClaimsIdentity(new Claim[] { new(ClaimTypes.Name, creds.Username) }),
-                    Expires = DateTime.UtcNow.AddHours(24),
-                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secret), SecurityAlgorithms.HmacSha256Signature)
-                };
-                SecurityToken token = handler.CreateToken(descriptor);
+                    claims.Add(new(ClaimTypes.Role, role));
+                }
+
+                byte[] secret = Encoding.ASCII.GetBytes(config["Data:JwtSecret"]!);
+
+                JwtSecurityToken token = new(claims: claims, expires: DateTime.UtcNow.AddHours(24),
+                    signingCredentials: new(new SymmetricSecurityKey(secret), SecurityAlgorithms.HmacSha256Signature));
+
+                JwtSecurityTokenHandler handler = new();
+
                 return Ok(new
                 {
                     success = true,
                     token = handler.WriteToken(token)
                 });
             }
-            return Unauthorized();
-        }
 
-        private async Task<bool> CheckPassword(Credentials creds)
-        {
-            IdentityUser? user = await usermgr.FindByNameAsync(creds.Username);
-            if (user != null)
-            {
-                return (await mgr.CheckPasswordSignInAsync(user, creds.Password, true)).Succeeded;
-            }
-            return false;
+            return Unauthorized();
         }
 
         public class Credentials
         {
+            [StringLength(256)]
             public string Username { get; set; } = string.Empty;
 
+            [StringLength(256, MinimumLength = 12)]
             public string Password { get; set; } = string.Empty;
         }
     }

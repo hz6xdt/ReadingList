@@ -1,9 +1,11 @@
 ﻿@page "/sources/edit/{id:long}"
 @page "/sources/create"
+<PageTitle>Sources @Mode | Reading List</PageTitle>
+
+@attribute [Authorize(Roles = "Admin")]
 
 <link href="/lib/css/blazorValidation.css" rel="stylesheet" />
 
-<PageTitle>Sources @Mode | Reading List</PageTitle>
 <h4 class="bg-@Theme text-center p-2">Sources @Mode</h4>
 
 <EditForm Model="SourceData" OnValidSubmit="HandleValidSubmit">

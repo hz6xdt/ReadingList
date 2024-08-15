@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ReadingList.Models;
 
 
@@ -69,11 +71,25 @@ namespace ReadingList.Controllers
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> DeleteSource(long id)
         {
             logger.LogDebug("Response for DELETE started");
 
-            Source? source = await repository.DeleteSource(id);
+            Source? source = null;
+
+            try
+            {
+                source = await repository.DeleteSource(id);
+            }
+            catch (DbUpdateConcurrencyException x)
+            {
+                return Conflict(x);
+            }
+            catch (DbUpdateException x)
+            {
+                return NotFound(x);
+            }
 
             if (source == null)
             {

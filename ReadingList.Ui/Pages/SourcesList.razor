@@ -20,8 +20,10 @@
                     <td>@s.Name</td>
                     <td>@s.Books</td>
                     <td class="text-center">
-                        <NavLink class="btn btn-sm btn-warning" href="@GetEditUrl(s.Id)">Edit</NavLink>
-                        <button class="btn btn-sm btn-danger" @onclick="@(() => HandleDelete(s))">Delete</button>
+                        <AuthorizeView Roles="Admin">
+                            <NavLink class="btn btn-sm btn-warning" href="@GetEditUrl(s.Id)">Edit</NavLink>
+                            <button class="btn btn-sm btn-danger" @onclick="@(() => HandleDelete(s))">Delete</button>
+                        </AuthorizeView>
                     </td>
                 </tr>
             }
@@ -31,7 +33,10 @@
 
 <Popup @ref="popup" />
 
-<NavLink class="btn btn-primary" href="sources/create">Create</NavLink>
+<AuthorizeView Roles="Admin">
+    <NavLink class="btn btn-primary" href="sources/create">Create</NavLink>
+</AuthorizeView>
+
 
 @code {
 
@@ -61,14 +66,15 @@
     {
         if (Http != null)
         {
-            HttpResponseMessage resp = await Http.DeleteAsync($"/api/r1/sources/{s.Id}");
-            if (resp.IsSuccessStatusCode)
+            HttpResponseMessage response = await Http.DeleteAsync($"/api/r1/sources/{s.Id}");
+            if (response.IsSuccessStatusCode)
             {
                 await UpdateData();
             }
             else
             {
-                popup?.Show("There was an error deleting this source.  Verify that any book with this source has been deleted first, and then try again.",
+                var errorResponse = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
+                popup?.Show($"There was an error deleting this source.  Verify that any book with this source has been deleted first, and then try again.<br/><br/>{errorResponse?.Message}",
                     "Error on Delete");
             }
         }

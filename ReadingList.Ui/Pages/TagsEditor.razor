@@ -1,9 +1,11 @@
 @page "/tags/edit/{id:long}"
 @page "/tags/create"
+<PageTitle>Tags @Mode | Reading List</PageTitle>
+
+@attribute [Authorize(Roles = "Admin")]
 
 <link href="/lib/css/blazorValidation.css" rel="stylesheet" />
 
-<PageTitle>Tags @Mode | Reading List</PageTitle>
 <h4 class="bg-@Theme text-center text-white p-2">Tags @Mode</h4>
 
 <EditForm Model="TagData" OnValidSubmit="HandleValidSubmit">

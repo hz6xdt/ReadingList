@@ -1,6 +1,8 @@
 ﻿@page "/authors/edit/{id:long}"
 @page "/authors/create"
 
+@attribute [Authorize(Roles = "Admin")]
+
 <link href="/lib/css/blazorValidation.css" rel="stylesheet" />
 
 <PageTitle>Authors @Mode | Reading List</PageTitle>

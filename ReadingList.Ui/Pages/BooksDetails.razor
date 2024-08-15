@@ -1,7 +1,8 @@
 ﻿@page "/books/details/{id:long}"
+<PageTitle>Book Details | Reading List</PageTitle>
+
 @inject ILogger<BooksDetails> Logger
 
-<PageTitle>Book Details | Reading List</PageTitle>
 <h4 class="bg-info text-center p-2">Book Details</h4>
 
 <div class="form-group">
@@ -21,7 +22,7 @@
     <input class="form-control" value="@BookData.Author" disabled />
 </div>
 <div class="form-group">
-    <label>Cover Image</label><br/>
+    <label>Cover Image</label><br />
     <img class="rounded img-fluid img-max" src="@BookData.ImageUrl" />
 </div>
 <div class="form-group">
@@ -57,7 +58,9 @@
 </div>
 <div class="text-center">
     <NavLink class="btn btn-secondary m-2" href="books">Back</NavLink>
-    <NavLink class="btn btn-info m-2" href="@GetEditUrl(Id)">Edit</NavLink>
+    <AuthorizeView Roles="Admin">
+        <NavLink class="btn btn-info m-2" href="@GetEditUrl(Id)">Edit</NavLink>
+    </AuthorizeView>
 </div>
 
 @code {

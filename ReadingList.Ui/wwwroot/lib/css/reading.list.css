@@ -11903,6 +11903,14 @@ nav {
   margin-bottom: 2rem;
 }
 
+.header {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.header p {
+  font-size: 0.75rem;
+}
+
 footer {
   background-color: #352400;
   color: rgba(255, 255, 255, 0.55);

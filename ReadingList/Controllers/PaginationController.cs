@@ -8,7 +8,8 @@ namespace ReadingList.Controllers
     public class PaginationController(IBooksRepository repository, IConfiguration configuration) : ControllerBase
     {
         [HttpGet]
-        public async Task<Pagination> GetPaginationInfo(string itemType)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination))]
+        public async Task<IActionResult> GetPaginationInfo(string itemType)
         {
             int pageSize = configuration.GetValue<int>("Data:PageSize", 10);
 
@@ -27,11 +28,11 @@ namespace ReadingList.Controllers
                     break;
             }
 
-            return new()
+            return Ok( new Pagination()
             {
                 PageSize = pageSize,
                 TotalItems = totalItems
-            };
+            });
         }
     }
 }

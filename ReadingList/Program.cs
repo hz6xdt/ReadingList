@@ -49,7 +49,7 @@ builder.Services.AddDbContext<DataContext>(options =>
 builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<DataContext>();
 builder.Services.Configure<IdentityOptions>(options =>
 {
-    options.Password.RequiredLength = 20;
+    options.Password.RequiredLength = 12;
     options.User.RequireUniqueEmail = true;
 });
 

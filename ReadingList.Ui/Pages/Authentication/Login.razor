@@ -1,0 +1,57 @@
+﻿@page "/authentication/login"
+<PageTitle>Login to Reading List</PageTitle>
+
+@using Blazored.LocalStorage
+@inject IAuthenticationService AuthService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject ILocalStorageService LocalStorage
+@inject NavigationManager Navigation
+
+<h2>Welcome to Reading List!</h2>
+
+<div class="row">
+    <div class="col-sm-12 col-md-4">
+        <EditForm Model="loginRequest" OnValidSubmit="SubmitLoginFormAsync">
+
+            <DataAnnotationsValidator />
+
+            <div class="mb-3">
+                <label>Username</label>
+                <ValidationMessage For="@(() => loginRequest.Username)" />
+                <InputText @bind-Value="@loginRequest.Username" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label>Password</label>
+                <ValidationMessage For="@(() => loginRequest.Password)" />
+                <InputText type="password" @bind-Value="@loginRequest.Password" class="form-control" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Login</button>
+
+        </EditForm>
+    </div>
+</div>
+
+
+@code
+{
+    private LoginRequest loginRequest = new();
+
+    private async Task SubmitLoginFormAsync()
+    {
+        try
+        {
+            var loginResult = await AuthService.LoginUserAsync(loginRequest);
+            await LocalStorage.SetItemAsync("access_token", loginResult.AccessToken);
+
+            await AuthStateProvider.GetAuthenticationStateAsync();
+            Navigation.NavigateTo("/");
+        }
+        catch (Exception x)
+        {
+            // TODO: Log the error
+            Console.WriteLine(x.Message);
+        }
+    }
+}

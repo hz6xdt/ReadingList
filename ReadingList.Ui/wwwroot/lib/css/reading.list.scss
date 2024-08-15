@@ -83,6 +83,15 @@ nav {
     margin-bottom: 2rem;
 }
 
+
+.header {
+    color: $navbar-dark-color;
+}
+
+.header p {
+    font-size: .75rem;
+}
+
 footer {
     background-color: $dark;
     color: $navbar-dark-color;

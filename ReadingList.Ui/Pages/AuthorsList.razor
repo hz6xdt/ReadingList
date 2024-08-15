@@ -22,8 +22,10 @@
                     <td>@a.Name</td>
                     <td>@a.Books</td>
                     <td class="text-center">
-                        <NavLink class="btn btn-sm btn-warning" href="@GetEditUrl(a.Id)">Edit</NavLink>
-                        <button class="btn btn-sm btn-danger" @onclick="@(() => HandleDelete(a))">Delete</button>
+                        <AuthorizeView Roles="Admin">
+                            <NavLink class="btn btn-sm btn-warning" href="@GetEditUrl(a.Id)">Edit</NavLink>
+                            <button class="btn btn-sm btn-danger" @onclick="@(() => HandleDelete(a))">Delete</button>
+                        </AuthorizeView>
                     </td>
                 </tr>
             }
@@ -33,7 +35,9 @@
 
 <PageNavBar TotalItems="@TotalAuthors" CurrentPageNumber="@Page" ItemsPerPage="@PageSize" NavUrl="/authors/page/" />
 
-<NavLink class="btn btn-primary" href="authors/create">Create</NavLink>
+<AuthorizeView Roles="Admin">
+    <NavLink class="btn btn-primary" href="authors/create">Create</NavLink>
+</AuthorizeView>
 
 
 @code

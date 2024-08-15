@@ -990,12 +990,12 @@ namespace ReadingList.Models
                 catch (DbUpdateConcurrencyException x)
                 {
                     logger.LogDebug("DbUpdateConcurrencyException: {x}", x.ToString());
-                    return null;
+                    throw;
                 }
                 catch (DbUpdateException x)
                 {
                     logger.LogDebug("DbUpdateException: {x}", x.ToString());
-                    return null;
+                    throw;
                 }
 
                 logger.LogDebug("deleted source: {source.Name}", source.Name);

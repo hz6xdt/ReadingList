@@ -5,67 +5,69 @@
 
 <div class="row">
 
-    <div class="col-md-5">
+    <AuthorizeView Roles="Admin" Context="authContext">
+        <div class="col-md-5">
 
-        <h5 class="bg-primary text-white p-2">Add New Entry:</h5>
+            <h5 class="bg-primary text-white p-2">Add New Entry:</h5>
 
 
-        <EditForm Model="BookData" OnValidSubmit="HandleValidSubmit">
+            <EditForm Model="BookData" OnValidSubmit="HandleValidSubmit">
 
-            <DataAnnotationsValidator />
+                <DataAnnotationsValidator />
 
-            <div class="form-group">
-                <label>Read Date</label>
-                <ValidationMessage For="@(() => BookData.ReadDate)" />
-                <InputDate TValue="DateOnly" class="form-control" @bind-Value="BookData.ReadDate" DisplayName="Read Date" />
-            </div>
-            <div class="form-group">
-                <label>Title</label>
-                <ValidationMessage For="@(() => BookData.Name)" />
-                <InputText class="form-control" @bind-Value="BookData.Name" />
-            </div>
-            <div class="form-group">
-                <label>ISBN</label>
-                <ValidationMessage For="@(() => BookData.ISBN)" />
-                <InputText class="form-control" @bind-Value="BookData.ISBN" />
-            </div>
-            <div class="form-group">
-                <label>Author</label>
-                <ValidationMessage For="@(() => BookData.Author)" />
-                <InputText class="form-control" @bind-Value="BookData.Author" />
-            </div>
-            <div class="form-group">
-                <label>Tags</label>
-                <ValidationMessage For="@(() => BookData.Tags)" />
-                <InputText class="form-control" @bind-Value="BookData.Tags" />
-            </div>
-            <div class="form-group">
-                <label>Sequence</label>
-                <ValidationMessage For="@(() => BookData.Sequence)" />
-                <InputNumber TValue="int?" class="form-control" @bind-Value="BookData.Sequence" min="1" max="200" />
-            </div>
-            <div class="form-group">
-                <label>Image URL</label>
-                <ValidationMessage For="@(() => BookData.ImageUrl)" />
-                <InputText class="form-control" @bind-Value="BookData.ImageUrl" DisplayName="Cover Image URL" />
-            </div>
-            <div class="form-group">
-                <label>Recommend</label>
-                <ValidationMessage For="@(() => BookData.Recommend)" />
-                <InputCheckbox class="form-control read-input" @bind-Value="BookData.Recommend" />
-            </div>
-            <div class="form-group">
-                <label>Source</label>
-                <ValidationMessage For="@(() => BookData.Source)" />
-                <InputText class="form-control" @bind-Value="BookData.Source" />
-            </div>
-            <div class="text-center">
-                <button class="btn btn-secondary mt-2 mb-5" @onclick="ResetClick">Reset</button>
-                <ValidButton type="submit" BtnTheme="primary">Save</ValidButton>
-            </div>
-        </EditForm>
+                <div class="form-group">
+                    <label>Read Date</label>
+                    <ValidationMessage For="@(() => BookData.ReadDate)" />
+                    <InputDate TValue="DateOnly" class="form-control" @bind-Value="BookData.ReadDate" DisplayName="Read Date" />
+                </div>
+                <div class="form-group">
+                    <label>Title</label>
+                    <ValidationMessage For="@(() => BookData.Name)" />
+                    <InputText class="form-control" @bind-Value="BookData.Name" />
+                </div>
+                <div class="form-group">
+                    <label>ISBN</label>
+                    <ValidationMessage For="@(() => BookData.ISBN)" />
+                    <InputText class="form-control" @bind-Value="BookData.ISBN" />
+                </div>
+                <div class="form-group">
+                    <label>Author</label>
+                    <ValidationMessage For="@(() => BookData.Author)" />
+                    <InputText class="form-control" @bind-Value="BookData.Author" />
+                </div>
+                <div class="form-group">
+                    <label>Tags</label>
+                    <ValidationMessage For="@(() => BookData.Tags)" />
+                    <InputText class="form-control" @bind-Value="BookData.Tags" />
+                </div>
+                <div class="form-group">
+                    <label>Sequence</label>
+                    <ValidationMessage For="@(() => BookData.Sequence)" />
+                    <InputNumber TValue="int?" class="form-control" @bind-Value="BookData.Sequence" min="1" max="200" />
+                </div>
+                <div class="form-group">
+                    <label>Image URL</label>
+                    <ValidationMessage For="@(() => BookData.ImageUrl)" />
+                    <InputText class="form-control" @bind-Value="BookData.ImageUrl" DisplayName="Cover Image URL" />
+                </div>
+                <div class="form-group">
+                    <label>Recommend</label>
+                    <ValidationMessage For="@(() => BookData.Recommend)" />
+                    <InputCheckbox class="form-control read-input" @bind-Value="BookData.Recommend" />
+                </div>
+                <div class="form-group">
+                    <label>Source</label>
+                    <ValidationMessage For="@(() => BookData.Source)" />
+                    <InputText class="form-control" @bind-Value="BookData.Source" />
+                </div>
+                <div class="text-center">
+                    <button class="btn btn-secondary mt-2 mb-5" @onclick="ResetClick">Reset</button>
+                    <ValidButton type="submit" BtnTheme="primary">Save</ValidButton>
+                </div>
+            </EditForm>
 
-    </div>
+        </div>
+    </AuthorizeView>
 
 
     <div class="col-md-offset-1 col-md-7">
