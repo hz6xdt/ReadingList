@@ -7,7 +7,8 @@ namespace ReadingList.Controllers
 {
     [ApiController]
     [Route("api/r1/[controller]")]
-    [Authorize(AuthenticationSchemes = "Identity.Application, Bearer", Roles = "Admin")]
+    //[Authorize(AuthenticationSchemes = "Identity.Application, Bearer", Roles = "Admin")]
+    [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
     public class TagsController(IBooksRepository repository, ILogger<TagsController> logger, IConfiguration configuration) : ControllerBase
     {
         [HttpGet]
@@ -45,12 +46,7 @@ namespace ReadingList.Controllers
 
             TagDTO? a = await repository.GetTag(id);
 
-            if (a == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(a);
+            return a == null ? NotFound() : Ok(a);
         }
 
         [HttpPost]
@@ -73,12 +69,7 @@ namespace ReadingList.Controllers
 
             TagDTO? Tag = await repository.UpdateTag(changedTag);
 
-            if (Tag == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(Tag);
+            return Tag == null ? NotFound() : Ok(Tag);
         }
 
         [HttpDelete("{id}")]
@@ -90,12 +81,7 @@ namespace ReadingList.Controllers
 
             Tag? Tag = await repository.DeleteTag(id);
 
-            if (Tag == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(Tag);
+            return Tag == null ? NotFound() : Ok(Tag);
         }
     }
 }

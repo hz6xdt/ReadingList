@@ -1,6 +1,4 @@
-﻿using static System.Runtime.InteropServices.JavaScript.JSType;
-
-namespace ReadingList.Models
+﻿namespace ReadingList.Models
 {
     public interface IBooksRepository
     {
@@ -35,6 +33,6 @@ namespace ReadingList.Models
         Task<SourceDTO?> GetSource(long id);
         Task<SourceDTO> AddSource(SourceBindingTarget newSource);
         Task<SourceDTO?> UpdateSource(SourceUpdateBindingTarget changedSource);
-        Task<Source?> DeleteSource(long id);
+        Task<DeleteResult> DeleteSource(long id);
     }
 }

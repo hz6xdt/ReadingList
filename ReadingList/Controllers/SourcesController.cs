@@ -1,15 +1,15 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ReadingList.Models;
+using System.Text.Json;
 
 
 namespace ReadingList.Controllers
 {
     [ApiController]
     [Route("api/r1/[controller]")]
-    [Authorize(AuthenticationSchemes = "Identity.Application, Bearer", Roles = "Admin")]
+    //[Authorize(AuthenticationSchemes = "Identity.Application, Bearer", Roles = "Admin")]
+    [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
     public class SourcesController(IBooksRepository repository, ILogger<SourcesController> logger) : ControllerBase
     {
         [HttpGet]
@@ -32,12 +32,7 @@ namespace ReadingList.Controllers
 
             SourceDTO? s = await repository.GetSource(id);
 
-            if (s == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(s);
+            return s == null ? NotFound() : Ok(s);
         }
 
         [HttpPost]
@@ -60,12 +55,7 @@ namespace ReadingList.Controllers
 
             SourceDTO? source = await repository.UpdateSource(changedSource);
 
-            if (source == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(changedSource);
+            return source == null ? NotFound() : Ok(changedSource);
         }
 
         [HttpDelete("{id}")]
@@ -76,27 +66,17 @@ namespace ReadingList.Controllers
         {
             logger.LogDebug("Response for DELETE started");
 
-            Source? source = null;
+            DeleteResult result = await repository.DeleteSource(id);
 
-            try
+            if (result.Success)
             {
-                source = await repository.DeleteSource(id);
-            }
-            catch (DbUpdateConcurrencyException x)
-            {
-                return Conflict(x);
-            }
-            catch (DbUpdateException x)
-            {
-                return NotFound(x);
+                return Ok(result.Source);
             }
 
-            if (source == null)
-            {
-                return NotFound();
-            }
+            var exceptionType = result.ExceptionType ?? string.Empty;
+            var json = JsonSerializer.Serialize(result.ExceptionMessage);
 
-            return Ok(source);
+            return exceptionType.Equals("DbUpdateConcurrencyException") ? Conflict(json) : NotFound(json);
         }
     }
 }

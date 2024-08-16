@@ -73,9 +73,8 @@
             }
             else
             {
-                var errorResponse = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
-                popup?.Show($"There was an error deleting this source.  Verify that any book with this source has been deleted first, and then try again.<br/><br/>{errorResponse?.Message}",
-                    "Error on Delete");
+                var errorResponse = await response.Content.ReadFromJsonAsync<string>();
+                popup?.Show($"There was an error deleting this source: {errorResponse}", "Error on Delete");
             }
         }
     }

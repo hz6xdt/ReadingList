@@ -7,7 +7,8 @@ namespace ReadingList.Controllers
 {
     [ApiController]
     [Route("api/r1/[controller]")]
-    [Authorize(AuthenticationSchemes = "Identity.Application, Bearer", Roles = "Admin")]
+    //[Authorize(AuthenticationSchemes = "Identity.Application, Bearer", Roles = "Admin")]
+    [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
     public class ReadListController(IBooksRepository repository, ILogger<ReadListController> logger) : ControllerBase
     {
         [HttpGet]

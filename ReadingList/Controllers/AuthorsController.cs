@@ -7,7 +7,8 @@ namespace ReadingList.Controllers
 {
     [ApiController]
     [Route("api/r1/[controller]")]
-    [Authorize(AuthenticationSchemes = "Identity.Application, Bearer", Roles = "Admin")]
+    //[Authorize(AuthenticationSchemes = "Identity.Application, Bearer", Roles = "Admin")]
+    [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
     public class AuthorsController(IBooksRepository repository, ILogger<AuthorsController> logger, IConfiguration configuration) : ControllerBase
     {
         [HttpGet]
@@ -45,12 +46,7 @@ namespace ReadingList.Controllers
 
             AuthorDTO? a = await repository.GetAuthor(id);
 
-            if (a == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(a);
+            return a == null ? NotFound() : Ok(a);
         }
 
         [HttpPost]
@@ -73,12 +69,7 @@ namespace ReadingList.Controllers
 
             AuthorDTO? author = await repository.UpdateAuthor(changedAuthor);
 
-            if (author == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(changedAuthor);
+            return author == null ? NotFound() : Ok(changedAuthor);
         }
 
         [HttpDelete("{id}")]
@@ -90,12 +81,7 @@ namespace ReadingList.Controllers
 
             Author? author = await repository.DeleteAuthor(id);
 
-            if (author == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(author);
+            return author == null ? NotFound() : Ok(author);
         }
     }
 }

@@ -43,8 +43,8 @@ namespace ReadingList.Models
                               Author = b.Author,
                               Sequence = b.Sequence,
                               Recommend = b.Recommend,
-                              ReadDates = b.ReadDates.DefaultIfEmpty(null).Aggregate((x, y) => (x + "; " + y)),
-                              Tags = b.Tags.DefaultIfEmpty(null).Aggregate((x, y) => (x + "; " + y)),
+                              ReadDates = b.ReadDates.DefaultIfEmpty(null).Aggregate((x, y) => x + "; " + y),
+                              Tags = b.Tags.DefaultIfEmpty(null).Aggregate((x, y) => x + "; " + y),
                               Source = b.Source,
                               ImageUrl = b.ImageUrl
                           });
@@ -70,7 +70,7 @@ namespace ReadingList.Models
 
             if (!string.IsNullOrWhiteSpace(readingListEntry.Tags))
             {
-                foreach (var item in (readingListEntry.Tags).Split(';'))
+                foreach (var item in readingListEntry.Tags.Split(';'))
                 {
                     var data = item.Trim();
                     var tagId = await (from t in dataContext.Tags
@@ -227,8 +227,8 @@ namespace ReadingList.Models
                     if (!book.BookTags.Any(bt => bt.TagId == tagEntry.Value))
                     {
                         Tag tag = await (from t in dataContext.Tags
-                                          where t.Data == tagEntry.Key
-                                          select t).FirstAsync();
+                                         where t.Data == tagEntry.Key
+                                         select t).FirstAsync();
                         book.BookTags.Add(new() { Book = book, Tag = tag });
                     }
                 }
@@ -265,21 +265,21 @@ namespace ReadingList.Models
                             .OrderBy(b => b.Name)
                             .Skip((pageNumber - 1) * pageSize)
                             .Take(pageSize)
-                            select new
-                            {
-                                b.BookId,
-                                b.Name,
-                                b.ISBN,
-                                Author = b.Author == null ? string.Empty : b.Author.Name,
-                                b.Sequence,
-                                b.Recommend,
-                                ReadDates = from brd in b.BookReadDates
-                                            select brd.ReadDate.ToString("yyyy-MM-dd"),
-                                Tags = from bt in b.BookTags
-                                       select bt.Tag.Data,
-                                Source = b.Source == null ? string.Empty : b.Source.Name,
-                                ImageUrl = b.ImageUrl ?? "http://2.bp.blogspot.com/_aDCnyPs488U/SyAtBDSHFHI/AAAAAAAAGDI/tFkGgFeISHI/s400/BookCoverGreenBrown.jpg"
-                            }).ToList()
+                          select new
+                          {
+                              b.BookId,
+                              b.Name,
+                              b.ISBN,
+                              Author = b.Author == null ? string.Empty : b.Author.Name,
+                              b.Sequence,
+                              b.Recommend,
+                              ReadDates = from brd in b.BookReadDates
+                                          select brd.ReadDate.ToString("yyyy-MM-dd"),
+                              Tags = from bt in b.BookTags
+                                     select bt.Tag.Data,
+                              Source = b.Source == null ? string.Empty : b.Source.Name,
+                              ImageUrl = b.ImageUrl ?? "http://2.bp.blogspot.com/_aDCnyPs488U/SyAtBDSHFHI/AAAAAAAAGDI/tFkGgFeISHI/s400/BookCoverGreenBrown.jpg"
+                          }).ToList()
                             .Select(b => new BookDTO
                             {
                                 Id = b.BookId,
@@ -288,8 +288,8 @@ namespace ReadingList.Models
                                 Author = b.Author,
                                 Sequence = b.Sequence,
                                 Recommend = b.Recommend,
-                                ReadDates = b.ReadDates.DefaultIfEmpty(null).Aggregate((x, y) => (x + "; " + y)),
-                                Tags = b.Tags.DefaultIfEmpty(null).Aggregate((x, y) => (x + "; " + y)),
+                                ReadDates = b.ReadDates.DefaultIfEmpty(null).Aggregate((x, y) => x + "; " + y),
+                                Tags = b.Tags.DefaultIfEmpty(null).Aggregate((x, y) => x + "; " + y),
                                 Source = b.Source,
                                 ImageUrl = b.ImageUrl
                             });
@@ -338,8 +338,8 @@ namespace ReadingList.Models
                 Author = book.Author,
                 Sequence = book.Sequence,
                 Recommend = book.Recommend,
-                ReadDates = book.ReadDates.DefaultIfEmpty(null).Aggregate((x, y) => (x + "; " + y)),
-                Tags = book.Tags.DefaultIfEmpty(null).Aggregate((x, y) => (x + "; " + y)),
+                ReadDates = book.ReadDates.DefaultIfEmpty(null).Aggregate((x, y) => x + "; " + y),
+                Tags = book.Tags.DefaultIfEmpty(null).Aggregate((x, y) => x + "; " + y),
                 Source = book.Source,
                 ImageUrl = book.ImageUrl
             };
@@ -566,7 +566,7 @@ namespace ReadingList.Models
                 Tag? tag = await dataContext.Tags.FindAsync(tagEntry.Value);
                 if (tag != null)
                 {
-                    bookTags.Add(new() { Tag = tag , Book = book});
+                    bookTags.Add(new() { Tag = tag, Book = book });
                 }
             }
             book.BookTags = bookTags;
@@ -638,18 +638,18 @@ namespace ReadingList.Models
                 .OrderBy(a => a.Name)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                select new
-                {
-                    a.AuthorId,
-                    a.Name,
-                    Books = from b in a.Books
-                            select b.Name
-                }).ToList()
+                          select new
+                          {
+                              a.AuthorId,
+                              a.Name,
+                              Books = from b in a.Books
+                                      select b.Name
+                          }).ToList()
                 .Select(a => new AuthorDTO
                 {
                     Id = a.AuthorId,
                     Name = a.Name,
-                    Books = a.Books.DefaultIfEmpty(null).Aggregate((x, y) => (x + "; " + y))
+                    Books = a.Books.DefaultIfEmpty(null).Aggregate((x, y) => x + "; " + y)
                 });
 
             return result;
@@ -681,7 +681,7 @@ namespace ReadingList.Models
             {
                 Id = author.AuthorId,
                 Name = author.Name,
-                Books = author.Books.DefaultIfEmpty(null).Aggregate((x, y) => (x + "; " + y))
+                Books = author.Books.DefaultIfEmpty(null).Aggregate((x, y) => x + "; " + y)
             };
 
             logger.LogDebug("returning author: {author.Name}", author.Name);
@@ -768,12 +768,12 @@ namespace ReadingList.Models
                             .OrderBy(t => t.Data)
                             .Skip((pageNumber - 1) * pageSize)
                             .Take(pageSize)
-                            select new
-                            {
-                                t.TagId,
-                                t.Data,
-                                Books = string.Join("; ",t.BookTags!.Select(b => b.Book.Name))
-                            }).ToList()
+                          select new
+                          {
+                              t.TagId,
+                              t.Data,
+                              Books = string.Join("; ", t.BookTags!.Select(b => b.Book.Name))
+                          }).ToList()
                             .Select(t => new TagDTO
                             {
                                 Id = t.TagId,
@@ -888,18 +888,18 @@ namespace ReadingList.Models
             var result = (from s in dataContext.Sources
                             .Include(s => s.Books)
                             .OrderBy(s => s.Name)
-                            select new
-                            {
-                                s.SourceId,
-                                s.Name,
-                                Books = from b in s.Books
-                                        select b.Name
-                            }).ToList()
+                          select new
+                          {
+                              s.SourceId,
+                              s.Name,
+                              Books = from b in s.Books
+                                      select b.Name
+                          }).ToList()
                             .Select(s => new SourceDTO
                             {
                                 Id = s.SourceId,
                                 Name = s.Name,
-                                Books = s.Books.DefaultIfEmpty(null).Aggregate((x, y) => (x + "; " + y))
+                                Books = s.Books.DefaultIfEmpty(null).Aggregate((x, y) => x + "; " + y)
                             });
 
             return result;
@@ -930,7 +930,7 @@ namespace ReadingList.Models
             {
                 Id = source.SourceId,
                 Name = source.Name,
-                Books = source.Books.DefaultIfEmpty(null).Aggregate((x, y) => (x + "; " + y))
+                Books = source.Books.DefaultIfEmpty(null).Aggregate((x, y) => x + "; " + y)
             };
 
             logger.LogDebug("returning source: {source.Name}", source.Name);
@@ -975,33 +975,49 @@ namespace ReadingList.Models
         }
 
 
-        public async Task<Source?> DeleteSource(long id)
+        public async Task<DeleteResult> DeleteSource(long id)
         {
             logger.LogDebug("DeleteSource: {id}", id);
 
+            DeleteResult result = new();
+
             Source? source = await dataContext.Sources.FindAsync(id);
+
             if (source != null)
             {
                 dataContext.Sources.Remove(source);
                 try
                 {
                     await dataContext.SaveChangesAsync();
+                    result.Success = true;
+                    result.Source = source;
+                    logger.LogDebug("deleted source: {source.Name}", source.Name);
                 }
                 catch (DbUpdateConcurrencyException x)
                 {
                     logger.LogDebug("DbUpdateConcurrencyException: {x}", x.ToString());
-                    throw;
+                    result.ExceptionType = "DbUpdateConcurrencyException";
+                    result.ExceptionMessage = "There was a conflict with what other users are currently doing.  Please wait and then try again after refreshing your browser.";
                 }
                 catch (DbUpdateException x)
                 {
                     logger.LogDebug("DbUpdateException: {x}", x.ToString());
-                    throw;
+                    result.ExceptionType = "DbUpdateException";
+                    result.ExceptionMessage = "Verify that any book with this source has been deleted first, and then try again.";
                 }
-
-                logger.LogDebug("deleted source: {source.Name}", source.Name);
             }
 
-            return source;
+            return result;
         }
+    }
+
+    public class DeleteResult
+    {
+        public bool Success { get; set; } = false;
+
+        public Source? Source { get; set; }
+
+        public string? ExceptionType { get; set; }
+        public string? ExceptionMessage { get; set; }
     }
 }
