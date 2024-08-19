@@ -1,17 +1,9 @@
 ﻿using ReadingList.Models;
 
-
 namespace ReadingList
 {
-    public class TestMiddleware
+    public class TestMiddleware(RequestDelegate requestDelegate)
     {
-        private RequestDelegate next;
-
-        public TestMiddleware(RequestDelegate requestDelegate)
-        {
-            next = requestDelegate;
-        }
-
         public async Task Invoke(HttpContext context, DataContext dataContext)
         {
             if (context.Request.Path == "/test")
@@ -25,7 +17,7 @@ namespace ReadingList
             }
             else
             {
-                await next(context);
+                await requestDelegate(context);
             }
         }
     }

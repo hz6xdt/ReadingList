@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using ReadingList;
 using ReadingList.Models;
-using ReadingList.Ui.Services;
 using System.Security.Claims;
 using System.Text;
 
@@ -118,7 +118,9 @@ app.UseHttpsRedirection();
 app.UseHttpLogging();
 
 
-app.UseMiddleware<ReadingList.TestMiddleware>();
+app.UseMiddleware<ErrorHandlingMiddleware>();
+app.UseMiddleware<TestMiddleware>();
+
 
 app.UseSwagger();
 app.UseSwaggerUI(options =>

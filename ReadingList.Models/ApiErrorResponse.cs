@@ -8,6 +8,6 @@ namespace ReadingList.Models
         public string? Message { get; set; }
 
         [JsonPropertyName("errors")]
-        public string[]? Errors { get; set; }
+        public IEnumerable<string>? Errors { get; set; }
     }
 }

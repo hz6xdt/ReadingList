@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using ReadingList.Exceptions;
+using ReadingList.Models;
 using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -32,12 +34,18 @@ namespace ReadingList.Controllers
 
         [HttpPost("token")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ApiErrorResponse))]
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Token([FromBody] Credentials creds)
         {
             IdentityUser? user = await usermgr.FindByNameAsync(creds.Username);
-            if (user != null && (await mgr.CheckPasswordSignInAsync(user, creds.Password, true)).Succeeded)
+
+            if (user == null)
+            {
+                throw new AuthException("Invalid username or password.");
+            }
+
+            if ((await mgr.CheckPasswordSignInAsync(user, creds.Password, true)).Succeeded)
             {
                 List<Claim> claims = [new(ClaimTypes.Name, creds.Username)];
 
@@ -60,8 +68,10 @@ namespace ReadingList.Controllers
                     token = handler.WriteToken(token)
                 });
             }
-
-            return Unauthorized();
+            else
+            {
+                throw new AuthException("Invalid username or password.");
+            }
         }
 
         public class Credentials

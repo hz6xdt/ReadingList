@@ -2,6 +2,7 @@
 <PageTitle>Login to Reading List</PageTitle>
 
 @using Blazored.LocalStorage
+@using ReadingList.Ui.Exceptions
 @inject IAuthenticationService AuthService
 @inject AuthenticationStateProvider AuthStateProvider
 @inject ILocalStorageService LocalStorage
@@ -29,6 +30,11 @@
 
             <button type="submit" class="btn btn-primary">Login</button>
 
+            @if (!string.IsNullOrWhiteSpace(errorMessage))
+            {
+                <div class="alert alert-danger my-2">@errorMessage</div>
+            }
+            
         </EditForm>
     </div>
 </div>
@@ -36,7 +42,11 @@
 
 @code
 {
+    [CascadingParameter]
+    public ErrorHandler? ErrorHandler { get; set; }
+
     private LoginRequest loginRequest = new();
+    private string errorMessage = string.Empty;
 
     private async Task SubmitLoginFormAsync()
     {
@@ -48,10 +58,20 @@
             await AuthStateProvider.GetAuthenticationStateAsync();
             Navigation.NavigateTo("/");
         }
+        catch (ApiResponseException x)
+        {
+            errorMessage = x.Message;
+        }
         catch (Exception x)
         {
-            // TODO: Log the error
-            Console.WriteLine(x.Message);
+            if (ErrorHandler is null)
+            {
+                Console.WriteLine(x.ToString());
+            }
+            else
+            {
+                ErrorHandler.HandleException(x);
+            }
         }
     }
 }

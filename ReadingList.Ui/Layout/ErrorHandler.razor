@@ -1,0 +1,35 @@
+﻿@inject ILogger<ErrorHandler> Logger
+
+<Popup @ref="popup" />
+
+<CascadingValue Value="this" IsFixed="true">
+    @ChildContent
+</CascadingValue>
+
+
+@code
+{
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private Popup? popup;
+
+    private void ShowAlertAsync(string message)
+    {
+        popup?.Show(message, "Error");
+    }
+
+    public void HandleException(Exception x)
+    {
+        Logger.LogError(x, x.Message);
+        switch (x)
+        {
+            case HttpRequestException _:
+                ShowAlertAsync("Failed to connect to the server.  Please check your connection, and then try again.");
+                break;
+            default:
+                ShowAlertAsync("Something went wrong!");
+                break;
+        }
+    }
+}
