@@ -38,6 +38,10 @@
     <input type="number" class="form-control" value="@BookData.Sequence" disabled />
 </div>
 <div class="form-group">
+    <label>Rating</label>
+    <div class="rating"><Rating IsReadOnly="true" StarCount="@BookData.Rating" /></div>
+</div>
+<div class="form-group">
     <label>Dates Read</label>
     <input class="form-control" value="@BookData.ReadDates" disabled />
 </div>
@@ -82,9 +86,9 @@
         {
             BookData = await Http.GetFromJsonAsync<BookDTO>($"/api/r1/books/{Id}") ?? new() { Name = string.Empty };
 
-            Logger.LogInformation("Received BookData -- Id: {Id}, Name: {Name}, ISBN: {ISBN}, Tags: {Tags}, ReadDates: {ReadDates}, Sequence: {Sequence}, Author: {Author}, " +
-                "ImageUrl: {ImageUrl}, Recommend: {Recommend}.",
-                BookData?.Id, BookData?.Name, BookData?.ISBN, BookData?.Tags, BookData?.ReadDates, BookData?.Sequence, BookData?.Author, BookData?.ImageUrl, BookData?.Recommend);
+            Logger.LogInformation(@"Received BookData -- Id: {Id}, Name: {Name}, ISBN: {ISBN}, Tags: {Tags}, ReadDates: {ReadDates}, Sequence: {Sequence}, Author: {Author},
+                Rating: {Rating}, ImageUrl: {ImageUrl}, Recommend: {Recommend}.",
+                BookData?.Id, BookData?.Name, BookData?.ISBN, BookData?.Tags, BookData?.ReadDates, BookData?.Sequence, BookData?.Rating, BookData?.Author, BookData?.ImageUrl, BookData?.Recommend);
         }
     }
 

@@ -28,6 +28,7 @@ namespace ReadingList.Models
                 {
                     Name = "Nine Princes In Amber",
                     Sequence = 1,
+                    Rating = 5,
                     ISBN = "0380014300",
                     ImageUrl = "https://d202m5krfqbpi5.cloudfront.net/books/1290060140l/9724168.jpg",
                     Author = a1
@@ -36,6 +37,7 @@ namespace ReadingList.Models
                 {
                     Name = "Roger Zelazny's Visual Guide To Amber",
                     ISBN = "0380755661",
+                    Rating = 2,
                     ImageUrl = "https://d202m5krfqbpi5.cloudfront.net/books/1215096661l/62001.jpg",
                     Author = a1,
                     Source = s1
@@ -53,6 +55,7 @@ namespace ReadingList.Models
                     Name = "Foundation",
                     Sequence = 1,
                     ISBN = "0380440652",
+                    Rating = 4,
                     ImageUrl = "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1258332664l/1706321.jpg",
                     Author = a2
                 };
@@ -67,6 +70,7 @@ namespace ReadingList.Models
                 {
                     Name = "Starship Troopers",
                     ISBN = "0425057739",
+                    Rating = 5,
                     ImageUrl = "https://d202m5krfqbpi5.cloudfront.net/books/1304018517l/573833.jpg",
                     Author = a3,
                     Recommend = true
@@ -75,6 +79,7 @@ namespace ReadingList.Models
                 {
                     Name = "Stranger In A Strange Land",
                     ISBN = "0399135863",
+                    Rating = 5,
                     ImageUrl = "http://pics.cdn.librarything.com/picsizes/cd/5f/cd5f005467a7dd5593753485251444341587343.jpg",
                     Author = a3
                 };

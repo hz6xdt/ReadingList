@@ -1,0 +1,21 @@
+﻿.star {
+    color: #ccc;
+    cursor: pointer;
+    font-size: 2rem;
+    margin-right: 1rem;
+}
+
+.starcompact {
+    color: #ccc;
+    cursor: pointer;
+    font-size: .7rem;
+    margin-right: .3rem;
+}
+
+.selected {
+    color: #5d7742;
+}
+
+.read-only {
+    cursor: default;
+}

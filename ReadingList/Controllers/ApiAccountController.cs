@@ -29,21 +29,19 @@ namespace ReadingList.Controllers
         public async Task<IActionResult> Logout()
         {
             await mgr.SignOutAsync();
-            return Ok();
+            return Ok(new
+            {
+                success = true
+            });
         }
 
-        [HttpPost("token")]
+        [HttpPost("token", Name = "Token")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ApiErrorResponse))]
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Token([FromBody] Credentials creds)
         {
-            IdentityUser? user = await usermgr.FindByNameAsync(creds.Username);
-
-            if (user == null)
-            {
-                throw new AuthException("Invalid username or password.");
-            }
+            IdentityUser? user = await usermgr.FindByNameAsync(creds.Username) ?? throw new AuthException("Invalid username or password.");
 
             if ((await mgr.CheckPasswordSignInAsync(user, creds.Password, true)).Succeeded)
             {
@@ -71,6 +69,51 @@ namespace ReadingList.Controllers
             else
             {
                 throw new AuthException("Invalid username or password.");
+            }
+        }
+
+        [HttpPost("register", Name = "Register")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ApiErrorResponse))]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> Register([FromBody] RegisterUserRequest registerRequest)
+        {
+            ArgumentNullException.ThrowIfNull(registerRequest);
+
+            IdentityUser? user = await usermgr.FindByNameAsync(registerRequest.Username);
+
+            if (user != null)
+            {
+                throw new AuthException("That username is not available.");
+            }
+
+            user = await usermgr.FindByEmailAsync(registerRequest.Email);
+
+            if (user != null)
+            {
+                throw new AuthException("That email address is already in use.");
+            }
+
+            user = new IdentityUser
+            {
+                UserName = registerRequest.Username,
+                Email = registerRequest.Email
+            };
+
+            var result = await usermgr.CreateAsync(user, registerRequest.Password);
+            if (result.Succeeded)
+            {
+                return Ok();
+            }
+            else
+            {
+                List<string> errors = [];
+
+                foreach (var error in result.Errors)
+                {
+                    errors.Add(error.Description);
+                }
+                throw new AuthException("Invalid registration request.", errors);
             }
         }
 

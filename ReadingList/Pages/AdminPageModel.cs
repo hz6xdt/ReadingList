@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace ReadingList.Pages
 {
-    [Authorize(Roles="Admin")]
+    [Authorize(AuthenticationSchemes = "Identity.Application, Bearer", Roles = "Admin")]
     public class AdminPageModel : PageModel
     {
     }

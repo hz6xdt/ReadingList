@@ -27,6 +27,7 @@ namespace ReadingList.Models
                               b.ISBN,
                               Author = b.Author == null ? null : b.Author.Name,
                               b.Sequence,
+                              b.Rating,
                               b.Recommend,
                               ReadDates = from brd in b.BookReadDates
                                           select brd.ReadDate.ToString("yyyy-MM-dd"),
@@ -42,6 +43,7 @@ namespace ReadingList.Models
                               ISBN = b.ISBN,
                               Author = b.Author,
                               Sequence = b.Sequence,
+                              Rating = b.Rating,
                               Recommend = b.Recommend,
                               ReadDates = b.ReadDates.DefaultIfEmpty(null).Aggregate((x, y) => x + "; " + y),
                               Tags = b.Tags.DefaultIfEmpty(null).Aggregate((x, y) => x + "; " + y),
@@ -176,6 +178,7 @@ namespace ReadingList.Models
                     ISBN = readingListEntry.ISBN,
                     Author = author,
                     Sequence = readingListEntry.Sequence,
+                    Rating = readingListEntry.Rating,
                     Recommend = readingListEntry.Recommend,
                     Source = source,
                     ImageUrl = readingListEntry.ImageUrl ?? Book.DefaultCoverImageUrl,
@@ -208,6 +211,7 @@ namespace ReadingList.Models
                 book.Author = author;
                 book.AuthorId = authorId == 0 ? null : authorId;
                 book.Sequence = readingListEntry.Sequence;
+                book.Rating = readingListEntry.Rating;
                 book.Recommend = readingListEntry.Recommend;
                 book.Source = source;
                 book.SourceId = sourceId == 0 ? null : sourceId;
@@ -272,6 +276,7 @@ namespace ReadingList.Models
                               b.ISBN,
                               Author = b.Author == null ? string.Empty : b.Author.Name,
                               b.Sequence,
+                              b.Rating,
                               b.Recommend,
                               ReadDates = from brd in b.BookReadDates
                                           select brd.ReadDate.ToString("yyyy-MM-dd"),
@@ -287,6 +292,7 @@ namespace ReadingList.Models
                                 ISBN = b.ISBN,
                                 Author = b.Author,
                                 Sequence = b.Sequence,
+                                Rating = b.Rating,
                                 Recommend = b.Recommend,
                                 ReadDates = b.ReadDates.DefaultIfEmpty(null).Aggregate((x, y) => x + "; " + y),
                                 Tags = b.Tags.DefaultIfEmpty(null).Aggregate((x, y) => x + "; " + y),
@@ -313,6 +319,7 @@ namespace ReadingList.Models
                                   b.ISBN,
                                   Author = b.Author == null ? string.Empty : b.Author.Name,
                                   b.Sequence,
+                                  b.Rating,
                                   b.Recommend,
                                   ReadDates = from br in b.BookReadDates
                                               select br.ReadDate.ToString("yyyy-MM-dd"),
@@ -337,6 +344,7 @@ namespace ReadingList.Models
                 ISBN = book.ISBN,
                 Author = book.Author,
                 Sequence = book.Sequence,
+                Rating = book.Rating,
                 Recommend = book.Recommend,
                 ReadDates = book.ReadDates.DefaultIfEmpty(null).Aggregate((x, y) => x + "; " + y),
                 Tags = book.Tags.DefaultIfEmpty(null).Aggregate((x, y) => x + "; " + y),
@@ -423,6 +431,7 @@ namespace ReadingList.Models
                 Name = newBook.Name,
                 Author = author,
                 Sequence = newBook.Sequence,
+                Rating = newBook.Rating,
                 Recommend = newBook.Recommend,
                 Source = source,
                 ImageUrl = newBook.ImageUrl ?? "http://2.bp.blogspot.com/_aDCnyPs488U/SyAtBDSHFHI/AAAAAAAAGDI/tFkGgFeISHI/s400/BookCoverGreenBrown.jpg"
@@ -554,6 +563,7 @@ namespace ReadingList.Models
             book.ISBN = changedBook.ISBN;
             book.Author = author;
             book.Sequence = changedBook.Sequence;
+            book.Rating = changedBook.Rating;
             book.Recommend = changedBook.Recommend;
             book.Source = source;
             book.ImageUrl = changedBook.ImageUrl ?? "http://2.bp.blogspot.com/_aDCnyPs488U/SyAtBDSHFHI/AAAAAAAAGDI/tFkGgFeISHI/s400/BookCoverGreenBrown.jpg";

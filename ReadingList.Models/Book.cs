@@ -12,6 +12,7 @@ namespace ReadingList.Models
         [DisplayName("Title")]
         public required string Name { get; set; }
         public int? Sequence { get; set; }
+        public int Rating { get; set; } = 0;
         public bool Recommend { get; set; } = false;
         public string? ISBN { get; set; }
         [Url]
@@ -35,11 +36,12 @@ namespace ReadingList.Models
                 ISBN = ISBN,
                 Author = Author?.Name,
                 Sequence = Sequence,
+                Rating = Rating,
                 Recommend = Recommend,
                 ReadDates = (from brd in BookReadDates
-                             select brd.ReadDate.ToString("yyyy-MM-dd")).DefaultIfEmpty(null).Aggregate((x, y) => (x + "; " + y)),
+                             select brd.ReadDate.ToString("yyyy-MM-dd")).DefaultIfEmpty(null).Aggregate((x, y) => x + "; " + y),
                 Tags = (from bt in BookTags
-                        select bt.Tag.Data).DefaultIfEmpty(null).Aggregate((x, y) => (x + "; " + y)),
+                        select bt.Tag.Data).DefaultIfEmpty(null).Aggregate((x, y) => x + "; " + y),
                 Source = Source?.Name,
                 ImageUrl = ImageUrl
             };

@@ -1,7 +1,8 @@
 ﻿@page "/"
-@inject ILoggingService Logging
-
 <PageTitle>Reading List</PageTitle>
+
+@inject ILoggingService Logging
+@using ReadingList.Ui.Layout
 
 <div class="row">
 
@@ -44,6 +45,10 @@
                     <label>Sequence</label>
                     <ValidationMessage For="@(() => BookData.Sequence)" />
                     <InputNumber TValue="int?" class="form-control" @bind-Value="BookData.Sequence" min="1" max="200" />
+                </div>
+                <div class="form-group">
+                    <label>Rating</label>
+                    <div class="rating text-center"><Rating @bind-StarCount="BookData.Rating" /></div>
                 </div>
                 <div class="form-group">
                     <label>Image URL</label>
@@ -106,6 +111,10 @@
                                 @if (@b.Sequence != null)
                                 {
                                     <div>Sequence: &nbsp;&nbsp;@b.Sequence</div>
+                                }
+                                @if (@b.Rating > 0)
+                                {
+                                    <div class="rating">Rating: &nbsp;&nbsp;<Rating IsReadOnly="true" IsCompact="true" StarCount=@b.Rating /></div>
                                 }
                                 @if (@b.Source != null)
                                 {
@@ -174,6 +183,7 @@
                     {
                         Name = BookData.Name,
                         Sequence = BookData.Sequence,
+                        Rating = BookData.Rating,
                         Recommend = BookData.Recommend,
                         ISBN = BookData.ISBN,
                         ReadDate = BookData.ReadDate,

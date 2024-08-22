@@ -1,0 +1,57 @@
+﻿@using System.Text;
+
+@for (int i = 1; i <= 5; i++)
+{
+    int starCount = i;
+    <i class="fa fa-star @GetStarClass(starCount)" @onclick="() => OnStarClicked(starCount)"></i>
+}
+
+
+@code
+{
+    [Parameter]
+    public int StarCount { get; set; } = 0;
+
+    [Parameter]
+    public bool IsReadOnly { get; set; }
+
+    [Parameter]
+    public bool IsCompact { get; set; }
+
+    [Parameter]
+    public EventCallback<int> StarCountChanged { get; set; }
+
+    private void OnStarClicked(int star)
+    {
+        if (IsReadOnly)
+            return;
+
+        StarCount = star;
+        StarCountChanged.InvokeAsync(star);
+    }
+
+    private string GetStarClass(int star)
+    {
+        // It's recommended to use the open source library: BlazorComponentUtilities to simplify the building of the classes list for a component
+        // https://github.com/EdCharbeneau/BlazorComponentUtilities
+
+        var classBuilder = new StringBuilder(17);
+
+        if (StarCount >= star)
+            classBuilder.Append("selected");
+
+        if (IsReadOnly)
+            classBuilder.Append(" readonly");
+
+        if (IsCompact)
+        {
+            classBuilder.Append(" starcompact");
+        }
+        else
+        {
+            classBuilder.Append(" star");
+        }
+
+        return classBuilder.ToString();
+    }
+}

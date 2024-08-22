@@ -7,7 +7,7 @@ namespace ReadingList
 {
     public class ErrorHandlingMiddleware(RequestDelegate requestDelegate, ILogger<ErrorHandlingMiddleware> logger)
     {
-        public async Task Invoke(HttpContext context, DataContext dataContext)
+        public async Task Invoke(HttpContext context)
         {
             try
             {
@@ -31,11 +31,11 @@ namespace ReadingList
             {
                 case AuthException x:
                     code = HttpStatusCode.Unauthorized;
-                    result.Message = exception.Message;
+                    result.Message = x.Message;
                     result.Errors = x.Errors;
                     break;
 
-                case Exception x:
+                case Exception:
                     logger.LogError(exception, "SERVER ERROR");
                     break;
             }

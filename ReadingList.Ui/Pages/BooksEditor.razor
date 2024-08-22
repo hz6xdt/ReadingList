@@ -42,6 +42,10 @@
             <InputNumber TValue="int?" class="form-control" @bind-Value="BookData.Sequence" readonly />
         </div>
         <div class="form-group">
+            <label>Rating</label>
+            <div class="rating"><Rating IsReadOnly="true" @bind-StarCount="@BookData.Rating" /></div>
+        </div>
+        <div class="form-group">
             <label>Read Dates</label>
             <InputText class="form-control" @bind-Value="BookData.ReadDates" DisplayName="Read Dates" readonly />
         </div>
@@ -95,6 +99,10 @@
             <label>Sequence</label>
             <ValidationMessage For="@(() => BookData.Sequence)" />
             <InputNumber class="form-control" @bind-Value="BookData.Sequence" />
+        </div>
+        <div class="form-group">
+            <label>Rating</label>
+            <div class="rating"><Rating @bind-StarCount="BookData.Rating" /></div>
         </div>
         <div class="form-group">
             <label>Read Dates</label>
@@ -164,6 +172,7 @@
                         {
                             Name = BookData.Name,
                             Sequence = BookData.Sequence,
+                            Rating = BookData.Rating,
                             Recommend = BookData.Recommend,
                             ISBN = BookData.ISBN,
                             ReadDates = BookData.ReadDates,
@@ -184,6 +193,7 @@
                                 Id = BookData.Id,
                                 Name = BookData.Name,
                                 Sequence = BookData.Sequence,
+                                Rating = BookData.Rating,
                                 Recommend = BookData.Recommend,
                                 ISBN = BookData.ISBN,
                                 ReadDates = BookData.ReadDates,

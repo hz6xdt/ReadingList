@@ -1,6 +1,6 @@
-﻿using System.ComponentModel;
+﻿using ReadingList.Validation;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using ReadingList.Validation;
 
 namespace ReadingList.Models
 {
@@ -16,6 +16,9 @@ namespace ReadingList.Models
 
         [Range(1, 200, ErrorMessage = "Sequence must be between 1 and 200 (if any).")]
         public int? Sequence { get; set; }
+
+        [Range(0, 5, ErrorMessage = "Rating must be between 0 and 5.")]
+        public int Rating { get; set; } = 0;
 
         public bool Recommend { get; set; } = false;
 
@@ -42,6 +45,7 @@ namespace ReadingList.Models
             BookId = Id,
             Name = Name,
             Sequence = Sequence,
+            Rating = Rating,
             Recommend = Recommend,
             ISBN = ISBN,
             ImageUrl = ImageUrl

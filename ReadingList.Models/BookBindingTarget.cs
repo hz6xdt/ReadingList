@@ -12,6 +12,9 @@ namespace ReadingList.Models
         [Range(1, 200, ErrorMessage = "Sequence must be between 1 and 200 (if any).")]
         public int? Sequence { get; set; }
 
+        [Range(0, 5, ErrorMessage = "Rating must be between 0 and 5.")]
+        public int Rating { get; set; } = 0;
+
         public bool Recommend { get; set; } = false;
 
         [StringLength(16)]

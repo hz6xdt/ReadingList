@@ -1,6 +1,8 @@
 ﻿@using Blazored.LocalStorage;
 @using System.Security.Claims
+@using ReadingList.Ui.Exceptions
 @inject ILocalStorageService LocalStorage
+@inject IAuthenticationService AuthService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
 <AuthorizeView>
@@ -11,6 +13,9 @@
         </div>
     </Authorized>
     <NotAuthorized>
+        <div class="d-flex align-items-center header">
+            <p class="mx-2"><NavLink href="/authentication/register">Sign up</NavLink></p>
+        </div>
         <NavLink class="btn btn-outline-warning" href="/authentication/login">Login</NavLink>
     </NotAuthorized>
 </AuthorizeView>
@@ -18,9 +23,29 @@
 
 @code
 {
+    [CascadingParameter]
+    public ErrorHandler? ErrorHandler { get; set; }
+
     private async Task LogoutAsync()
     {
         await LocalStorage.RemoveItemAsync("access_token");
+        
+        try
+        {
+            await AuthService.LogoutUserAsync();
+        }
+        catch (Exception x)
+        {
+            if (ErrorHandler is null)
+            {
+                Console.WriteLine(x.ToString());
+            }
+            else
+            {
+                ErrorHandler.HandleException(x);
+            }
+        }
+
         await AuthenticationStateProvider.GetAuthenticationStateAsync();
     }
 }

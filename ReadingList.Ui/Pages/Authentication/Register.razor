@@ -1,0 +1,80 @@
+﻿@page "/authentication/register"
+<PageTitle>Sign up for Reading List</PageTitle>
+
+@using ReadingList.Ui.Exceptions
+@inject IAuthenticationService AuthService
+@inject NavigationManager Navigation
+
+<h2>Welcome to Reading List!</h2>
+
+<div class="row">
+    <div class="col-sm-12 col-md-4">
+        <EditForm Model="registerRequest" OnValidSubmit="RegisterUserAsync">
+
+            <DataAnnotationsValidator />
+
+            <div class="mb-3">
+                <label>Username</label>
+                <InputText @bind-Value="@registerRequest.Username" class="form-control" />
+                <ValidationMessage For="@(() => registerRequest.Username)" />
+            </div>
+
+            <div class="mb-3">
+                <label>Email</label>
+                <InputText type="email" @bind-Value="@registerRequest.Email" class="form-control" />
+                <ValidationMessage For="@(() => registerRequest.Email)" />
+            </div>
+
+            <div class="mb-3">
+                <label>Password</label>
+                <InputText type="password" @bind-Value="@registerRequest.Password" class="form-control" />
+                <ValidationMessage For="@(() => registerRequest.Password)" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Sign up</button>
+
+            @if (!string.IsNullOrWhiteSpace(errorMessage))
+            {
+                <div class="alert alert-danger my-2">@errorMessage</div>
+            }
+
+        </EditForm>
+    </div>
+</div>
+
+
+@code {
+
+    [CascadingParameter]
+    public ErrorHandler? ErrorHandler { get; set; }
+
+    private RegisterUserRequest registerRequest = new() { Email = string.Empty, Password = string.Empty, Username = string.Empty};
+    private string errorMessage = string.Empty;
+
+    private async Task RegisterUserAsync()
+    {
+        errorMessage = string.Empty;
+        try
+        {
+            await AuthService.RegisterUserAsync(registerRequest);
+
+            Navigation.NavigateTo("/authentication/login");
+        }
+        catch (ApiResponseException x)
+        {
+            errorMessage = x.Message;
+        }
+        catch (Exception x)
+        {
+            if (ErrorHandler is null)
+            {
+                Console.WriteLine(x.ToString());
+            }
+            else
+            {
+                ErrorHandler.HandleException(x);
+            }
+        }
+    }
+
+}
