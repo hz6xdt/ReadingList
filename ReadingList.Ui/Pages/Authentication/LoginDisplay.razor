@@ -4,6 +4,7 @@
 @inject ILocalStorageService LocalStorage
 @inject IAuthenticationService AuthService
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager Navigation
 
 <AuthorizeView>
     <Authorized>
@@ -28,11 +29,11 @@
 
     private async Task LogoutAsync()
     {
-        await LocalStorage.RemoveItemAsync("access_token");
-        
         try
         {
+            await LocalStorage.RemoveItemAsync("access_token");
             await AuthService.LogoutUserAsync();
+            Navigation.NavigateTo("/");
         }
         catch (Exception x)
         {
