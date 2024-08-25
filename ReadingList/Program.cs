@@ -42,7 +42,7 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddDbContext<DataContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration["ConnectionStrings:ReadingListConnection"]);
+    options.UseSqlServer(builder.Configuration["ConnectionStrings:ReadingListConnection"], options => options.EnableRetryOnFailure(3));
     options.EnableSensitiveDataLogging(true);
 });
 
