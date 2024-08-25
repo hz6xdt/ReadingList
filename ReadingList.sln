@@ -9,6 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReadingList.Models", "Readi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReadingList.Ui", "ReadingList.Ui\ReadingList.Ui.csproj", "{9FF907E3-98A6-47B8-AA0B-3B05E47C6E59}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FDC5EE7B-FC66-4AF5-B805-3DE737A3A106}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\master_readinglistdvc.yml = .github\workflows\master_readinglistdvc.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
