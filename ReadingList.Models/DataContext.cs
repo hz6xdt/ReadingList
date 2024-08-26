@@ -12,5 +12,12 @@ namespace ReadingList.Models
         public DbSet<Source> Sources => Set<Source>();
         public DbSet<BookTag> BookTags => Set<BookTag>();
         public DbSet<BookReadDate> BookReadDates => Set<BookReadDate>();
+
+        public string TitleWithArticleRemoved(string title) => throw new NotSupportedException();
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            builder.HasDbFunction(typeof(DataContext).GetMethod(nameof(TitleWithArticleRemoved), new[] { typeof(string) })).HasName("TitleWithArticleRemoved");
+        }
     }
 }

@@ -266,7 +266,7 @@ namespace ReadingList.Models
                             .Include(b => b.Author)
                             .Include(b => b.Source)
                             .Include(b => b.BookTags)
-                            .OrderBy(b => b.Name)
+                            .OrderBy(b => dataContext.TitleWithArticleRemoved(b.Name))
                             .Skip((pageNumber - 1) * pageSize)
                             .Take(pageSize)
                           select new
