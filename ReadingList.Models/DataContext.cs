@@ -17,7 +17,10 @@ namespace ReadingList.Models
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.HasDbFunction(typeof(DataContext).GetMethod(nameof(TitleWithArticleRemoved), new[] { typeof(string) })).HasName("TitleWithArticleRemoved");
+            base.OnModelCreating(builder);
+
+            var methodinfo = typeof(DataContext).GetMethod(nameof(TitleWithArticleRemoved), [typeof(string)]);
+            builder.HasDbFunction(methodinfo!).HasName("TitleWithArticleRemoved");
         }
     }
 }
