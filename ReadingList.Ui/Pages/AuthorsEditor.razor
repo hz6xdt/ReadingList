@@ -1,33 +1,51 @@
 ﻿@page "/authors/edit/{id:long}"
+@page "/authors/delete/{id:long}"
 @page "/authors/create"
+<PageTitle>Authors @Mode | Reading List</PageTitle>
 
 @attribute [Authorize(Roles = "Admin")]
 
 <link href="/lib/css/blazorValidation.css" rel="stylesheet" />
 
-<PageTitle>Authors @Mode | Reading List</PageTitle>
 <h4 class="bg-@Theme text-center text-white p-2">Authors @Mode</h4>
 
 <EditForm Model="AuthorData" OnValidSubmit="HandleValidSubmit">
 
     <DataAnnotationsValidator />
 
-    @if (Mode == "Edit")
+    @if (Mode == "Delete")
     {
         <div class="form-group">
             <label>ID</label>
             <InputNumber class="form-control" @bind-Value="AuthorData.Id" readonly />
         </div>
-    }
-    <div class="form-group">
-        <label>Name</label>
-        <ValidationMessage For="@(() => AuthorData.Name)" />
-        <InputText class="form-control" @bind-Value="AuthorData.Name" />
-    </div>
-    <div class="text-center" p-2>
+        <div class="form-group">
+            <label>Name</label>
+            <ValidationMessage For="@(() => AuthorData.Name)" />
+            <InputText class="form-control" @bind-Value="AuthorData.Name" readonly />
+        </div>
         <NavLink class="btn btn-secondary mt-2 mb-5" href="authors">Back</NavLink>
-        <ValidButton type="submit" BtnTheme="@Theme">Save</ValidButton>
-    </div>
+        <ValidButton type="submit" BtnTheme="@Theme">Delete</ValidButton>
+    }
+    else
+    {
+        @if (Mode == "Edit")
+        {
+            <div class="form-group">
+                <label>ID</label>
+                <InputNumber class="form-control" @bind-Value="AuthorData.Id" readonly />
+            </div>
+        }
+        <div class="form-group">
+            <label>Name</label>
+            <ValidationMessage For="@(() => AuthorData.Name)" />
+            <InputText class="form-control" @bind-Value="AuthorData.Name" />
+        </div>
+        <div class="text-center" p-2>
+            <NavLink class="btn btn-secondary mt-2 mb-5" href="authors">Back</NavLink>
+            <ValidButton type="submit" BtnTheme="@Theme">Save</ValidButton>
+        </div>
+    }
 </EditForm>
 
 
@@ -48,15 +66,15 @@
     {
         if (Http != null)
         {
-            if (Mode == "Edit")
+            if (Mode == "Edit" || Mode == "Delete")
             {
                 AuthorData = await Http.GetFromJsonAsync<AuthorDTO>($"/api/r1/authors/{Id}") ?? new() { Name = string.Empty };
             }
         }
     }
 
-    public string Theme => Id == 0 ? "primary" : "warning";
-    public string Mode => Id == 0 ? "Create" : "Edit";
+    public string Mode => Id == 0 ? "Create" : (NavManager?.Uri.Contains("delete", StringComparison.OrdinalIgnoreCase)) ?? false ? "Delete" : "Edit";
+    public string Theme => Mode == "Create" ? "primary" : Mode == "Delete" ? "danger" : "warning";
 
     public async Task HandleValidSubmit()
     {
@@ -69,18 +87,29 @@
                         {
                             Name = AuthorData.Name
                         });
+                NavManager?.NavigateTo("authors");
             }
             else
             {
-                await Http.PutAsJsonAsync("/api/r1/authors",
-                    new AuthorUpdateBindingTarget
-                        {
-                            Id = AuthorData.Id,
-                            Name = AuthorData.Name
-                        });
+                if (Mode == "Edit")
+                {
+                    await Http.PutAsJsonAsync("/api/r1/authors",
+                        new AuthorUpdateBindingTarget
+                            {
+                                Id = AuthorData.Id,
+                                Name = AuthorData.Name
+                            });
+                    NavManager?.NavigateTo("authors");
+                }
+                else
+                {
+                    HttpResponseMessage resp = await Http.DeleteAsync($"/api/r1/authors/{AuthorData.Id}");
+                    if (resp.IsSuccessStatusCode)
+                    {
+                        NavManager?.NavigateTo("authors");
+                    }
+                }
             }
-
-            NavManager?.NavigateTo("authors");
         }
     }
 }

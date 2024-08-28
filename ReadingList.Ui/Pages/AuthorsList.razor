@@ -24,7 +24,7 @@
                     <td class="text-center">
                         <AuthorizeView Roles="Admin">
                             <NavLink class="btn btn-sm btn-warning" href="@GetEditUrl(a.Id)">Edit</NavLink>
-                            <button class="btn btn-sm btn-danger" @onclick="@(() => HandleDelete(a))">Delete</button>
+                            <NavLink class="btn btn-sm btn-danger" href="@GetDeleteUrl(a.Id)">Delete</NavLink>
                         </AuthorizeView>
                     </td>
                 </tr>
@@ -76,7 +76,7 @@
 
             if (TotalAuthors == 0)
             {
-                NoBooksMsg = "No authors as of yet.";
+                NoBooksMsg = "No authors as of yet...";
             }
             else
             {
@@ -91,16 +91,5 @@
     }
 
     string GetEditUrl(long id) => $"authors/edit/{id}";
-
-    public async Task HandleDelete(AuthorDTO a)
-    {
-        if (Http != null)
-        {
-            HttpResponseMessage resp = await Http.DeleteAsync($"/api/r1/authors/{a.Id}");
-            if (resp.IsSuccessStatusCode)
-            {
-                await UpdateData();
-            }
-        }
-    }
+    string GetDeleteUrl(long id) => $"authors/delete/{id}";
 }

@@ -1,4 +1,5 @@
 @page "/tags/edit/{id:long}"
+@page "/tags/delete/{id:long}"
 @page "/tags/create"
 <PageTitle>Tags @Mode | Reading List</PageTitle>
 
@@ -12,22 +13,41 @@
 
     <DataAnnotationsValidator />
 
-    @if (Mode == "Edit")
+    @if (Mode == "Delete")
     {
         <div class="form-group">
             <label>ID</label>
             <InputNumber TValue="long" class="form-control" @bind-Value="TagData.Id" readonly />
         </div>
+        <div class="form-group">
+            <label>Data</label>
+            <ValidationMessage For="@(() => TagData.Data)" />
+            <InputText class="form-control" @bind-Value="TagData.Data" readonly />
+        </div>
+        <div class="text-center" p-2>
+            <NavLink class="btn btn-secondary mt-2 mb-5" href="tags">Back</NavLink>
+            <ValidButton type="submit" BtnTheme="@Theme">Delete</ValidButton>
+        </div>
     }
-    <div class="form-group">
-        <label>Data</label>
-        <ValidationMessage For="@(() => TagData.Data)" />
-        <InputText class="form-control" @bind-Value="TagData.Data" />
-    </div>
-    <div class="text-center" p-2>
-        <NavLink class="btn btn-secondary mt-2 mb-5" href="tags">Back</NavLink>
-        <ValidButton type="submit" BtnTheme="@Theme">Save</ValidButton>
-    </div>
+    else
+    {
+        @if (Mode == "Edit")
+        {
+            <div class="form-group">
+                <label>ID</label>
+                <InputNumber TValue="long" class="form-control" @bind-Value="TagData.Id" readonly />
+            </div>
+        }
+        <div class="form-group">
+            <label>Data</label>
+            <ValidationMessage For="@(() => TagData.Data)" />
+            <InputText class="form-control" @bind-Value="TagData.Data" />
+        </div>
+        <div class="text-center" p-2>
+            <NavLink class="btn btn-secondary mt-2 mb-5" href="tags">Back</NavLink>
+            <ValidButton type="submit" BtnTheme="@Theme">Save</ValidButton>
+        </div>
+    }
 </EditForm>
 
 
@@ -44,19 +64,20 @@
 
     public TagDTO TagData { get; set; } = new TagDTO() { Data = string.Empty };
 
+
     protected async override Task OnParametersSetAsync()
     {
         if (Http != null)
         {
-            if (Mode == "Edit")
+            if (Mode == "Edit" || Mode == "Delete")
             {
                 TagData = await Http.GetFromJsonAsync<TagDTO>($"/api/r1/tags/{Id}") ?? new() { Data = string.Empty };
             }
         }
     }
 
-    public string Theme => Id == 0 ? "primary" : "warning";
-    public string Mode => Id == 0 ? "Create" : "Edit";
+    public string Mode => Id == 0 ? "Create" : (NavManager?.Uri.Contains("delete", StringComparison.OrdinalIgnoreCase)) ?? false ? "Delete" : "Edit";
+    public string Theme => Mode == "Create" ? "primary" : Mode == "Delete" ? "danger" : "warning";
 
     public async Task HandleValidSubmit()
     {
@@ -69,18 +90,29 @@
                         {
                             Data = TagData.Data ?? string.Empty
                         });
+                NavManager?.NavigateTo("tags");
             }
             else
             {
-                await Http.PutAsJsonAsync("/api/r1/tags",
-                    new TagUpdateBindingTarget
-                        {
-                            Id = TagData.Id,
-                            Data = TagData.Data ?? string.Empty
-                        });
+                if (Mode == "Edit")
+                {
+                    await Http.PutAsJsonAsync("/api/r1/tags",
+                        new TagUpdateBindingTarget
+                            {
+                                Id = TagData.Id,
+                                Data = TagData.Data ?? string.Empty
+                            });
+                    NavManager?.NavigateTo("tags");
+                }
+                else
+                {
+                    HttpResponseMessage resp = await Http.DeleteAsync($"/api/r1/tags/{TagData.Id}");
+                    if (resp.IsSuccessStatusCode)
+                    {
+                        NavManager?.NavigateTo("tags");
+                    }
+                }
             }
-
-            NavManager?.NavigateTo("tags");
         }
     }
 }

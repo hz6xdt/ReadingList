@@ -160,7 +160,6 @@
     public string Mode => Id == 0 ? "Create" : (NavManager?.Uri.Contains("delete", StringComparison.OrdinalIgnoreCase)) ?? false ? "Delete" : "Edit";
     public string Theme => Mode == "Create" ? "primary" : Mode == "Delete" ? "danger" : "warning";
 
-
     public async Task HandleValidSubmit()
     {
         if (Http != null)

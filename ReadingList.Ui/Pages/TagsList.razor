@@ -24,7 +24,7 @@
                     <td class="text-center">
                         <AuthorizeView Roles="Admin">
                             <NavLink class="btn btn-sm btn-warning" href="@GetEditUrl(t.Id)">Edit</NavLink>
-                            <button class="btn btn-sm btn-danger" @onclick="@(() => HandleDelete(t))">Delete</button>
+                            <NavLink class="btn btn-sm btn-danger" href="@GetDeleteUrl(t.Id)">Delete</NavLink>
                         </AuthorizeView>
                     </td>
                 </tr>
@@ -89,16 +89,5 @@
     }
 
     string GetEditUrl(long id) => $"tags/edit/{id}";
-
-    public async Task HandleDelete(TagDTO t)
-    {
-        if (Http != null)
-        {
-            HttpResponseMessage resp = await Http.DeleteAsync($"/api/r1/tags/{t.Id}");
-            if (resp.IsSuccessStatusCode)
-            {
-                await UpdateData();
-            }
-        }
-    }
+    string GetDeleteUrl(long id) => $"tags/delete/{id}";
 }
