@@ -1,10 +1,18 @@
 ﻿@inject ILoggingService Logging
+@inject NavigationManager Navigation
 
 @if (TotalPages > 1)
 {
+    <nav aria-label="Page navigation" class="current-page">
+        <ul class="pagination pagination-primary">
+            <li class="page-item active">
+                <InputText class="page-link active text-center" size="1" @bind-Value="CurrentPageNumberText" />
+            </li>
+        </ul>
+    </nav>
+
     <nav aria-label="Page navigation">
         <ul class="pagination pagination-primary">
-
             @if (CurrentPageNumber > 1)
             {
                 <li class="page-item">
@@ -43,6 +51,40 @@
     [Parameter] public int CurrentPageNumber { get; set; } = 1;
     [Parameter] public int ItemsPerPage { get; set; } = 10;
     [Parameter] public int TotalItems { get; set; }
+
+
+    public string CurrentPageNumberText
+    {
+        get
+        {
+            return CurrentPageNumber.ToString();
+        }
+        set
+        {
+            if (int.TryParse(value, out int intValue))
+            {
+                if (intValue < 1)
+                {
+                    intValue = 1;
+                }
+                if (intValue > TotalPages)
+                {
+                    intValue = TotalPages;
+                }
+                CurrentPageNumber = intValue;
+                Navigation.NavigateTo(GetUrl(CurrentPageNumber));
+            }
+        }
+    }
+
+    private int myVar;
+
+    public int MyProperty
+    {
+        get { return myVar; }
+        set { myVar = value; }
+    }
+
 
     public int TotalPages
     {

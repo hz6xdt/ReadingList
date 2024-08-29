@@ -5,16 +5,16 @@ namespace ReadingList.Models
 {
     public static class SeedData
     {
-        public static void SeedDatabase(DataContext context)
+        public static void SeedDatabase(DataContext dataContext)
         {
-            context.Database.Migrate();
+            dataContext.Database.Migrate();
 
-            if (!context.Books.Any()
-             && !context.Sources.Any()
-             && !context.BookReadDates.Any()
-             && !context.Tags.Any()
-             && !context.BookTags.Any()
-             && !context.Authors.Any())
+            if (!dataContext.Books.Any()
+             && !dataContext.Sources.Any()
+             && !dataContext.BookReadDates.Any()
+             && !dataContext.Tags.Any()
+             && !dataContext.BookTags.Any()
+             && !dataContext.Authors.Any())
             {
                 Author a1 = new() { Name = "Zelazny, Roger" };
                 Author a2 = new() { Name = "Asimov, Isaac" };
@@ -123,11 +123,11 @@ namespace ReadingList.Models
                 BookTag bt10 = new() { Book = b2, Tag = t1 };
                 BookTag bt11 = new() { Book = b3, Tag = t2 };
 
-                context.Books.AddRange(b1, b2, b2, b4, b5, b6, b7);
-                context.BookReadDates.AddRange(brd1, brd2, brd3, brd4, brd5, brd6, brd7, brd8, brd9, brd10, brd11, brd12, brd13, brd14, brd15, brd16);
-                context.BookTags.AddRange(bt1, bt2, bt3, bt4, bt5, bt6, bt7, bt8, bt9, bt10, bt11);
+                dataContext.Books.AddRange(b1, b2, b2, b4, b5, b6, b7);
+                dataContext.BookReadDates.AddRange(brd1, brd2, brd3, brd4, brd5, brd6, brd7, brd8, brd9, brd10, brd11, brd12, brd13, brd14, brd15, brd16);
+                dataContext.BookTags.AddRange(bt1, bt2, bt3, bt4, bt5, bt6, bt7, bt8, bt9, bt10, bt11);
 
-                context.SaveChanges();
+                dataContext.SaveChanges();
             }
         }
     }

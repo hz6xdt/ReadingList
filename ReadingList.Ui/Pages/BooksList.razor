@@ -22,7 +22,7 @@
                     <td><img class="rounded img-fluid img-max" src="@b.ImageUrl" /></td>
                     <td>@b.Name</td>
                     <td>@b.Author</td>
-                    <td class="text-center">
+                    <td class="text-center book-list-buttons">
                         <NavLink class="btn btn-sm btn-info" href="@GetDetailsUrl(b.Id)">Details</NavLink>
                         <AuthorizeView Roles="Admin">
                             <NavLink class="btn btn-sm btn-warning" href="@GetEditUrl(b.Id)">Edit</NavLink>

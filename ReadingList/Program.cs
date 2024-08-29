@@ -141,8 +141,8 @@ app.MapFallbackToFile("/{*path:nonfile}", "/index.html");
 
 
 
-var context = app.Services.CreateScope().ServiceProvider.GetRequiredService<DataContext>();
-SeedData.SeedDatabase(context);
+var dataContext = app.Services.CreateScope().ServiceProvider.GetRequiredService<DataContext>();
+SeedData.SeedDatabase(dataContext);
 IdentitySeedData.CreateAdminAccount(app.Services, app.Configuration);
 
 
