@@ -94,7 +94,7 @@
         }
     }
 
-    string GetDetailsUrl(long id) => $"books/details/{id}";
-    string GetEditUrl(long id) => $"books/edit/{id}";
-    string GetDeleteUrl(long id) => $"books/delete/{id}";
+    string GetDetailsUrl(long id) => $"books/page/{Page}/details/{id}";
+    string GetEditUrl(long id) => $"books/page/{Page}/edit/{id}";
+    string GetDeleteUrl(long id) => $"books/page/{Page}/delete/{id}";
 }

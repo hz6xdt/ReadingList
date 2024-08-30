@@ -1,4 +1,4 @@
-﻿@page "/books/details/{id:long}"
+﻿@page "/books/page/{page:int}/details/{id:long}"
 <PageTitle>Book Details | Reading List</PageTitle>
 
 @inject ILogger<BooksDetails> Logger
@@ -61,7 +61,7 @@
     <input class="form-control" value="@BookData.Source" disabled />
 </div>
 <div class="text-center">
-    <NavLink class="btn btn-secondary m-2" href="books">Back</NavLink>
+    <NavLink class="btn btn-secondary m-2" href="@GetPageUrl(Page)">Back</NavLink>
     <AuthorizeView Roles="Admin">
         <NavLink class="btn btn-info m-2" href="@GetEditUrl(Id)">Edit</NavLink>
     </AuthorizeView>
@@ -78,6 +78,9 @@
     [Parameter]
     public long Id { get; set; }
 
+    [Parameter]
+    public int Page { get; set; } = 1;
+
     public BookDTO BookData { get; set; } = new BookDTO() { Name = string.Empty };
 
     protected async override Task OnParametersSetAsync()
@@ -92,5 +95,6 @@
         }
     }
 
-    string GetEditUrl(long id) => $"books/edit/{id}";
+    string GetEditUrl(long id) => $"books/page/{Page}/edit/{id}";
+    string GetPageUrl(int page) => $"books/page/{Page}";
 }

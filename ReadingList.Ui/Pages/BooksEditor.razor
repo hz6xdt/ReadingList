@@ -1,5 +1,5 @@
-﻿@page "/books/edit/{id:long}"
-@page "/books/delete/{id:long}"
+﻿@page "/books/page/{page:int}/edit/{id:long}"
+@page "/books/page/{page:int}/delete/{id:long}"
 @page "/books/create"
 <PageTitle>Books @Mode | Reading List</PageTitle>
 
@@ -125,7 +125,7 @@
             <InputText class="form-control" @bind-Value="BookData.Source" />
         </div>
         <div class="text-center">
-            <NavLink class="btn btn-secondary mt-2 mb-5" href="books">Back</NavLink>
+            <NavLink class="btn btn-secondary mt-2 mb-5" href="@GetPageUrl(Page)">Back</NavLink>
             <ValidButton type="submit" BtnTheme="@Theme">Save</ValidButton>
         </div>
     }
@@ -142,6 +142,9 @@
 
     [Parameter]
     public long Id { get; set; }
+
+    [Parameter]
+    public int Page { get; set; } = 1;
 
     public BookDTO BookData { get; set; } = new BookDTO() { Name = string.Empty };
 
@@ -201,17 +204,19 @@
                                 Tags = BookData.Tags,
                                 Source = BookData.Source
                             });
-                    NavManager?.NavigateTo("books");
+                    NavManager?.NavigateTo($"books/page/{Page}");
                 }
                 else
                 {
                     HttpResponseMessage resp = await Http.DeleteAsync($"/api/r1/books/{BookData.Id}");
                     if (resp.IsSuccessStatusCode)
                     {
-                        NavManager?.NavigateTo("books");
+                        NavManager?.NavigateTo($"books/page/{Page}");
                     }
                 }
             }
         }
     }
+
+        string GetPageUrl(int page) => $"books/page/{Page}";
 }

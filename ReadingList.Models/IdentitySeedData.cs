@@ -30,7 +30,7 @@ namespace ReadingList.Models
                     await roleManager.CreateAsync(new IdentityRole(role));
                 }
 
-                IdentityUser user = new IdentityUser
+                IdentityUser user = new()
                 {
                     UserName = username,
                     Email = email
