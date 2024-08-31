@@ -304,6 +304,48 @@ namespace ReadingList.Models
         }
 
 
+        public IEnumerable<BookDTO> GetFilteredBooks(string startsWith)
+        {
+            logger.LogDebug("GetFilteredBooks -- startsWith: {startsWith}", startsWith);
+
+            var result = (from b in dataContext.Books
+                            .Where(b => EF.Functions.Like(b.Name, $"{startsWith}%"))
+                            .Include(b => b.Author)
+                            .Include(b => b.Source)
+                            .Include(b => b.BookTags)
+                            .OrderBy(b => b.Name)
+                          select new
+                          {
+                              b.BookId,
+                              b.Name,
+                              b.ISBN,
+                              Author = b.Author == null ? string.Empty : b.Author.Name,
+                              b.Sequence,
+                              b.Rating,
+                              b.Recommend,
+                              Tags = from bt in b.BookTags
+                                     select bt.Tag.Data,
+                              Source = b.Source == null ? string.Empty : b.Source.Name,
+                              ImageUrl = b.ImageUrl ?? "http://2.bp.blogspot.com/_aDCnyPs488U/SyAtBDSHFHI/AAAAAAAAGDI/tFkGgFeISHI/s400/BookCoverGreenBrown.jpg"
+                          }).ToList()
+                            .Select(b => new BookDTO
+                            {
+                                Id = b.BookId,
+                                Name = b.Name,
+                                ISBN = b.ISBN,
+                                Author = b.Author,
+                                Sequence = b.Sequence,
+                                Rating = b.Rating,
+                                Recommend = b.Recommend,
+                                Tags = b.Tags.DefaultIfEmpty(null).Aggregate((x, y) => x + "; " + y),
+                                Source = b.Source,
+                                ImageUrl = b.ImageUrl
+                            });
+
+            return result;
+        }
+
+
         public async Task<BookDTO?> GetBook(long id)
         {
             logger.LogDebug("GetBook: {id}", id);

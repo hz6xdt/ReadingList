@@ -8,6 +8,7 @@
         Task<int> GetBookCount();
         IEnumerable<BookDTO> GetBooks(int pageNumber, int pageSize);
         Task<BookDTO?> GetBook(long id);
+        IEnumerable<BookDTO> GetFilteredBooks(string startsWith);
         Task<BookDTO> AddBook(BookBindingTarget newBook);
         Task<BookDTO?> UpdateBook(BookUpdateBindingTarget changedBook);
         Task<Book?> DeleteBook(long id);

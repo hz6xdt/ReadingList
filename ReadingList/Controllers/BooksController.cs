@@ -49,6 +49,15 @@ namespace ReadingList.Controllers
             return b == null ? NotFound() : Ok(b);
         }
 
+        [HttpGet("filter/{startsWith}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<BookDTO>))]
+        public IEnumerable<BookDTO> GetFilteredBooks(string startsWith = "%")
+        {
+            logger.LogDebug("Response for GET /filter/{startsWith} started", startsWith);
+
+            return repository.GetFilteredBooks(startsWith);
+        }
+
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(BookDTO))]
         public async Task<IActionResult> AddBook(BookBindingTarget target)

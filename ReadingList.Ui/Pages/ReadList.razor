@@ -24,7 +24,27 @@
                 <div class="form-group">
                     <label>Title</label>
                     <ValidationMessage For="@(() => BookData.Name)" />
-                    <InputText class="form-control" @bind-Value="BookData.Name" />
+                    <div class="autocomplete">
+                        <InputText class="form-control filter" @bind-Value="BookData.Name" @bind-Value:after="HandleNameInput" />
+                        @if (MatchingBooks != null)
+                        {
+                            <ul class="options">
+                                @if (MatchingBooks.Any())
+                                {
+                                    @foreach (var book in MatchingBooks)
+                                    {
+                                        <li class="option" @onclick="@(() => SelectBook(book.Id))">
+                                            <span class="option-text">@book.Name</span>
+                                        </li>
+                                    }
+                                }
+                                else
+                                {
+                                    <li class="disabled option">No matches...</li>
+                                }
+                            </ul>
+                        }
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>ISBN</label>
@@ -135,10 +155,8 @@
 </div>
 
 
-
-
-@code {
-
+@code
+{
     [Inject]
     public HttpClient? Http { get; set; }
 
@@ -151,6 +169,7 @@
 
     public ReadBindingTarget BookData { get; set; } = new ReadBindingTarget() { Name = string.Empty };
     public BookDTO[] RecentBooks { get; set; } = Array.Empty<BookDTO>();
+    public List<BookDTO>? MatchingBooks { get; set; }
 
 
     private void ResetClick()
@@ -197,5 +216,39 @@
             Logging.Log("Getting current read list.");
             RecentBooks = await Http.GetFromJsonAsync<BookDTO[]>("/api/r1/readList") ?? Array.Empty<BookDTO>();
         }
+    }
+
+    private async Task HandleNameInput()
+    {
+        if (Http != null && !string.IsNullOrWhiteSpace(BookData.Name))
+        {
+            string startsWith = BookData.Name;
+
+            if (startsWith?.Length >= 3)
+            {
+                MatchingBooks = await Http.GetFromJsonAsync<List<BookDTO>>($"api/r1/books/filter/{startsWith}") ?? new();
+            }
+            else
+            {
+                MatchingBooks = null;
+            }
+        }
+    }
+
+    private void SelectBook(long id)
+    {
+        var selectedBook = MatchingBooks!.First(b => b.Id == id);
+
+        BookData.Name = selectedBook.Name;
+        BookData.Sequence = selectedBook.Sequence;
+        BookData.Rating = selectedBook.Rating;
+        BookData.Recommend = selectedBook.Recommend;
+        BookData.ISBN = selectedBook.ISBN;
+        BookData.ImageUrl = selectedBook.ImageUrl;
+        BookData.Author = selectedBook.Author;
+        BookData.Tags = selectedBook.Tags;
+        BookData.Source = selectedBook.Source;
+
+        MatchingBooks = null;
     }
 }
