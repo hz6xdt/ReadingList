@@ -20,7 +20,7 @@ namespace ReadingList.Controllers
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Login([FromBody] Credentials creds)
         {
-            Microsoft.AspNetCore.Identity.SignInResult result = await mgr.PasswordSignInAsync(creds.Username, creds.Password, false, false);
+            var result = await mgr.PasswordSignInAsync(creds.Username, creds.Password, false, false);
 
             return result.Succeeded ? (IActionResult)Ok() : throw new AuthException("Invalid username or password.");
         }
@@ -42,7 +42,7 @@ namespace ReadingList.Controllers
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Token([FromBody] Credentials creds)
         {
-            Microsoft.AspNetCore.Identity.SignInResult result = await mgr.PasswordSignInAsync(creds.Username, creds.Password, false, false);
+            _ = await mgr.PasswordSignInAsync(creds.Username, creds.Password, false, false);
 
             IdentityUser? user = await usermgr.FindByNameAsync(creds.Username) ?? throw new AuthException("Invalid username or password.");
 
