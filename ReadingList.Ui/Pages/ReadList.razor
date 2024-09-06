@@ -11,7 +11,6 @@
 
             <h5 class="bg-primary text-white p-2">Add New Entry:</h5>
 
-
             <EditForm Model="BookData" OnValidSubmit="HandleValidSubmit">
 
                 <DataAnnotationsValidator />
@@ -21,30 +20,16 @@
                     <ValidationMessage For="@(() => BookData.ReadDate)" />
                     <InputDate TValue="DateOnly" class="form-control" @bind-Value="BookData.ReadDate" DisplayName="Read Date" />
                 </div>
-                <div class="form-group">
-                    <label>Title</label>
-                    <ValidationMessage For="@(() => BookData.Name)" />
-                    <Autocomplete Items="MatchingBooks" SelectedValue="@(BookData.Name)" OnSelectItem="SelectBook" TItem="BookDTO" Context="bookDTO" ApiUrl="api/r1/books/filter/">
-                        <OptionTemplate>
-                            <span class="option-text">@bookDTO.Name</span>
-                        </OptionTemplate>
-                    </Autocomplete>
-                </div>
-                <div class="form-group">
-                    <label>ISBN</label>
-                    <ValidationMessage For="@(() => BookData.ISBN)" />
-                    <InputText class="form-control" @bind-Value="BookData.ISBN" />
-                </div>
-                <div class="form-group">
-                    <label>Author</label>
-                    <ValidationMessage For="@(() => BookData.Author)" />
-                    <InputText class="form-control" @bind-Value="BookData.Author" />
-                </div>
-                <div class="form-group">
-                    <label>Tags</label>
-                    <ValidationMessage For="@(() => BookData.Tags)" />
-                    <InputText class="form-control" @bind-Value="BookData.Tags" />
-                </div>
+                <DvcInputText Label="Title" Id="name" @bind-Value="BookData.Name" OnSelectItem="SelectBook"
+                              TItem="BookListItem" Context="bookListItem" ApiUrl="api/r1/books/filter/" ValidationFor="@(() => BookData.Name)">
+                </DvcInputText>
+                <DvcInputText Label="ISBN" Id="isbn" @bind-Value="BookData.ISBN" ValidationFor="@(() => BookData.ISBN)" TItem="BookListItem" />
+                <DvcInputText Label="Author" Id="author" @bind-Value="BookData.Author" OnSelectItem="SelectAuthor"
+                              TItem="AuthorListItem" Context="authorListItem" ApiUrl="api/r1/authors/filter/" ValidationFor="@(() => BookData.Author)">
+                </DvcInputText>
+                <DvcInputText Label="Tags" Id="tags" @bind-Value="BookData.Tags" OnSelectItem="SelectTag"
+                              TItem="TagListItem" Context="tagListItem" ApiUrl="api/r1/tags/filter/" ValidationFor="@(() => BookData.Tags)">
+                </DvcInputText>
                 <div class="form-group">
                     <label>Sequence</label>
                     <ValidationMessage For="@(() => BookData.Sequence)" />
@@ -54,21 +39,16 @@
                     <label>Rating</label>
                     <div class="rating text-center"><Rating @bind-StarCount="BookData.Rating" /></div>
                 </div>
-                <div class="form-group">
-                    <label>Image URL</label>
-                    <ValidationMessage For="@(() => BookData.ImageUrl)" />
-                    <InputText class="form-control" @bind-Value="BookData.ImageUrl" DisplayName="Cover Image URL" />
-                </div>
+                <DvcInputText Label="Image URL" Id="imageUrl" @bind-Value="BookData.ImageUrl" DisplayName="Cover Image URL"
+                              TItem="BookListItem" ValidationFor="@(() => BookData.ImageUrl)" />
                 <div class="form-group">
                     <label>Recommend</label>
                     <ValidationMessage For="@(() => BookData.Recommend)" />
                     <InputCheckbox class="form-control read-input" @bind-Value="BookData.Recommend" />
                 </div>
-                <div class="form-group">
-                    <label>Source</label>
-                    <ValidationMessage For="@(() => BookData.Source)" />
-                    <InputText class="form-control" @bind-Value="BookData.Source" />
-                </div>
+                <DvcInputText Label="Source" Id="source" @bind-Value="BookData.Source" OnSelectItem="SelectSource"
+                              TItem="SourceListItem" Context="sourceListItem" ApiUrl="api/r1/sources/filter/" ValidationFor="@(() => BookData.Source)">
+                </DvcInputText>
                 <div class="text-center">
                     <button class="btn btn-secondary mt-2 mb-5" @onclick="ResetClick">Reset</button>
                     <ValidButton type="submit" BtnTheme="primary">Save</ValidButton>
@@ -147,13 +127,9 @@
     [Inject]
     public NavigationManager? NavManager { get; set; }
 
-    [Parameter]
-    public long Id { get; set; }
-
 
     public ReadBindingTarget BookData { get; set; } = new ReadBindingTarget() { Name = string.Empty };
     public BookDTO[] RecentBooks { get; set; } = Array.Empty<BookDTO>();
-    List<BookDTO>? MatchingBooks;
 
 
     private void ResetClick()
@@ -163,11 +139,6 @@
 
 
     protected async override Task OnInitializedAsync()
-    {
-        await UpdateData();
-    }
-
-    private async Task UpdateData()
     {
         if (Http != null)
         {
@@ -202,26 +173,9 @@
         }
     }
 
-    private async Task HandleNameInput()
+    private void SelectBook(BookListItem selectedBook)
     {
-        if (Http != null && !string.IsNullOrWhiteSpace(BookData.Name))
-        {
-            string startsWith = BookData.Name;
-
-            if (startsWith?.Length >= 3)
-            {
-                MatchingBooks = await Http.GetFromJsonAsync<List<BookDTO>>($"api/r1/books/filter/{startsWith}") ?? new();
-            }
-            else
-            {
-                MatchingBooks = null;
-            }
-        }
-    }
-
-    private void SelectBook(BookDTO selectedBook)
-    {
-        BookData.Name = selectedBook.Name;
+        BookData.Name = selectedBook.Text;
         BookData.Sequence = selectedBook.Sequence;
         BookData.Rating = selectedBook.Rating;
         BookData.Recommend = selectedBook.Recommend;
@@ -230,7 +184,20 @@
         BookData.Author = selectedBook.Author;
         BookData.Tags = selectedBook.Tags;
         BookData.Source = selectedBook.Source;
+    }
 
-        MatchingBooks = null;
+    private void SelectAuthor(AuthorListItem selectedAuthor)
+    {
+        BookData.Author = selectedAuthor.Text;
+    }
+
+    private void SelectSource(SourceListItem selectedSource)
+    {
+        BookData.Source = selectedSource.Text;
+    }
+
+    private void SelectTag(TagListItem selectedTag)
+    {
+        BookData.Tags = selectedTag.Text;
     }
 }

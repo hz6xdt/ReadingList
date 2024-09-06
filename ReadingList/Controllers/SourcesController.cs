@@ -35,6 +35,15 @@ namespace ReadingList.Controllers
             return s == null ? NotFound() : Ok(s);
         }
 
+        [HttpGet("filter/{startsWith}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<SourceListItem>))]
+        public IEnumerable<SourceListItem> GetFilteredSources(string startsWith = "%")
+        {
+            logger.LogDebug("Response for GET /filter/{startsWith} started", startsWith);
+
+            return repository.GetFilteredSources(startsWith);
+        }
+
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(SourceDTO))]
         public async Task<IActionResult> AddSource(SourceBindingTarget target)

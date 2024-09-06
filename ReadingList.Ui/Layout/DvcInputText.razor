@@ -1,0 +1,168 @@
+﻿@typeparam TItem where TItem : IListItem
+@inject HttpClient http
+@inherits InputBase<string>
+
+@using System.Linq.Expressions
+
+<div class="form-control-wrapper">
+    @if (!string.IsNullOrWhiteSpace(Label))
+    {
+        <label class="form-control-label" for="@Id">@Label</label>
+    }
+
+    <div class="form-control-validation">
+        <ValidationMessage For="@ValidationFor" />
+    </div>
+
+    <div class="autocomplete">
+
+        <input class="form-control @CssClass" id="@Id" @bind="@CurrentValue" @oninput=HandleInput @onkeydown=HandleKeyDown @onkeydown:preventDefault="preventDefault" />
+
+        @if (Items?.Any() == true)
+        {
+            <ul class="options">
+                @{
+                    int i = 1;
+
+                    @foreach (var item in Items)
+                    {
+                        <li class="option" @key="item.Text" tabindex="@i" @ref="Reference" @onmousedown="(() => ListItemClick(item))"
+                                           @onkeydown=HandleKeyDown @onkeydown:preventDefault="preventDefault">
+                            <span class="option-text">@item.Text</span>
+                        </li>
+
+                        i++;
+                    }
+                }
+            </ul>
+        }
+    </div>
+</div>
+
+
+@code
+{
+    [Parameter, EditorRequired] public Expression<Func<string>> ValidationFor { get; set; } = default!;
+    [Parameter] public string? Id { get; set; }
+    [Parameter] public string? Label { get; set; }
+    [Parameter] public string? ApiUrl { get; set; }
+    [Parameter] public EventCallback<TItem> OnSelectItem { get; set; }
+    [Parameter] public int StartLength { get; set; } = 3;
+
+    public List<TItem>? Items { get; set; }
+    private bool preventDefault = false;
+
+    private List<ElementReference> refs = [];
+    public ElementReference Reference { set => refs.Add(value); }
+
+
+    async Task HandleInput(ChangeEventArgs e)
+    {
+        var startsWith = e.Value?.ToString();
+        if (startsWith?.Length >= StartLength && !string.IsNullOrWhiteSpace(ApiUrl))
+        {
+            Items = await http.GetFromJsonAsync<List<TItem>>($"{ApiUrl}{startsWith}");
+        }
+        else
+        {
+            Items = default;
+        }
+    }
+
+    async Task SelectItem(TItem item) => await OnSelectItem.InvokeAsync(item);
+
+    // void HandleFocusOut()
+    // {
+    //     Items = default;
+    // }
+
+    async Task ListItemClick(TItem item)
+    {
+        CurrentValue = item.Text;
+        await OnSelectItem.InvokeAsync(item);
+    }
+
+
+    async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        List<string> preventKeys = ["ArrowDown", "ArrowUp", "Enter", "Escape"];
+
+        if (e.Key == "ArrowDown")
+        {
+            SelectNextItem();
+        }
+        else if (e.Key == "ArrowUp")
+        {
+            SelectPreviousItem();
+        }
+        else if (e.Key == "Enter" && Items?.Any(i => i.IsSelected) == true)
+        {
+            await ListItemClick(Items.First(i => i.IsSelected));
+        }
+        else if (e.Key == "Escape")
+        {
+            Items = default;
+        }
+
+        preventDefault = preventKeys.Contains(e.Key);
+    }
+
+    private void SelectNextItem()
+    {
+        if (Items?.Any() == true)
+        {
+            var prevItem = Items.FirstOrDefault(i => i.IsSelected);
+            if (prevItem is null)
+            {
+                Items.First().IsSelected = true;
+                refs[0].FocusAsync();
+                StateHasChanged();
+            }
+            else
+            {
+                var index = Items.IndexOf(prevItem);
+                if (index < Items.Count - 1)
+                {
+                    prevItem.IsSelected = false;
+                    Items.ElementAt(index + 1).IsSelected = true;
+                    refs[index + 1].FocusAsync();
+                    StateHasChanged();
+                }
+            }
+        }
+    }
+
+    private void SelectPreviousItem()
+    {
+        if (Items?.Any() == true)
+        {
+            var currentItem = Items.FirstOrDefault(i => i.IsSelected);
+            if (currentItem is null)
+            {
+                Items.Last().IsSelected = true;
+                refs[Items.Count - 1].FocusAsync();
+                StateHasChanged();
+            }
+            else
+            {
+                var index = Items.IndexOf(currentItem);
+                if (index > 0)
+                {
+                    currentItem.IsSelected = false;
+                    Items.ElementAt(index - 1).IsSelected = true;
+                    refs[index - 1].FocusAsync();
+                    StateHasChanged();
+                }
+            }
+        }
+    }
+
+    protected override bool TryParseValueFromString(string? value, out string result, out string validationErrorMessage)
+    {
+        result = value ?? string.Empty;
+#pragma warning disable CS8625
+        validationErrorMessage = null;
+#pragma warning restore CS8625
+        return true;
+    }
+}

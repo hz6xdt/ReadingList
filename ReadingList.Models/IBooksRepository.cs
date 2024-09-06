@@ -8,7 +8,7 @@
         Task<int> GetBookCount();
         IEnumerable<BookDTO> GetBooks(int pageNumber, int pageSize);
         Task<BookDTO?> GetBook(long id);
-        IEnumerable<BookDTO> GetFilteredBooks(string startsWith);
+        List<BookListItem> GetFilteredBooks(string startsWith);
         Task<BookDTO> AddBook(BookBindingTarget newBook);
         Task<BookDTO?> UpdateBook(BookUpdateBindingTarget changedBook);
         Task<Book?> DeleteBook(long id);
@@ -16,6 +16,7 @@
 
         Task<int> GetAuthorCount();
         IEnumerable<AuthorDTO> GetAuthors(int pageNumber, int pageSize);
+        List<AuthorListItem> GetFilteredAuthors(string startsWith);
         Task<AuthorDTO?> GetAuthor(long id);
         Task<AuthorDTO> AddAuthor(AuthorBindingTarget newAuthor);
         Task<AuthorDTO?> UpdateAuthor(AuthorUpdateBindingTarget changedAuthor);
@@ -24,6 +25,7 @@
 
         Task<int> GetTagCount();
         IEnumerable<TagDTO> GetTags(int pageNumber, int pageSize);
+        List<TagListItem> GetFilteredTags(string startsWith);
         Task<TagDTO?> GetTag(long id);
         Task<TagDTO> AddTag(TagBindingTarget newTag);
         Task<TagDTO?> UpdateTag(TagUpdateBindingTarget changedTag);
@@ -31,7 +33,9 @@
 
 
         IEnumerable<SourceDTO> GetSources();
+        List<SourceListItem> GetFilteredSources(string startsWith);
         Task<SourceDTO?> GetSource(long id);
+
         Task<SourceDTO> AddSource(SourceBindingTarget newSource);
         Task<SourceDTO?> UpdateSource(SourceUpdateBindingTarget changedSource);
         Task<DeleteResult> DeleteSource(long id);

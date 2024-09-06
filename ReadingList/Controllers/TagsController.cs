@@ -49,6 +49,15 @@ namespace ReadingList.Controllers
             return a == null ? NotFound() : Ok(a);
         }
 
+        [HttpGet("filter/{startsWith}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<TagListItem>))]
+        public IEnumerable<TagListItem> GetFilteredTags(string startsWith = "%")
+        {
+            logger.LogDebug("Response for GET /filter/{startsWith} started", startsWith);
+
+            return repository.GetFilteredTags(startsWith);
+        }
+
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(TagDTO))]
         public async Task<IActionResult> AddTag(TagBindingTarget target)

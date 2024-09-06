@@ -304,7 +304,7 @@ namespace ReadingList.Models
         }
 
 
-        public IEnumerable<BookDTO> GetFilteredBooks(string startsWith)
+        public List<BookListItem> GetFilteredBooks(string startsWith)
         {
             logger.LogDebug("GetFilteredBooks -- startsWith: {startsWith}", startsWith);
 
@@ -316,7 +316,6 @@ namespace ReadingList.Models
                             .OrderBy(b => b.Name)
                           select new
                           {
-                              b.BookId,
                               b.Name,
                               b.ISBN,
                               Author = b.Author == null ? string.Empty : b.Author.Name,
@@ -328,10 +327,9 @@ namespace ReadingList.Models
                               Source = b.Source == null ? string.Empty : b.Source.Name,
                               ImageUrl = b.ImageUrl ?? "http://2.bp.blogspot.com/_aDCnyPs488U/SyAtBDSHFHI/AAAAAAAAGDI/tFkGgFeISHI/s400/BookCoverGreenBrown.jpg"
                           }).ToList()
-                            .Select(b => new BookDTO
+                            .Select(b => new BookListItem
                             {
-                                Id = b.BookId,
-                                Name = b.Name,
+                                Text = b.Name,
                                 ISBN = b.ISBN,
                                 Author = b.Author,
                                 Sequence = b.Sequence,
@@ -342,7 +340,7 @@ namespace ReadingList.Models
                                 ImageUrl = b.ImageUrl
                             });
 
-            return result;
+            return result.ToList();
         }
 
 
@@ -707,6 +705,25 @@ namespace ReadingList.Models
             return result;
         }
 
+        public List<AuthorListItem> GetFilteredAuthors(string startsWith)
+        {
+            logger.LogDebug("GetFilteredAuthors -- startsWith: {startsWith}", startsWith);
+
+            var result = (from a in dataContext.Authors
+                            .Where(a => EF.Functions.Like(a.Name, $"{startsWith}%"))
+                            .OrderBy(a => a.Name)
+                          select new
+                          {
+                              a.Name
+                          }).ToList()
+                            .Select(a => new AuthorListItem
+                            {
+                                Text = a.Name
+                            });
+
+            return result.ToList();
+        }
+
 
         public async Task<AuthorDTO?> GetAuthor(long id)
         {
@@ -836,6 +853,25 @@ namespace ReadingList.Models
             return result;
         }
 
+        public List<TagListItem> GetFilteredTags(string startsWith)
+        {
+            logger.LogDebug("GetFilteredTags -- startsWith: {startsWith}", startsWith);
+
+            var result = (from t in dataContext.Tags
+                            .Where(t => EF.Functions.Like(t.Data, $"{startsWith}%"))
+                            .OrderBy(t => t.Data)
+                          select new
+                          {
+                              t.Data,
+                          }).ToList()
+                            .Select(t => new TagListItem
+                            {
+                                Text = t.Data,
+                            });
+
+            return result.ToList();
+        }
+
 
         public async Task<TagDTO?> GetTag(long id)
         {
@@ -955,6 +991,25 @@ namespace ReadingList.Models
                             });
 
             return result;
+        }
+
+        public List<SourceListItem> GetFilteredSources(string startsWith)
+        {
+            logger.LogDebug("GetFilteredSources -- startsWith: {startsWith}", startsWith);
+
+            var result = (from s in dataContext.Sources
+                            .Where(s => EF.Functions.Like(s.Name, $"{startsWith}%"))
+                            .OrderBy(s => s.Name)
+                          select new
+                          {
+                              s.Name
+                          }).ToList()
+                            .Select(s => new SourceListItem
+                            {
+                                Text = s.Name
+                            });
+
+            return result.ToList();
         }
 
         public async Task<SourceDTO?> GetSource(long id)

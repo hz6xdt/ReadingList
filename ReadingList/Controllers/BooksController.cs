@@ -50,8 +50,8 @@ namespace ReadingList.Controllers
         }
 
         [HttpGet("filter/{startsWith}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<BookDTO>))]
-        public IEnumerable<BookDTO> GetFilteredBooks(string startsWith = "%")
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<BookListItem>))]
+        public List<BookListItem> GetFilteredBooks(string startsWith = "%")
         {
             logger.LogDebug("Response for GET /filter/{startsWith} started", startsWith);
 
