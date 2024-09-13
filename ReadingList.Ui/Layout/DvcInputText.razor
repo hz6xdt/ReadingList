@@ -59,6 +59,7 @@
     async Task HandleInput(ChangeEventArgs e)
     {
         var startsWith = e.Value?.ToString();
+
         if (startsWith?.Length >= StartLength && !string.IsNullOrWhiteSpace(ApiUrl))
         {
             Items = await http.GetFromJsonAsync<List<TItem>>($"{ApiUrl}{startsWith}");
@@ -69,17 +70,11 @@
         }
     }
 
-    async Task SelectItem(TItem item) => await OnSelectItem.InvokeAsync(item);
-
-    // void HandleFocusOut()
-    // {
-    //     Items = default;
-    // }
-
     async Task ListItemClick(TItem item)
     {
         CurrentValue = item.Text;
         await OnSelectItem.InvokeAsync(item);
+        Items = default;
     }
 
 
@@ -102,6 +97,7 @@
         else if (e.Key == "Escape")
         {
             Items = default;
+            CurrentValue = string.Empty;
         }
 
         preventDefault = preventKeys.Contains(e.Key);

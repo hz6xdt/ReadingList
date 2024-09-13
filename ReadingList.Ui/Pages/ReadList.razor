@@ -21,15 +21,12 @@
                     <InputDate TValue="DateOnly" class="form-control" @bind-Value="BookData.ReadDate" DisplayName="Read Date" />
                 </div>
                 <DvcInputText Label="Title" Id="name" @bind-Value="BookData.Name" OnSelectItem="SelectBook"
-                              TItem="BookListItem" Context="bookListItem" ApiUrl="api/r1/books/filter/" ValidationFor="@(() => BookData.Name)">
-                </DvcInputText>
+                              TItem="BookListItem" Context="bookListItem" ApiUrl="api/r1/books/filter/" ValidationFor="@(() => BookData.Name)" />
                 <DvcInputText Label="ISBN" Id="isbn" @bind-Value="BookData.ISBN" ValidationFor="@(() => BookData.ISBN)" TItem="BookListItem" />
                 <DvcInputText Label="Author" Id="author" @bind-Value="BookData.Author" OnSelectItem="SelectAuthor"
-                              TItem="AuthorListItem" Context="authorListItem" ApiUrl="api/r1/authors/filter/" ValidationFor="@(() => BookData.Author)">
-                </DvcInputText>
+                              TItem="AuthorListItem" Context="authorListItem" ApiUrl="api/r1/authors/filter/" ValidationFor="@(() => BookData.Author)" />
                 <DvcInputText Label="Tags" Id="tags" @bind-Value="BookData.Tags" OnSelectItem="SelectTag"
-                              TItem="TagListItem" Context="tagListItem" ApiUrl="api/r1/tags/filter/" ValidationFor="@(() => BookData.Tags)">
-                </DvcInputText>
+                              TItem="TagListItem" Context="tagListItem" ApiUrl="api/r1/tags/filter/" ValidationFor="@(() => BookData.Tags)" />
                 <div class="form-group">
                     <label>Sequence</label>
                     <ValidationMessage For="@(() => BookData.Sequence)" />
@@ -47,12 +44,12 @@
                     <InputCheckbox class="form-control read-input" @bind-Value="BookData.Recommend" />
                 </div>
                 <DvcInputText Label="Source" Id="source" @bind-Value="BookData.Source" OnSelectItem="SelectSource"
-                              TItem="SourceListItem" Context="sourceListItem" ApiUrl="api/r1/sources/filter/" ValidationFor="@(() => BookData.Source)">
-                </DvcInputText>
+                              TItem="SourceListItem" Context="sourceListItem" ApiUrl="api/r1/sources/filter/" ValidationFor="@(() => BookData.Source)" />
                 <div class="text-center">
                     <button class="btn btn-secondary mt-2 mb-5" @onclick="ResetClick">Reset</button>
                     <ValidButton type="submit" BtnTheme="primary">Save</ValidButton>
                 </div>
+
             </EditForm>
 
         </div>
