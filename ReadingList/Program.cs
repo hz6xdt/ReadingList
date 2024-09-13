@@ -70,7 +70,8 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["Data:JwtSecret"]!)),
         ValidateAudience = false,
-        ValidateIssuer = false
+        ValidateIssuer = false,
+        ValidateLifetime = true
     };
     options.Events = new JwtBearerEvents
     {

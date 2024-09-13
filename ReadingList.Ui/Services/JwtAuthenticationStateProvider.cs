@@ -16,23 +16,26 @@ namespace ReadingList.Ui.Services
 
                 var token = tokenHandler.ReadJwtToken(tokenAsString);
 
-                var identity = new ClaimsIdentity(token.Claims, "Bearer");
-                var user = new ClaimsPrincipal(identity);
-                var authState = new AuthenticationState(user);
+                var expires = token.ValidTo;
 
-                NotifyAuthenticationStateChanged(Task.FromResult(authState));
+                if (expires.CompareTo(DateTime.UtcNow) > 0)
+                {
+                    var identity = new ClaimsIdentity(token.Claims, "Bearer");
+                    var user = new ClaimsPrincipal(identity);
+                    var authState = new AuthenticationState(user);
 
-                return authState;
+                    NotifyAuthenticationStateChanged(Task.FromResult(authState));
+
+                    return authState;
+                }
             }
-            else
-            {
-                var anonymousUser = new ClaimsPrincipal(new ClaimsIdentity());  // No claims or authentication scheme provided
-                var anonymousAuthState = new AuthenticationState(anonymousUser);
 
-                NotifyAuthenticationStateChanged(Task.FromResult(anonymousAuthState));
+            var anonymousUser = new ClaimsPrincipal(new ClaimsIdentity());  // No claims or authentication scheme provided
+            var anonymousAuthState = new AuthenticationState(anonymousUser);
 
-                return anonymousAuthState;
-            }
+            NotifyAuthenticationStateChanged(Task.FromResult(anonymousAuthState));
+
+            return anonymousAuthState;
         }
     }
 }
