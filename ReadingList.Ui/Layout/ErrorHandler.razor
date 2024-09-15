@@ -21,7 +21,7 @@
 
     public void HandleException(Exception x)
     {
-        Logger.LogError(x, x.Message);
+        Logger.LogError(x, $"\r\n\r\n\r\n{x.Message}");
         switch (x)
         {
             case HttpRequestException _:

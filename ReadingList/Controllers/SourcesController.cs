@@ -17,7 +17,7 @@ namespace ReadingList.Controllers
         [AllowAnonymous]
         public IEnumerable<SourceDTO> GetSources()
         {
-            logger.LogDebug("Response for GET / started");
+            logger.LogDebug("\r\n\r\n\r\nResponse for GET / started");
 
             return repository.GetSources();
         }
@@ -28,7 +28,7 @@ namespace ReadingList.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetSource(long id)
         {
-            logger.LogDebug("Response for GET /id started");
+            logger.LogDebug("\r\n\r\n\r\nResponse for GET /id started");
 
             SourceDTO? s = await repository.GetSource(id);
 
@@ -39,7 +39,7 @@ namespace ReadingList.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<SourceListItem>))]
         public IEnumerable<SourceListItem> GetFilteredSources(string startsWith = "%")
         {
-            logger.LogDebug("Response for GET /filter/{startsWith} started", startsWith);
+            logger.LogDebug("\r\n\r\n\r\nResponse for GET /filter/{startsWith} started", startsWith);
 
             return repository.GetFilteredSources(startsWith);
         }
@@ -48,7 +48,7 @@ namespace ReadingList.Controllers
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(SourceDTO))]
         public async Task<IActionResult> AddSource(SourceBindingTarget target)
         {
-            logger.LogDebug("Response for POST started");
+            logger.LogDebug("\r\n\r\n\r\nResponse for POST started");
 
             SourceDTO newSource = await repository.AddSource(target);
 
@@ -60,7 +60,7 @@ namespace ReadingList.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateSource(SourceUpdateBindingTarget changedSource)
         {
-            logger.LogDebug("Response for PUT started");
+            logger.LogDebug("\r\n\r\n\r\nResponse for PUT started");
 
             SourceDTO? source = await repository.UpdateSource(changedSource);
 
@@ -73,7 +73,7 @@ namespace ReadingList.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> DeleteSource(long id)
         {
-            logger.LogDebug("Response for DELETE started");
+            logger.LogDebug("\r\n\r\n\r\nResponse for DELETE started");
 
             DeleteResult result = await repository.DeleteSource(id);
 

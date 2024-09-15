@@ -16,7 +16,7 @@ namespace ReadingList.Controllers
         [AllowAnonymous]
         public IEnumerable<BookDTO> GetReadingList()
         {
-            logger.LogDebug("Response for GET / started");
+            logger.LogDebug("\r\n\r\n\r\nResponse for GET / started");
 
             return repository.GetReadingList();
         }
@@ -26,7 +26,7 @@ namespace ReadingList.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BookDTO))]
         public async Task<IActionResult> AddReadingListEntry(ReadBindingTarget target)
         {
-            logger.LogDebug("Response for POST started");
+            logger.LogDebug("\r\n\r\n\r\nResponse for POST started");
 
             BookDTO newBook = await repository.AddReadingListEntry(target);
 

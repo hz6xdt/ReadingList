@@ -1,10 +1,17 @@
 ﻿@page "/books"
 @page "/books/page/{page:int}"
+@page "/books/page/{page:int}/filter/{startsWith}"
 <PageTitle>Books | Page @Page | Reading List</PageTitle>
 
 @inject ILoggingService Logging
+@inject NavigationManager Navigation
 
 <h5 class="bg-primary text-white text-center p-2">Books</h5>
+
+<div class="books-filter">
+    <InputText @bind-Value="StartsWith" type="search" @onkeyup="HandleKeyUp" />
+    <NavLink class="btn-primary" href="@GetFilterUrl()"><i class="fa fa-search"></i></NavLink>
+</div>
 
 <table class="table table-sm table-striped table-bordered">
     <thead><tr><th>ID</th><th>Cover</th><th>Title</th><th>Author</th><th></th></tr></thead>
@@ -44,8 +51,8 @@
 
 @code
 {
-    [Parameter]
-    public int Page { get; set; } = 1;
+    [Parameter] public int Page { get; set; } = 1;
+    [Parameter] public string StartsWith { get; set; } = string.Empty;
 
     public int PageSize { get; set; } = 10;
     public int TotalBooks { get; set; }
@@ -60,7 +67,7 @@
 
     protected async override Task OnParametersSetAsync()
     {
-        Logging.Log($"BooksList OnParametersSetAsync - Page: {Page}.");
+        Logging.Log($"\r\n\r\n\r\nBooksList OnParametersSetAsync - Page: {Page}.");
         if (Page < 1)
         {
             Page = 1;
@@ -89,12 +96,49 @@
                 PageSize = pagination?.PageSize ?? 10;
                 //Logging.Log($"PageSize: {PageSize}.");
 
-                Books = await Http.GetFromJsonAsync<BookDTO[]>($"/api/r1/books/page/{Page}") ?? Array.Empty<BookDTO>();
+                if (string.IsNullOrWhiteSpace(StartsWith))
+                {
+                    Books = await Http.GetFromJsonAsync<BookDTO[]>($"/api/r1/books/page/{Page}") ?? Array.Empty<BookDTO>();
+                }
+                else
+                {
+                    Books = await Http.GetFromJsonAsync<BookDTO[]>($"/api/r1/books/listfilter/{Uri.EscapeDataString(StartsWith)}") ?? Array.Empty<BookDTO>();
+
+                }
             }
+        }
+    }
+
+    private void HandleKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            if (string.IsNullOrWhiteSpace(StartsWith))
+            {
+                Navigation.NavigateTo($"/books/page/{Page}");
+            }
+            else
+            {
+                Navigation.NavigateTo(GetFilterUrl());
+            }
+        }
+        else if (e.Key == "Escape")
+        {
+            StartsWith = string.Empty;
         }
     }
 
     string GetDetailsUrl(long id) => $"books/page/{Page}/details/{id}";
     string GetEditUrl(long id) => $"books/page/{Page}/edit/{id}";
     string GetDeleteUrl(long id) => $"books/page/{Page}/delete/{id}";
+    string GetFilterUrl(){
+        if (string.IsNullOrWhiteSpace(StartsWith))
+        {
+            return $"books/page/{Page}";
+        }
+        else
+        {
+            return $"books/page/{Page}/filter/{Uri.EscapeDataString(StartsWith)}";
+        }
+    } 
 }

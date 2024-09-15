@@ -89,7 +89,7 @@
         {
             BookData = await Http.GetFromJsonAsync<BookDTO>($"/api/r1/books/{Id}") ?? new() { Name = string.Empty };
 
-            Logger.LogInformation(@"Received BookData -- Id: {Id}, Name: {Name}, ISBN: {ISBN}, Tags: {Tags}, ReadDates: {ReadDates}, Sequence: {Sequence}, Author: {Author},
+            Logger.LogInformation(@"\r\n\r\n\r\nReceived BookData -- Id: {Id}, Name: {Name}, ISBN: {ISBN}, Tags: {Tags}, ReadDates: {ReadDates}, Sequence: {Sequence}, Author: {Author},
                 Rating: {Rating}, ImageUrl: {ImageUrl}, Recommend: {Recommend}.",
                 BookData?.Id, BookData?.Name, BookData?.ISBN, BookData?.Tags, BookData?.ReadDates, BookData?.Sequence, BookData?.Rating, BookData?.Author, BookData?.ImageUrl, BookData?.Recommend);
         }

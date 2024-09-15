@@ -36,7 +36,7 @@ namespace ReadingList
                     break;
 
                 case Exception:
-                    logger.LogError(exception, "SERVER ERROR");
+                    logger.LogError(exception, "\r\n\r\n\r\nSERVER ERROR");
                     break;
             }
 

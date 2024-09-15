@@ -26,7 +26,7 @@ namespace ReadingList.Controllers
         {
             int pageSize = configuration.GetValue<int>("Data:PageSize", 10);
 
-            logger.LogDebug("Response for GET /page/{pageNumber} started, with pageSize: {pageSize}", pageNumber, pageSize);
+            logger.LogDebug("\r\n\r\n\r\nResponse for GET /page/{pageNumber} started, with pageSize: {pageSize}", pageNumber, pageSize);
 
             if (pageNumber < 1)
             {
@@ -42,7 +42,7 @@ namespace ReadingList.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetBook(long id)
         {
-            logger.LogDebug("Response for GET /id started");
+            logger.LogDebug("\r\n\r\n\r\nResponse for GET /id started");
 
             BookDTO? b = await repository.GetBook(id);
 
@@ -53,16 +53,26 @@ namespace ReadingList.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<BookListItem>))]
         public List<BookListItem> GetFilteredBooks(string startsWith = "%")
         {
-            logger.LogDebug("Response for GET /filter/{startsWith} started", startsWith);
+            logger.LogDebug("\r\n\r\n\r\nResponse for GET /filter/{startsWith} started", startsWith);
 
             return repository.GetFilteredBooks(startsWith);
+        }
+
+        [HttpGet("listfilter/{startsWith}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<BookDTO>))]
+        [AllowAnonymous]
+        public IEnumerable<BookDTO> GetFilteredBookList(string startsWith = "%")
+        {
+            logger.LogDebug("\r\n\r\n\r\nResponse for GET /listfilter/{startsWith} started", startsWith);
+
+            return repository.GetFilteredBookList(startsWith);
         }
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(BookDTO))]
         public async Task<IActionResult> AddBook(BookBindingTarget target)
         {
-            logger.LogDebug("Response for POST started");
+            logger.LogDebug("\r\n\r\n\r\nResponse for POST started");
 
             BookDTO newBook = await repository.AddBook(target);
 
@@ -74,7 +84,7 @@ namespace ReadingList.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateBook(BookUpdateBindingTarget changedBook)
         {
-            logger.LogDebug("Response for PUT started");
+            logger.LogDebug("\r\n\r\n\r\nResponse for PUT started");
 
             BookDTO? book = await repository.UpdateBook(changedBook);
 
@@ -86,7 +96,7 @@ namespace ReadingList.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteBook(long id)
         {
-            logger.LogDebug("Response for DELETE started");
+            logger.LogDebug("\r\n\r\n\r\nResponse for DELETE started");
 
             Book? book = await repository.DeleteBook(id);
 

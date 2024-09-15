@@ -26,7 +26,7 @@ namespace ReadingList.Controllers
         {
             int pageSize = configuration.GetValue<int>("Data:PageSize", 10);
 
-            logger.LogDebug("Response for GET /page/{pageNumber} started, with pageSize: {pageSize}", pageNumber, pageSize);
+            logger.LogDebug("\r\n\r\n\r\nResponse for GET /page/{pageNumber} started, with pageSize: {pageSize}", pageNumber, pageSize);
 
             if (pageNumber < 1)
             {
@@ -42,7 +42,7 @@ namespace ReadingList.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetTag(long id)
         {
-            logger.LogDebug("Response for GET /id started");
+            logger.LogDebug("\r\n\r\n\r\nResponse for GET /id started");
 
             TagDTO? a = await repository.GetTag(id);
 
@@ -53,7 +53,7 @@ namespace ReadingList.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<TagListItem>))]
         public IEnumerable<TagListItem> GetFilteredTags(string startsWith = "%")
         {
-            logger.LogDebug("Response for GET /filter/{startsWith} started", startsWith);
+            logger.LogDebug("\r\n\r\n\r\nResponse for GET /filter/{startsWith} started", startsWith);
 
             return repository.GetFilteredTags(startsWith);
         }
@@ -62,7 +62,7 @@ namespace ReadingList.Controllers
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(TagDTO))]
         public async Task<IActionResult> AddTag(TagBindingTarget target)
         {
-            logger.LogDebug("Response for POST started");
+            logger.LogDebug("\r\n\r\n\r\nResponse for POST started");
 
             TagDTO newTag = await repository.AddTag(target);
 
@@ -74,7 +74,7 @@ namespace ReadingList.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateTag(TagUpdateBindingTarget changedTag)
         {
-            logger.LogDebug("Response for PUT started");
+            logger.LogDebug("\r\n\r\n\r\nResponse for PUT started");
 
             TagDTO? Tag = await repository.UpdateTag(changedTag);
 
@@ -86,7 +86,7 @@ namespace ReadingList.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteTag(long id)
         {
-            logger.LogDebug("Response for DELETE started");
+            logger.LogDebug("\r\n\r\n\r\nResponse for DELETE started");
 
             Tag? Tag = await repository.DeleteTag(id);
 

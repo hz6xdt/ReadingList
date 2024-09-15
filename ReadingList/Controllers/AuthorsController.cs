@@ -26,7 +26,7 @@ namespace ReadingList.Controllers
         {
             int pageSize = configuration.GetValue<int>("Data:PageSize", 10);
 
-            logger.LogDebug("Response for GET /page/{pageNumber} started, with pageSize: {pageSize}", pageNumber, pageSize);
+            logger.LogDebug("\r\n\r\n\r\nResponse for GET /page/{pageNumber} started, with pageSize: {pageSize}", pageNumber, pageSize);
 
             if (pageNumber < 1)
             {
@@ -42,7 +42,7 @@ namespace ReadingList.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetAuthor(long id)
         {
-            logger.LogDebug("Response for GET /id started");
+            logger.LogDebug("\r\n\r\n\r\nResponse for GET /id started");
 
             AuthorDTO? a = await repository.GetAuthor(id);
 
@@ -53,7 +53,7 @@ namespace ReadingList.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<AuthorListItem>))]
         public List<AuthorListItem> GetFilteredAuthors(string startsWith = "%")
         {
-            logger.LogDebug("Response for GET /filter/{startsWith} started", startsWith);
+            logger.LogDebug("\r\n\r\n\r\nResponse for GET /filter/{startsWith} started", startsWith);
 
             return repository.GetFilteredAuthors(startsWith);
         }
@@ -62,7 +62,7 @@ namespace ReadingList.Controllers
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AuthorDTO))]
         public async Task<IActionResult> AddAuthor(AuthorBindingTarget target)
         {
-            logger.LogDebug("Response for POST started");
+            logger.LogDebug("\r\n\r\n\r\nResponse for POST started");
 
             AuthorDTO newAuthor = await repository.AddAuthor(target);
 
@@ -74,7 +74,7 @@ namespace ReadingList.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateAuthor(AuthorUpdateBindingTarget changedAuthor)
         {
-            logger.LogDebug("Response for PUT started");
+            logger.LogDebug("\r\n\r\n\r\nResponse for PUT started");
 
             AuthorDTO? author = await repository.UpdateAuthor(changedAuthor);
 
@@ -86,7 +86,7 @@ namespace ReadingList.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteAuthor(long id)
         {
-            logger.LogDebug("Response for DELETE started");
+            logger.LogDebug("\r\n\r\n\r\nResponse for DELETE started");
 
             Author? author = await repository.DeleteAuthor(id);
 

@@ -148,7 +148,7 @@
     {
         if (Http != null)
         {
-            Logging.Log($"Adding {BookData.Name} to read list.");
+            Logging.Log($"\r\n\r\n\r\nAdding {BookData.Name} to read list.");
             await Http.PostAsJsonAsync("/api/r1/readList",
                 new ReadBindingTarget
                     {

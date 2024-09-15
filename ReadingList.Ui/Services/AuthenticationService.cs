@@ -24,7 +24,7 @@ namespace ReadingList.Ui.Services
                 else
                 {
                     var content = await response.Content.ReadAsStringAsync();
-                    logger.LogError("Failed to log the user in.  Status code: {response.StatusCode} -- {content}", response.StatusCode, content);
+                    logger.LogError("\r\n\r\n\r\nFailed to log the user in.  Status code: {response.StatusCode} -- {content}", response.StatusCode, content);
                     throw new Exception("Oops! Something went wrong...");
                 }
             }
@@ -48,7 +48,7 @@ namespace ReadingList.Ui.Services
                 else
                 {
                     var content = await response.Content.ReadAsStringAsync();
-                    logger.LogError("Failed to log the user out.  Status code: {response.StatusCode} -- {content}", response.StatusCode, content);
+                    logger.LogError("\r\n\r\n\r\nFailed to log the user out.  Status code: {response.StatusCode} -- {content}", response.StatusCode, content);
                     throw new Exception("Oops! Something went wrong...");
                 }
             }
