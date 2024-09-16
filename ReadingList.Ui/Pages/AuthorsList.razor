@@ -1,10 +1,17 @@
 ﻿@page "/authors"
 @page "/authors/page/{page:int}"
+@page "/authors/page/{page:int}/filter/{startsWith}"
 <PageTitle>Authors | Reading List</PageTitle>
 
 @inject ILoggingService Logging
+@inject NavigationManager Navigation
 
 <h5 class="bg-primary text-white text-center p-2">Authors</h5>
+
+<div class="filter">
+    <InputText @bind-Value="StartsWith" type="search" @onkeyup="HandleKeyUp" />
+    <NavLink class="btn-primary" href="@GetFilterUrl()"><i class="fa fa-search"></i></NavLink>
+</div>
 
 <table class="table table-sm table-striped table-bordered">
     <thead><tr><th>ID</th><th>Name</th><th>Books</th><th></th></tr></thead>
@@ -42,8 +49,8 @@
 
 @code
 {
-    [Parameter]
-    public int Page { get; set; } = 1;
+    [Parameter] public int Page { get; set; } = 1;
+    [Parameter] public string StartsWith { get; set; } = string.Empty;
 
     public int PageSize { get; set; } = 10;
     public int TotalAuthors { get; set; }
@@ -85,11 +92,49 @@
                 PageSize = pagination?.PageSize ?? 10;
                 //Logging.Log($"PageSize: {PageSize}.");
 
-                Authors = await Http.GetFromJsonAsync<AuthorDTO[]>($"/api/r1/authors/page/{Page}") ?? Array.Empty<AuthorDTO>();
+                if (string.IsNullOrWhiteSpace(StartsWith))
+                {
+                    Authors = await Http.GetFromJsonAsync<AuthorDTO[]>($"/api/r1/authors/page/{Page}") ?? Array.Empty<AuthorDTO>();
+                }
+                else
+                {
+                    Authors = await Http.GetFromJsonAsync<AuthorDTO[]>($"/api/r1/authors/listfilter/{Uri.EscapeDataString(StartsWith)}") ?? Array.Empty<AuthorDTO>();
+
+                }
             }
+        }
+    }
+
+    private void HandleKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            if (string.IsNullOrWhiteSpace(StartsWith))
+            {
+                Navigation.NavigateTo($"/authors/page/{Page}");
+            }
+            else
+            {
+                Navigation.NavigateTo(GetFilterUrl());
+            }
+        }
+        else if (e.Key == "Escape")
+        {
+            StartsWith = string.Empty;
         }
     }
 
     string GetEditUrl(long id) => $"authors/edit/{id}";
     string GetDeleteUrl(long id) => $"authors/delete/{id}";
+    string GetFilterUrl()
+    {
+        if (string.IsNullOrWhiteSpace(StartsWith))
+        {
+            return $"authors/page/{Page}";
+        }
+        else
+        {
+            return $"authors/page/{Page}/filter/{Uri.EscapeDataString(StartsWith)}";
+        }
+    }
 }

@@ -58,6 +58,16 @@ namespace ReadingList.Controllers
             return repository.GetFilteredTags(startsWith);
         }
 
+        [HttpGet("listfilter/{startsWith}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<TagDTO>))]
+        [AllowAnonymous]
+        public IEnumerable<TagDTO> GetFilteredTagList(string startsWith = "%")
+        {
+            logger.LogDebug("\r\n\r\n\r\nResponse for GET /listfilter/{startsWith} started", startsWith);
+
+            return repository.GetFilteredTagList(startsWith);
+        }
+
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(TagDTO))]
         public async Task<IActionResult> AddTag(TagBindingTarget target)

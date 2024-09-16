@@ -750,6 +750,32 @@ namespace ReadingList.Models
             return result;
         }
 
+        public IEnumerable<AuthorDTO> GetFilteredAuthorList(string startsWith)
+        {
+            logger.LogDebug("\r\n\r\n\r\nGetFilteredAuthorList -- startsWith: {startsWith}", startsWith);
+
+            var result = (from a in dataContext.Authors
+                .Where(a => EF.Functions.Like(a.Name, $"{startsWith}%"))
+                .Include(a => a.Books)
+                .OrderBy(a => a.Name)
+                          select new
+                          {
+                              a.AuthorId,
+                              a.Name,
+                              Books = from b in a.Books
+                                      select b.Name
+                          }).ToList()
+                .Select(a => new AuthorDTO
+                {
+                    Id = a.AuthorId,
+                    Name = a.Name,
+                    Books = a.Books.DefaultIfEmpty(null).Aggregate((x, y) => x + "; " + y)
+                });
+
+            return result;
+        }
+
+
         public List<AuthorListItem> GetFilteredAuthors(string startsWith)
         {
             logger.LogDebug("\r\n\r\n\r\nGetFilteredAuthors -- startsWith: {startsWith}", startsWith);
@@ -882,6 +908,31 @@ namespace ReadingList.Models
                             .OrderBy(t => t.Data)
                             .Skip((pageNumber - 1) * pageSize)
                             .Take(pageSize)
+                          select new
+                          {
+                              t.TagId,
+                              t.Data,
+                              Books = string.Join("; ", t.BookTags!.Select(b => b.Book.Name))
+                          }).ToList()
+                            .Select(t => new TagDTO
+                            {
+                                Id = t.TagId,
+                                Data = t.Data,
+                                Books = t.Books
+                            });
+
+            return result;
+        }
+
+        public IEnumerable<TagDTO> GetFilteredTagList(string startsWith)
+        {
+            logger.LogDebug("\r\n\r\n\r\nGetFilteredTagList -- startsWith: {startsWith}", startsWith);
+
+            var result = (from t in dataContext.Tags
+                            .Where(t => EF.Functions.Like(t.Data, $"{startsWith}%"))
+                            .Include(bt => bt.BookTags!)
+                            .ThenInclude(b => b.Book)
+                            .OrderBy(t => t.Data)
                           select new
                           {
                               t.TagId,

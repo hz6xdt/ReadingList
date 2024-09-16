@@ -11996,3 +11996,8 @@ footer p {
   background: lightgrey;
   color: var(--bs-body);
 }
+
+.filter {
+  float: right;
+  margin-bottom: 0.5rem;
+}

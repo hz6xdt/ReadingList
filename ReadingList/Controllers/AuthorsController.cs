@@ -58,6 +58,16 @@ namespace ReadingList.Controllers
             return repository.GetFilteredAuthors(startsWith);
         }
 
+        [HttpGet("listfilter/{startsWith}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<AuthorDTO>))]
+        [AllowAnonymous]
+        public IEnumerable<AuthorDTO> GetFilteredAuthorList(string startsWith = "%")
+        {
+            logger.LogDebug("\r\n\r\n\r\nResponse for GET /listfilter/{startsWith} started", startsWith);
+
+            return repository.GetFilteredAuthorList(startsWith);
+        }
+
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AuthorDTO))]
         public async Task<IActionResult> AddAuthor(AuthorBindingTarget target)

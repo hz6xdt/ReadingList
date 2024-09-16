@@ -17,6 +17,7 @@
 
         Task<int> GetAuthorCount();
         IEnumerable<AuthorDTO> GetAuthors(int pageNumber, int pageSize);
+        IEnumerable<AuthorDTO> GetFilteredAuthorList(string startsWith);
         List<AuthorListItem> GetFilteredAuthors(string startsWith);
         Task<AuthorDTO?> GetAuthor(long id);
         Task<AuthorDTO> AddAuthor(AuthorBindingTarget newAuthor);
@@ -26,6 +27,7 @@
 
         Task<int> GetTagCount();
         IEnumerable<TagDTO> GetTags(int pageNumber, int pageSize);
+        IEnumerable<TagDTO> GetFilteredTagList(string startsWith);
         List<TagListItem> GetFilteredTags(string startsWith);
         Task<TagDTO?> GetTag(long id);
         Task<TagDTO> AddTag(TagBindingTarget newTag);

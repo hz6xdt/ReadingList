@@ -8,7 +8,7 @@
 
 <h5 class="bg-primary text-white text-center p-2">Books</h5>
 
-<div class="books-filter">
+<div class="filter">
     <InputText @bind-Value="StartsWith" type="search" @onkeyup="HandleKeyUp" />
     <NavLink class="btn-primary" href="@GetFilterUrl()"><i class="fa fa-search"></i></NavLink>
 </div>
