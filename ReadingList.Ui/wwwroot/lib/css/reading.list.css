@@ -12001,3 +12001,13 @@ footer p {
   float: right;
   margin-bottom: 0.5rem;
 }
+
+.title {
+  font-style: italic;
+  font-weight: 500;
+}
+
+.coverImage {
+  margin: 1em 2em 3em 0;
+  width: 150px;
+}

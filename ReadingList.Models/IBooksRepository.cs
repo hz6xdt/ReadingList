@@ -2,10 +2,13 @@
 {
     public interface IBooksRepository
     {
+        List<TimelineDTO> GetTimeline(DateOnly startDate);
         IEnumerable<BookDTO> GetReadingList();
         Task<BookDTO> AddReadingListEntry(ReadBindingTarget readingListEntry);
 
         Task<int> GetBookCount();
+        Task<DateOnly> GetStartDate();
+
         IEnumerable<BookDTO> GetBooks(int pageNumber, int pageSize);
         Task<BookDTO?> GetBook(long id);
         IEnumerable<BookDTO> GetFilteredBookList(string startsWith);

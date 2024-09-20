@@ -7,6 +7,51 @@ namespace ReadingList.Models
 {
     public class BooksRepository(DataContext dataContext, ILogger<BooksRepository> logger) : IBooksRepository
     {
+        public List<TimelineDTO> GetTimeline(DateOnly startDate)
+        {
+            logger.LogDebug($"\r\n\r\n\r\nGetTimeLine -- startDate: {startDate}");
+
+            var result = (from b in dataContext.Books
+                            .Include(b => b.Author)
+                            .Include(b => b.Source)
+                            .Include(b => b.BookTags)
+                          join br in dataContext.BookReadDates on b.BookId equals br.BookId
+                          where br.ReadDate >= startDate && br.ReadDate < startDate.AddMonths(6)
+                          orderby br.ReadDate
+                          select new
+                          {
+                              b.BookId,
+                              b.Name,
+                              b.ISBN,
+                              Author = b.Author == null ? null : b.Author.Name,
+                              b.Sequence,
+                              b.Rating,
+                              b.Recommend,
+                              br.ReadDate,
+                              Tags = from bt in b.BookTags
+                                     select bt.Tag.Data,
+                              Source = b.Source == null ? null : b.Source.Name,
+                              ImageUrl = b.ImageUrl ?? "http://2.bp.blogspot.com/_aDCnyPs488U/SyAtBDSHFHI/AAAAAAAAGDI/tFkGgFeISHI/s400/BookCoverGreenBrown.jpg"
+                          }).ToList()
+                          .Select(b => new TimelineDTO
+                          {
+                              Id = b.BookId,
+                              Name = b.Name,
+                              ISBN = b.ISBN,
+                              Author = b.Author,
+                              Sequence = b.Sequence,
+                              Rating = b.Rating,
+                              Recommend = b.Recommend,
+                              ReadDate = b.ReadDate,
+                              Tags = b.Tags.DefaultIfEmpty(null).Aggregate((x, y) => x + "; " + y),
+                              Source = b.Source,
+                              ImageUrl = b.ImageUrl
+                          });
+
+            return result.ToList<TimelineDTO>();
+        }
+
+
         public IEnumerable<BookDTO> GetReadingList()
         {
             logger.LogDebug("\r\n\r\n\r\nGetReadingList");
@@ -248,6 +293,16 @@ namespace ReadingList.Models
 
 
 
+
+
+        public async Task<DateOnly> GetStartDate()
+        {
+            DateOnly result = await (from br in dataContext.BookReadDates
+                                     orderby br.ReadDate
+                                     select br.ReadDate).FirstOrDefaultAsync();
+
+            return result == default ? DateOnly.FromDateTime(DateTime.UtcNow) : result;
+        }
 
 
         public async Task<int> GetBookCount()

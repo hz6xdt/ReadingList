@@ -1,0 +1,71 @@
+﻿@page "/timeline"
+@page "/timeline/startdate/{startDate:datetime}"
+<PageTitle>Timeline</PageTitle>
+
+<h5 class="bg-primary text-white text-center p-2">Timeline</h5>
+
+<div class="filter">
+    <InputDate TValue="DateOnly" class="form-control" @bind-Value="StartDate" />
+</div>
+
+<div style="overflow-x: scroll; display: flex; flex-direction: row; width: 97%; margin-left: 1rem; margin: 1rem;">
+    <InfiniteScrolling ItemsProvider="GetItems" StartDate="@StartDate">
+        <ItemTemplate Context="item">
+            <BookDisplay Book="@item" />
+        </ItemTemplate>
+        <LoadingTemplate>
+            <div><span class="oi oi-reload spin"></span> Loading...</div>
+        </LoadingTemplate>
+    </InfiniteScrolling>
+</div>
+
+
+@code
+{
+    [Inject]
+    public HttpClient? Http { get; set; }
+
+    [Parameter] public DateOnly StartDate { get; set; }
+
+
+    async Task<IEnumerable<ITimelineItem>> GetItems(InfiniteScrollingItemsProviderRequest request)
+    {
+        if (Http != null)
+        {
+            if (StartDate == default)
+            {
+                StartDate = await Http.GetFromJsonAsync<DateOnly>("/api/r1/books/getStartDate");
+                request.StartDate = StartDate;
+            }
+
+            string sDate = StartDate.ToString("yyyy-MM-dd");
+
+            List<TimelineDTO> Books = await Http.GetFromJsonAsync<List<TimelineDTO>>($"/api/r1/books/timeline/{sDate}") ?? new();
+
+            if (request.StartDate > DateOnly.FromDateTime(DateTime.UtcNow))
+            {
+                return Enumerable.Empty<TimelineDTO>();
+            }
+
+            StartDate = Books[Books.Count - 1].ReadDate.AddDays(1);
+            StateHasChanged();
+
+            return Books;
+        }
+
+        return Enumerable.Empty<TimelineDTO>();
+    }
+
+    string GetFilterUrl()
+    {
+        if (StartDate == default)
+        {
+            return $"/timeline";
+        }
+        else
+        {
+            string sDate = StartDate.ToString("yyyy-MM-dd");
+            return $"/timeline/startdate/{sDate}";
+        }
+    }
+}

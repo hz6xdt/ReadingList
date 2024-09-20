@@ -1,0 +1,52 @@
+﻿@inject NavigationManager Navigation
+
+@if (Book != null)
+{
+    <div class="book-details">
+        <div><span class="title">@Book.Name</span></div>
+        <div>
+            <NavLink href="@GetDetailsUrl(Book.Id)">
+                <img class="coverImage" src="@Book.ImageUrl" alt="cover art" />
+            </NavLink>
+            <div>
+                <div style="margin-top: 1rem;">Read Date: &nbsp;&nbsp;@Book.ReadDate</div>
+                @if (@Book.Author != null)
+                {
+                    <div>Author: &nbsp;&nbsp;@Book.Author</div>
+                }
+                @if (@Book.Tags != null)
+                {
+                    <div>Tags: &nbsp;&nbsp;@Book.Tags</div>
+                }
+                @if (@Book.ISBN != null)
+                {
+                    <div>ISBN: &nbsp;&nbsp;@Book.ISBN</div>
+                }
+                @if (@Book.Sequence != null)
+                {
+                    <div>Sequence: &nbsp;&nbsp;@Book.Sequence</div>
+                }
+                @if (@Book.Rating > 0)
+                {
+                    <div class="rating">Rating: &nbsp;&nbsp;<Rating IsReadOnly="true" IsCompact="true" StarCount=@Book.Rating /></div>
+                }
+                @if (@Book.Source != null)
+                {
+                    <div>Source: &nbsp;&nbsp;@Book.Source</div>
+                }
+                @if (@Book.Recommend)
+                {
+                    <div>Recommend: &nbsp;&nbsp;@Book.Recommend</div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+
+@code
+{
+    [Parameter, EditorRequired] public ITimelineItem? Book { get; set; }
+
+    string GetDetailsUrl(long id) => $"books/page/1/details/{id}";
+}

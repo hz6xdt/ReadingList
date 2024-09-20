@@ -1,18 +1,24 @@
 {
   "profiles": {
-    "http": {
+    "http":
+    {
       "commandName": "Project",
       "launchBrowser": true,
-      "environmentVariables": {
+      "environmentVariables":
+      {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
+      "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
       "applicationUrl": "http://localhost:5000;https://localhost:5001"
     },
-    "IIS Express": {
+    "IIS Express":
+    {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "environmentVariables": {
+      "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
+      "environmentVariables":
+      {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     }

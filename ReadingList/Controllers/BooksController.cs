@@ -19,6 +19,15 @@ namespace ReadingList.Controllers
             return result;
         }
 
+        [HttpGet("getStartDate")]
+        [AllowAnonymous]
+        public async Task<DateOnly> GetStartDate()
+        {
+            DateOnly result = await repository.GetStartDate();
+            return result;
+        }
+
+
         [HttpGet("page/{pageNumber:int}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<BookDTO>))]
         [AllowAnonymous]
@@ -47,6 +56,16 @@ namespace ReadingList.Controllers
             BookDTO? b = await repository.GetBook(id);
 
             return b == null ? NotFound() : Ok(b);
+        }
+
+        [HttpGet("timeline/{startDate}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<TimelineDTO>))]
+        [AllowAnonymous]
+        public List<TimelineDTO> GetTimeline(DateOnly startDate)
+        {
+            logger.LogDebug("\r\n\r\n\r\nResponse for GET /timeline/{startDate} started", startDate);
+
+            return repository.GetTimeline(startDate);
         }
 
         [HttpGet("filter/{startsWith}")]
