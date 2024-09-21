@@ -2,6 +2,7 @@
 <PageTitle>Book Details | Reading List</PageTitle>
 
 @inject ILogger<BooksDetails> Logger
+@inject IJSRuntime JSRuntime
 
 <h4 class="bg-info text-center p-2">Book Details</h4>
 
@@ -61,19 +62,20 @@
     <input class="form-control" value="@BookData.Source" disabled />
 </div>
 <div class="text-center">
-    <NavLink class="btn btn-secondary m-2" href="@GetPageUrl(Page)">Back</NavLink>
+    <button class="btn btn-secondary m-2" @onclick="@GoBack">Back</button>
     <AuthorizeView Roles="Admin">
         <NavLink class="btn btn-info m-2" href="@GetEditUrl(Id)">Edit</NavLink>
     </AuthorizeView>
 </div>
 
-@code {
-
+@code
+{
     [Inject]
     public NavigationManager? NavManager { get; set; }
 
     [Inject]
     public HttpClient? Http { get; set; }
+
 
     [Parameter]
     public long Id { get; set; }
@@ -82,6 +84,7 @@
     public int Page { get; set; } = 1;
 
     public BookDTO BookData { get; set; } = new BookDTO() { Name = string.Empty };
+
 
     protected async override Task OnParametersSetAsync()
     {
@@ -96,5 +99,6 @@
     }
 
     string GetEditUrl(long id) => $"books/page/{Page}/edit/{id}";
-    string GetPageUrl(int page) => $"books/page/{Page}";
+
+    private async Task GoBack() => await JSRuntime.InvokeVoidAsync("history.back");
 }

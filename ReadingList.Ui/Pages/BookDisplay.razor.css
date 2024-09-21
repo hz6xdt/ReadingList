@@ -1,4 +1,17 @@
 ﻿.book-details {
     min-width: fit-content;
-    margin: 0 1rem;
+    margin: 1rem;
+}
+
+.coverContainer {
+    margin-top: 1rem;
+    height: 250px;
+    position: relative;
+}
+
+.coverImage {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
 }

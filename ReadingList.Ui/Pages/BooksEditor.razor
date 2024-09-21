@@ -6,6 +6,7 @@
 @attribute [Authorize(Roles = "Admin")]
 
 @inject ILogger<BooksEditor> Logger
+@inject IJSRuntime JSRuntime
 
 <link href="/lib/css/blazorValidation.css" rel="stylesheet" />
 
@@ -140,6 +141,7 @@
     [Inject]
     public NavigationManager? NavManager { get; set; }
 
+
     [Parameter]
     public long Id { get; set; }
 
@@ -204,7 +206,8 @@
                                 Tags = BookData.Tags,
                                 Source = BookData.Source
                             });
-                    NavManager?.NavigateTo($"books/page/{Page}");
+
+                    await GoBack();
                 }
                 else
                 {
@@ -218,5 +221,7 @@
         }
     }
 
-        string GetPageUrl(int page) => $"books/page/{Page}";
+    private string GetPageUrl(int page) => $"books/page/{Page}";
+
+    private async Task GoBack() => await JSRuntime.InvokeVoidAsync("history.back");
 }

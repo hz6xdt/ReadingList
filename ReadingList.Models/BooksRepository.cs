@@ -11,12 +11,38 @@ namespace ReadingList.Models
         {
             logger.LogDebug($"\r\n\r\n\r\nGetTimeLine -- startDate: {startDate}");
 
+            DateOnly endDate = startDate.AddMonths(6);
+            bool found = false;
+
+            while (!found)
+            {
+                int readCount = (from br in dataContext.BookReadDates
+                                 where br.ReadDate >= startDate && br.ReadDate < endDate
+                                 orderby br.ReadDate
+                                 select br)
+                                 .Count();
+
+                if (readCount > 0)
+                {
+                    found = true;
+                }
+                else
+                {
+                    endDate = endDate.AddMonths(6);
+                    if (endDate > DateOnly.FromDateTime(DateTime.UtcNow))
+                    {
+                        return [];
+                    }
+                }
+            }
+
+
             var result = (from b in dataContext.Books
                             .Include(b => b.Author)
                             .Include(b => b.Source)
                             .Include(b => b.BookTags)
                           join br in dataContext.BookReadDates on b.BookId equals br.BookId
-                          where br.ReadDate >= startDate && br.ReadDate < startDate.AddMonths(6)
+                          where br.ReadDate >= startDate && br.ReadDate < endDate
                           orderby br.ReadDate
                           select new
                           {
@@ -161,7 +187,7 @@ namespace ReadingList.Models
             }
 
 
-            if (readingListEntry.Source != null && sourceId == 0)
+            if (!string.IsNullOrWhiteSpace(readingListEntry.Source) && sourceId == 0)
             {
                 Source newSource = new() { Name = readingListEntry.Source };
 
@@ -172,7 +198,7 @@ namespace ReadingList.Models
             }
 
 
-            if (readingListEntry.Author != null && authorId == 0)
+            if (!string.IsNullOrWhiteSpace(readingListEntry.Author) && authorId == 0)
             {
                 Author newAuthor = new() { Name = readingListEntry.Author };
 

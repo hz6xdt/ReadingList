@@ -1,11 +1,12 @@
 ﻿@page "/timeline"
-@page "/timeline/startdate/{startDate:datetime}"
+@page "/timeline/{StartDateFromUrl:datetime}"
 <PageTitle>Timeline</PageTitle>
 
 <h5 class="bg-primary text-white text-center p-2">Timeline</h5>
 
 <div class="filter">
-    <InputDate TValue="DateOnly" class="form-control" @bind-Value="StartDate" />
+    <InputDate class="mx-1" TValue="DateOnly" @bind-Value="StartDate" />
+    <NavLink class="btn-primary" href="@GetFilterUrl()"><i class="fa fa-search"></i></NavLink>
 </div>
 
 <div style="overflow-x: scroll; display: flex; flex-direction: row; width: 97%; margin-left: 1rem; margin: 1rem;">
@@ -25,7 +26,20 @@
     [Inject]
     public HttpClient? Http { get; set; }
 
+    [Inject]
+    public NavigationManager? NavigationManager { get; set; }
+
     [Parameter] public DateOnly StartDate { get; set; }
+    [Parameter] public DateTime StartDateFromUrl { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (StartDateFromUrl != default)
+        {
+            StartDate = DateOnly.FromDateTime(StartDateFromUrl);
+            StateHasChanged();
+        }
+    }
 
 
     async Task<IEnumerable<ITimelineItem>> GetItems(InfiniteScrollingItemsProviderRequest request)
@@ -65,7 +79,7 @@
         else
         {
             string sDate = StartDate.ToString("yyyy-MM-dd");
-            return $"/timeline/startdate/{sDate}";
+            return $"/timeline/{sDate}";
         }
     }
 }
