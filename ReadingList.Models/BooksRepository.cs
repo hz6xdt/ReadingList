@@ -54,6 +54,8 @@ namespace ReadingList.Models
                               b.Rating,
                               b.Recommend,
                               br.ReadDate,
+                              ReadDates = from brd in b.BookReadDates
+                                          select brd.ReadDate.ToString("yyyy-MM-dd"),
                               Tags = from bt in b.BookTags
                                      select bt.Tag.Data,
                               Source = b.Source == null ? null : b.Source.Name,
@@ -69,6 +71,7 @@ namespace ReadingList.Models
                               Rating = b.Rating,
                               Recommend = b.Recommend,
                               ReadDate = b.ReadDate,
+                              ReadDates = b.ReadDates.Aggregate((x, y) => x + "; " + y),
                               Tags = b.Tags.DefaultIfEmpty(null).Aggregate((x, y) => x + "; " + y),
                               Source = b.Source,
                               ImageUrl = b.ImageUrl

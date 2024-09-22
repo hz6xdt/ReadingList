@@ -11,6 +11,7 @@
         public int Rating { get; set; }
         public bool Recommend { get; set; }
         public DateOnly ReadDate { get; set; }
+        public string ReadDates { get; set; }
         public string? Tags { get; set; }
         public string? Source { get; set; }
     }

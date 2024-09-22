@@ -11,6 +11,7 @@
 
 .coverImage {
     margin: 0;
+    width: 150px;
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
