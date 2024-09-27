@@ -7,7 +7,7 @@
                 <img class="coverImage" src="@Book.ImageUrl" alt="cover art" />
             </NavLink>
         </div>
-        <div>
+        <div @onclick="@GoToStartDate">
             <div style="margin-top: 1rem;">Read Dates: &nbsp;&nbsp;@Book.ReadDates</div>
             @if (@Book.Author != null)
             {
@@ -46,5 +46,21 @@
 {
     [Parameter, EditorRequired] public ITimelineItem? Book { get; set; }
 
-    string GetDetailsUrl(long id) => $"books/page/1/details/{id}";
+    [Inject]
+    public NavigationManager? NavManager { get; set; }
+
+    private string GetDetailsUrl(long id) => $"books/page/1/details/{id}";
+
+    private void GoToStartDate()
+    {
+        if (Book?.ReadDate == default)
+        {
+            NavManager?.NavigateTo("timeline", true);
+        }
+        else
+        {
+            string sDate = Book?.ReadDate.ToString("yyyy-MM-dd") ?? string.Empty;
+            NavManager?.NavigateTo($"/timeline/{sDate}", true);
+        }
+    }
 }
