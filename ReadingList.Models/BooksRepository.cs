@@ -996,7 +996,10 @@ namespace ReadingList.Models
                           {
                               t.TagId,
                               t.Data,
-                              Books = string.Join("; ", t.BookTags!.Select(b => b.Book.Name))
+                              Books = string.Join("; ", t.BookTags!
+                                .OrderBy(b => b.Book.Sequence)
+                                .ThenBy(b => b.Book.Name)
+                                .Select(b => b.Book.Sequence == null ? b.Book.Name : b.Book.Sequence + " - " + b.Book.Name))
                           }).ToList()
                             .Select(t => new TagDTO
                             {
@@ -1004,7 +1007,6 @@ namespace ReadingList.Models
                                 Data = t.Data,
                                 Books = t.Books
                             });
-
             return result;
         }
 
@@ -1021,7 +1023,10 @@ namespace ReadingList.Models
                           {
                               t.TagId,
                               t.Data,
-                              Books = string.Join("; ", t.BookTags!.Select(b => b.Book.Name))
+                              Books = string.Join("; ", t.BookTags!
+                                .OrderBy(b => b.Book.Sequence)
+                                .ThenBy(b => b.Book.Name)
+                                .Select(b => b.Book.Sequence == null ? b.Book.Name : b.Book.Sequence + " - " + b.Book.Name))
                           }).ToList()
                             .Select(t => new TagDTO
                             {
@@ -1065,7 +1070,10 @@ namespace ReadingList.Models
                              {
                                  t.TagId,
                                  t.Data,
-                                 Books = string.Join("; ", t.BookTags!.Select(b => b.Book.Name))
+                                 Books = string.Join("; ", t.BookTags!
+                                    .OrderBy(b => b.Book.Sequence)
+                                    .ThenBy(b => b.Book.Name)
+                                    .Select(b => b.Book.Sequence == null ? b.Book.Name : b.Book.Sequence + " - " + b.Book.Name))
                              }).FirstOrDefaultAsync();
 
             if (tag == null)
