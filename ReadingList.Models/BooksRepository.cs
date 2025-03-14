@@ -1,7 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace ReadingList.Models
 {
@@ -37,30 +37,30 @@ namespace ReadingList.Models
             }
 
 
-            var result = (from b in dataContext.Books
+            IEnumerable<TimelineDTO> result = (from b in dataContext.Books
                             .Include(b => b.Author)
                             .Include(b => b.Source)
                             .Include(b => b.BookTags)
-                          join br in dataContext.BookReadDates on b.BookId equals br.BookId
-                          where br.ReadDate >= startDate && br.ReadDate < endDate
-                          orderby br.ReadDate
-                          select new
-                          {
-                              b.BookId,
-                              b.Name,
-                              b.ISBN,
-                              Author = b.Author == null ? null : b.Author.Name,
-                              b.Sequence,
-                              b.Rating,
-                              b.Recommend,
-                              br.ReadDate,
-                              ReadDates = from brd in b.BookReadDates
-                                          select brd.ReadDate.ToString("yyyy-MM-dd"),
-                              Tags = from bt in b.BookTags
-                                     select bt.Tag.Data,
-                              Source = b.Source == null ? null : b.Source.Name,
-                              ImageUrl = b.ImageUrl ?? "http://2.bp.blogspot.com/_aDCnyPs488U/SyAtBDSHFHI/AAAAAAAAGDI/tFkGgFeISHI/s400/BookCoverGreenBrown.jpg"
-                          }).ToList()
+                                               join br in dataContext.BookReadDates on b.BookId equals br.BookId
+                                               where br.ReadDate >= startDate && br.ReadDate < endDate
+                                               orderby br.ReadDate
+                                               select new
+                                               {
+                                                   b.BookId,
+                                                   b.Name,
+                                                   b.ISBN,
+                                                   Author = b.Author == null ? null : b.Author.Name,
+                                                   b.Sequence,
+                                                   b.Rating,
+                                                   b.Recommend,
+                                                   br.ReadDate,
+                                                   ReadDates = from brd in b.BookReadDates
+                                                               select brd.ReadDate.ToString("yyyy-MM-dd"),
+                                                   Tags = from bt in b.BookTags
+                                                          select bt.Tag.Data,
+                                                   Source = b.Source == null ? null : b.Source.Name,
+                                                   ImageUrl = b.ImageUrl ?? "http://2.bp.blogspot.com/_aDCnyPs488U/SyAtBDSHFHI/AAAAAAAAGDI/tFkGgFeISHI/s400/BookCoverGreenBrown.jpg"
+                                               }).ToList()
                           .Select(b => new TimelineDTO
                           {
                               Id = b.BookId,
@@ -87,29 +87,29 @@ namespace ReadingList.Models
 
             DateOnly sixMonthsAgo = DateOnly.FromDateTime(DateTime.Now).AddMonths(-6);
 
-            var result = (from b in dataContext.Books
+            IEnumerable<BookDTO> result = (from b in dataContext.Books
                             .Include(b => b.Author)
                             .Include(b => b.Source)
                             .Include(b => b.BookTags)
-                          join br in dataContext.BookReadDates on b.BookId equals br.BookId
-                          where br.ReadDate >= sixMonthsAgo
-                          orderby br.ReadDate descending
-                          select new
-                          {
-                              b.BookId,
-                              b.Name,
-                              b.ISBN,
-                              Author = b.Author == null ? null : b.Author.Name,
-                              b.Sequence,
-                              b.Rating,
-                              b.Recommend,
-                              ReadDates = from brd in b.BookReadDates
-                                          select brd.ReadDate.ToString("yyyy-MM-dd"),
-                              Tags = from bt in b.BookTags
-                                     select bt.Tag.Data,
-                              Source = b.Source == null ? null : b.Source.Name,
-                              ImageUrl = b.ImageUrl ?? "http://2.bp.blogspot.com/_aDCnyPs488U/SyAtBDSHFHI/AAAAAAAAGDI/tFkGgFeISHI/s400/BookCoverGreenBrown.jpg"
-                          }).ToList()
+                                           join br in dataContext.BookReadDates on b.BookId equals br.BookId
+                                           where br.ReadDate >= sixMonthsAgo
+                                           orderby br.ReadDate descending
+                                           select new
+                                           {
+                                               b.BookId,
+                                               b.Name,
+                                               b.ISBN,
+                                               Author = b.Author == null ? null : b.Author.Name,
+                                               b.Sequence,
+                                               b.Rating,
+                                               b.Recommend,
+                                               ReadDates = from brd in b.BookReadDates
+                                                           select brd.ReadDate.ToString("yyyy-MM-dd"),
+                                               Tags = from bt in b.BookTags
+                                                      select bt.Tag.Data,
+                                               Source = b.Source == null ? null : b.Source.Name,
+                                               ImageUrl = b.ImageUrl ?? "http://2.bp.blogspot.com/_aDCnyPs488U/SyAtBDSHFHI/AAAAAAAAGDI/tFkGgFeISHI/s400/BookCoverGreenBrown.jpg"
+                                           }).ToList()
                           .Select(b => new BookDTO
                           {
                               Id = b.BookId,
@@ -133,42 +133,42 @@ namespace ReadingList.Models
             logger.LogDebug("\r\n\r\n\r\nAddReadingListEntry: {JsonSerializer.Serialize(readingListEntry)}", JsonSerializer.Serialize(readingListEntry));
 
             //is this a new book, or one already in the database?
-            var bookId = await (from b in dataContext.Books
-                                where b.Name == readingListEntry.Name
-                                select b.BookId).FirstOrDefaultAsync();
+            long bookId = await (from b in dataContext.Books
+                                 where b.Name == readingListEntry.Name
+                                 select b.BookId).FirstOrDefaultAsync();
 
             //is this a new author, or one already in the database?
-            var authorId = await (from a in dataContext.Authors
-                                  where a.Name == readingListEntry.Author
-                                  select a.AuthorId).FirstOrDefaultAsync();
+            long authorId = await (from a in dataContext.Authors
+                                   where a.Name == readingListEntry.Author
+                                   select a.AuthorId).FirstOrDefaultAsync();
 
             Dictionary<string, long> tagList = [];
 
             if (!string.IsNullOrWhiteSpace(readingListEntry.Tags))
             {
-                foreach (var item in readingListEntry.Tags.Split(';'))
+                foreach (string item in readingListEntry.Tags.Split(';'))
                 {
-                    var data = item.Trim();
-                    var tagId = await (from t in dataContext.Tags
-                                       where t.Data == data
-                                       select t.TagId).FirstOrDefaultAsync();
+                    string data = item.Trim();
+                    long tagId = await (from t in dataContext.Tags
+                                        where t.Data == data
+                                        select t.TagId).FirstOrDefaultAsync();
 
                     tagList.Add(data, tagId);
                 }
             }
 
-            var sourceId = await (from s in dataContext.Sources
-                                  where s.Name == readingListEntry.Source
-                                  select s.SourceId).FirstOrDefaultAsync();
+            long sourceId = await (from s in dataContext.Sources
+                                   where s.Name == readingListEntry.Source
+                                   select s.SourceId).FirstOrDefaultAsync();
 
-            var bookReadId = await (from br in dataContext.BookReadDates
-                                    where br.BookId == bookId
-                                       && br.ReadDate == readingListEntry.ReadDate
-                                    select br.BookId).FirstOrDefaultAsync();
+            long bookReadId = await (from br in dataContext.BookReadDates
+                                     where br.BookId == bookId
+                                        && br.ReadDate == readingListEntry.ReadDate
+                                     select br.BookId).FirstOrDefaultAsync();
 
             List<long> bookTagIds = [];
 
-            foreach (var tagId in tagList.Values)
+            foreach (long tagId in tagList.Values)
             {
                 var bookTag = await (from b in dataContext.Books
                                      .Include("BookTags")
@@ -214,7 +214,7 @@ namespace ReadingList.Models
 
             Dictionary<string, long> newTagListIds = [];
 
-            foreach (var tagEntry in tagList)
+            foreach (KeyValuePair<string, long> tagEntry in tagList)
             {
                 if (tagEntry.Value == 0)
                 {
@@ -230,7 +230,7 @@ namespace ReadingList.Models
             }
 
             //now it's safe to update the list with new values, if any.
-            foreach (var item in newTagListIds)
+            foreach (KeyValuePair<string, long> item in newTagListIds)
             {
                 tagList[item.Key] = item.Value;
             }
@@ -260,7 +260,7 @@ namespace ReadingList.Models
                 };
                 book.BookReadDates.Add(new() { Book = book, ReadDate = readingListEntry.ReadDate });
 
-                foreach (var tagEntry in tagList)
+                foreach (KeyValuePair<string, long> tagEntry in tagList)
                 {
                     Tag? tag = dataContext.Tags.Find(tagEntry.Value);
                     if (tag != null)
@@ -300,7 +300,7 @@ namespace ReadingList.Models
 
                 book.BookTags ??= [];
 
-                foreach (var tagEntry in tagList)
+                foreach (KeyValuePair<string, long> tagEntry in tagList)
                 {
                     if (!book.BookTags.Any(bt => bt.TagId == tagEntry.Value))
                     {
@@ -346,29 +346,29 @@ namespace ReadingList.Models
         {
             logger.LogDebug("\r\n\r\n\r\nGetBooks -- page: {pageNumber} -- pageSize: {pageSize}", pageNumber, pageSize);
 
-            var result = (from b in dataContext.Books
+            IEnumerable<BookDTO> result = (from b in dataContext.Books
                             .Include(b => b.Author)
                             .Include(b => b.Source)
                             .Include(b => b.BookTags)
                             .OrderBy(b => dataContext.TitleWithArticleRemoved(b.Name))
                             .Skip((pageNumber - 1) * pageSize)
                             .Take(pageSize)
-                          select new
-                          {
-                              b.BookId,
-                              b.Name,
-                              b.ISBN,
-                              Author = b.Author == null ? string.Empty : b.Author.Name,
-                              b.Sequence,
-                              b.Rating,
-                              b.Recommend,
-                              ReadDates = from brd in b.BookReadDates
-                                          select brd.ReadDate.ToString("yyyy-MM-dd"),
-                              Tags = from bt in b.BookTags
-                                     select bt.Tag.Data,
-                              Source = b.Source == null ? string.Empty : b.Source.Name,
-                              ImageUrl = b.ImageUrl ?? "http://2.bp.blogspot.com/_aDCnyPs488U/SyAtBDSHFHI/AAAAAAAAGDI/tFkGgFeISHI/s400/BookCoverGreenBrown.jpg"
-                          }).ToList()
+                                           select new
+                                           {
+                                               b.BookId,
+                                               b.Name,
+                                               b.ISBN,
+                                               Author = b.Author == null ? string.Empty : b.Author.Name,
+                                               b.Sequence,
+                                               b.Rating,
+                                               b.Recommend,
+                                               ReadDates = from brd in b.BookReadDates
+                                                           select brd.ReadDate.ToString("yyyy-MM-dd"),
+                                               Tags = from bt in b.BookTags
+                                                      select bt.Tag.Data,
+                                               Source = b.Source == null ? string.Empty : b.Source.Name,
+                                               ImageUrl = b.ImageUrl ?? "http://2.bp.blogspot.com/_aDCnyPs488U/SyAtBDSHFHI/AAAAAAAAGDI/tFkGgFeISHI/s400/BookCoverGreenBrown.jpg"
+                                           }).ToList()
                             .Select(b => new BookDTO
                             {
                                 Id = b.BookId,
@@ -392,28 +392,28 @@ namespace ReadingList.Models
         {
             logger.LogDebug("\r\n\r\n\r\nGetFilteredBookList -- startsWith: {startsWith}", startsWith);
 
-            var result = (from b in dataContext.Books
+            IEnumerable<BookDTO> result = (from b in dataContext.Books
                             .Where(b => EF.Functions.Like(dataContext.TitleWithArticleRemoved(b.Name), $"{startsWith}%"))
                             .Include(b => b.Author)
                             .Include(b => b.Source)
                             .Include(b => b.BookTags)
                             .OrderBy(b => dataContext.TitleWithArticleRemoved(b.Name))
-                          select new
-                          {
-                              b.BookId,
-                              b.Name,
-                              b.ISBN,
-                              Author = b.Author == null ? string.Empty : b.Author.Name,
-                              b.Sequence,
-                              b.Rating,
-                              b.Recommend,
-                              ReadDates = from brd in b.BookReadDates
-                                          select brd.ReadDate.ToString("yyyy-MM-dd"),
-                              Tags = from bt in b.BookTags
-                                     select bt.Tag.Data,
-                              Source = b.Source == null ? string.Empty : b.Source.Name,
-                              ImageUrl = b.ImageUrl ?? "http://2.bp.blogspot.com/_aDCnyPs488U/SyAtBDSHFHI/AAAAAAAAGDI/tFkGgFeISHI/s400/BookCoverGreenBrown.jpg"
-                          }).ToList()
+                                           select new
+                                           {
+                                               b.BookId,
+                                               b.Name,
+                                               b.ISBN,
+                                               Author = b.Author == null ? string.Empty : b.Author.Name,
+                                               b.Sequence,
+                                               b.Rating,
+                                               b.Recommend,
+                                               ReadDates = from brd in b.BookReadDates
+                                                           select brd.ReadDate.ToString("yyyy-MM-dd"),
+                                               Tags = from bt in b.BookTags
+                                                      select bt.Tag.Data,
+                                               Source = b.Source == null ? string.Empty : b.Source.Name,
+                                               ImageUrl = b.ImageUrl ?? "http://2.bp.blogspot.com/_aDCnyPs488U/SyAtBDSHFHI/AAAAAAAAGDI/tFkGgFeISHI/s400/BookCoverGreenBrown.jpg"
+                                           }).ToList()
                             .Select(b => new BookDTO
                             {
                                 Id = b.BookId,
@@ -437,25 +437,25 @@ namespace ReadingList.Models
         {
             logger.LogDebug("\r\n\r\n\r\nGetFilteredBooks -- startsWith: {startsWith}", startsWith);
 
-            var result = (from b in dataContext.Books
+            IEnumerable<BookListItem> result = (from b in dataContext.Books
                             .Where(b => EF.Functions.Like(b.Name, $"{startsWith}%"))
                             .Include(b => b.Author)
                             .Include(b => b.Source)
                             .Include(b => b.BookTags)
                             .OrderBy(b => b.Name)
-                          select new
-                          {
-                              b.Name,
-                              b.ISBN,
-                              Author = b.Author == null ? string.Empty : b.Author.Name,
-                              b.Sequence,
-                              b.Rating,
-                              b.Recommend,
-                              Tags = from bt in b.BookTags
-                                     select bt.Tag.Data,
-                              Source = b.Source == null ? string.Empty : b.Source.Name,
-                              ImageUrl = b.ImageUrl ?? "http://2.bp.blogspot.com/_aDCnyPs488U/SyAtBDSHFHI/AAAAAAAAGDI/tFkGgFeISHI/s400/BookCoverGreenBrown.jpg"
-                          }).ToList()
+                                                select new
+                                                {
+                                                    b.Name,
+                                                    b.ISBN,
+                                                    Author = b.Author == null ? string.Empty : b.Author.Name,
+                                                    b.Sequence,
+                                                    b.Rating,
+                                                    b.Recommend,
+                                                    Tags = from bt in b.BookTags
+                                                           select bt.Tag.Data,
+                                                    Source = b.Source == null ? string.Empty : b.Source.Name,
+                                                    ImageUrl = b.ImageUrl ?? "http://2.bp.blogspot.com/_aDCnyPs488U/SyAtBDSHFHI/AAAAAAAAGDI/tFkGgFeISHI/s400/BookCoverGreenBrown.jpg"
+                                                }).ToList()
                             .Select(b => new BookListItem
                             {
                                 Text = b.Name,
@@ -506,7 +506,7 @@ namespace ReadingList.Models
 
             logger.LogDebug("\r\n\r\n\r\nreturning book: {book.Name}", book.Name);
 
-            var result = new BookDTO
+            BookDTO result = new BookDTO
             {
                 Id = book.BookId,
                 Name = book.Name,
@@ -530,9 +530,9 @@ namespace ReadingList.Models
             logger.LogDebug("\r\n\r\n\r\nAddBook: {JsonSerializer.Serialize(newBook)}", JsonSerializer.Serialize(newBook));
 
             //is this a new author, or one already in the database?
-            var authorId = await (from a in dataContext.Authors
-                                  where a.Name == newBook.Author
-                                  select a.AuthorId).FirstOrDefaultAsync();
+            long authorId = await (from a in dataContext.Authors
+                                   where a.Name == newBook.Author
+                                   select a.AuthorId).FirstOrDefaultAsync();
 
             if (!string.IsNullOrWhiteSpace(newBook.Author) && authorId == 0)
             {
@@ -545,9 +545,9 @@ namespace ReadingList.Models
             }
 
 
-            var sourceId = await (from s in dataContext.Sources
-                                  where s.Name == newBook.Source
-                                  select s.SourceId).FirstOrDefaultAsync();
+            long sourceId = await (from s in dataContext.Sources
+                                   where s.Name == newBook.Source
+                                   select s.SourceId).FirstOrDefaultAsync();
 
 
             if (!string.IsNullOrWhiteSpace(newBook.Source) && sourceId == 0)
@@ -566,16 +566,16 @@ namespace ReadingList.Models
             //new or existing tags?
             if (!string.IsNullOrWhiteSpace(newBook.Tags))
             {
-                foreach (var item in newBook.Tags.Split(';'))
+                foreach (string item in newBook.Tags.Split(';'))
                 {
-                    var tagId = await (from t in dataContext.Tags
-                                       where t.Data == item.Trim()
-                                       select t.TagId).FirstOrDefaultAsync();
+                    long tagId = await (from t in dataContext.Tags
+                                        where t.Data == item.Trim()
+                                        select t.TagId).FirstOrDefaultAsync();
 
                     tagList.Add(item.Trim(), tagId);
                 }
 
-                foreach (var tagEntry in tagList)
+                foreach (KeyValuePair<string, long?> tagEntry in tagList)
                 {
                     if (tagEntry.Value == 0)
                     {
@@ -607,9 +607,9 @@ namespace ReadingList.Models
             };
 
 
-            var bookTags = new Collection<BookTag>();
+            Collection<BookTag> bookTags = new Collection<BookTag>();
 
-            foreach (var tagEntry in tagList)
+            foreach (KeyValuePair<string, long?> tagEntry in tagList)
             {
                 Tag? tag = await dataContext.Tags.FindAsync(tagEntry.Value);
                 if (tag != null)
@@ -622,9 +622,9 @@ namespace ReadingList.Models
 
             if (!string.IsNullOrWhiteSpace(newBook.ReadDates))
             {
-                var bookReadDates = new Collection<BookReadDate>();
+                Collection<BookReadDate> bookReadDates = new Collection<BookReadDate>();
 
-                foreach (var item in newBook.ReadDates.Split(';'))
+                foreach (string item in newBook.ReadDates.Split(';'))
                 {
                     if (DateOnly.TryParse(item.Trim(), out DateOnly readDate))
                     {
@@ -664,9 +664,9 @@ namespace ReadingList.Models
 
 
             //is this a new author, or one already in the database?
-            var authorId = await (from a in dataContext.Authors
-                                  where a.Name == changedBook.Author
-                                  select a.AuthorId).FirstOrDefaultAsync();
+            long authorId = await (from a in dataContext.Authors
+                                   where a.Name == changedBook.Author
+                                   select a.AuthorId).FirstOrDefaultAsync();
 
             if (!string.IsNullOrWhiteSpace(changedBook.Author) && authorId == 0)
             {
@@ -680,9 +680,9 @@ namespace ReadingList.Models
 
 
 
-            var sourceId = await (from s in dataContext.Sources
-                                  where s.Name == changedBook.Source
-                                  select s.SourceId).FirstOrDefaultAsync();
+            long sourceId = await (from s in dataContext.Sources
+                                   where s.Name == changedBook.Source
+                                   select s.SourceId).FirstOrDefaultAsync();
 
             if (!string.IsNullOrWhiteSpace(changedBook.Source) && sourceId == 0)
             {
@@ -700,16 +700,16 @@ namespace ReadingList.Models
             //new or existing tags?
             if (!string.IsNullOrWhiteSpace(changedBook.Tags))
             {
-                foreach (var item in changedBook.Tags.Split(';'))
+                foreach (string item in changedBook.Tags.Split(';'))
                 {
-                    var tagId = await (from t in dataContext.Tags
-                                       where t.Data == item.Trim()
-                                       select t.TagId).FirstOrDefaultAsync();
+                    long tagId = await (from t in dataContext.Tags
+                                        where t.Data == item.Trim()
+                                        select t.TagId).FirstOrDefaultAsync();
 
                     tagList.Add(item.Trim(), tagId);
                 }
 
-                foreach (var tagEntry in tagList)
+                foreach (KeyValuePair<string, long?> tagEntry in tagList)
                 {
                     if (tagEntry.Value == 0)
                     {
@@ -738,9 +738,9 @@ namespace ReadingList.Models
             book.ImageUrl = changedBook.ImageUrl ?? "http://2.bp.blogspot.com/_aDCnyPs488U/SyAtBDSHFHI/AAAAAAAAGDI/tFkGgFeISHI/s400/BookCoverGreenBrown.jpg";
 
 
-            var bookTags = new Collection<BookTag>();
+            Collection<BookTag> bookTags = new Collection<BookTag>();
 
-            foreach (var tagEntry in tagList)
+            foreach (KeyValuePair<string, long?> tagEntry in tagList)
             {
                 Tag? tag = await dataContext.Tags.FindAsync(tagEntry.Value);
                 if (tag != null)
@@ -753,9 +753,9 @@ namespace ReadingList.Models
 
             if (!string.IsNullOrWhiteSpace(changedBook.ReadDates))
             {
-                var bookReadDates = new Collection<BookReadDate>();
+                Collection<BookReadDate> bookReadDates = new Collection<BookReadDate>();
 
-                foreach (var item in changedBook.ReadDates.Split(';'))
+                foreach (string item in changedBook.ReadDates.Split(';'))
                 {
                     if (DateOnly.TryParse(item.Trim(), out DateOnly readDate))
                     {
@@ -812,18 +812,18 @@ namespace ReadingList.Models
         {
             logger.LogDebug("\r\n\r\n\r\nGetAuthors -- page: {pageNumber} -- pageSize: {pageSize}", pageNumber, pageSize);
 
-            var result = (from a in dataContext.Authors
+            IEnumerable<AuthorDTO> result = (from a in dataContext.Authors
                 .Include(a => a.Books)
                 .OrderBy(a => a.Name)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                          select new
-                          {
-                              a.AuthorId,
-                              a.Name,
-                              Books = from b in a.Books
-                                      select b.Name
-                          }).ToList()
+                                             select new
+                                             {
+                                                 a.AuthorId,
+                                                 a.Name,
+                                                 Books = from b in a.Books
+                                                         select b.Name
+                                             }).ToList()
                 .Select(a => new AuthorDTO
                 {
                     Id = a.AuthorId,
@@ -838,17 +838,17 @@ namespace ReadingList.Models
         {
             logger.LogDebug("\r\n\r\n\r\nGetFilteredAuthorList -- startsWith: {startsWith}", startsWith);
 
-            var result = (from a in dataContext.Authors
+            IEnumerable<AuthorDTO> result = (from a in dataContext.Authors
                 .Where(a => EF.Functions.Like(a.Name, $"{startsWith}%"))
                 .Include(a => a.Books)
                 .OrderBy(a => a.Name)
-                          select new
-                          {
-                              a.AuthorId,
-                              a.Name,
-                              Books = from b in a.Books
-                                      select b.Name
-                          }).ToList()
+                                             select new
+                                             {
+                                                 a.AuthorId,
+                                                 a.Name,
+                                                 Books = from b in a.Books
+                                                         select b.Name
+                                             }).ToList()
                 .Select(a => new AuthorDTO
                 {
                     Id = a.AuthorId,
@@ -864,13 +864,13 @@ namespace ReadingList.Models
         {
             logger.LogDebug("\r\n\r\n\r\nGetFilteredAuthors -- startsWith: {startsWith}", startsWith);
 
-            var result = (from a in dataContext.Authors
+            IEnumerable<AuthorListItem> result = (from a in dataContext.Authors
                             .Where(a => EF.Functions.Like(a.Name, $"{startsWith}%"))
                             .OrderBy(a => a.Name)
-                          select new
-                          {
-                              a.Name
-                          }).ToList()
+                                                  select new
+                                                  {
+                                                      a.Name
+                                                  }).ToList()
                             .Select(a => new AuthorListItem
                             {
                                 Text = a.Name
@@ -901,7 +901,7 @@ namespace ReadingList.Models
                 return null;
             }
 
-            var result = new AuthorDTO
+            AuthorDTO result = new AuthorDTO
             {
                 Id = author.AuthorId,
                 Name = author.Name,
@@ -986,21 +986,21 @@ namespace ReadingList.Models
         {
             logger.LogDebug("\r\n\r\n\r\nGetTags -- page: {pageNumber} -- pageSize: {pageSize}", pageNumber, pageSize);
 
-            var result = (from t in dataContext.Tags
+            IEnumerable<TagDTO> result = (from t in dataContext.Tags
                             .Include(bt => bt.BookTags!)
                             .ThenInclude(b => b.Book)
                             .OrderBy(t => t.Data)
                             .Skip((pageNumber - 1) * pageSize)
                             .Take(pageSize)
-                          select new
-                          {
-                              t.TagId,
-                              t.Data,
-                              Books = string.Join("; ", t.BookTags!
-                                .OrderBy(b => b.Book.Sequence)
-                                .ThenBy(b => b.Book.Name)
-                                .Select(b => b.Book.Sequence == null ? b.Book.Name : b.Book.Sequence + " - " + b.Book.Name))
-                          }).ToList()
+                                          select new
+                                          {
+                                              t.TagId,
+                                              t.Data,
+                                              Books = string.Join("; ", t.BookTags!
+                                                .OrderBy(b => b.Book.Sequence)
+                                                .ThenBy(b => b.Book.Name)
+                                                .Select(b => b.Book.Sequence == null ? b.Book.Name : b.Book.Sequence + " - " + b.Book.Name))
+                                          }).ToList()
                             .Select(t => new TagDTO
                             {
                                 Id = t.TagId,
@@ -1010,24 +1010,24 @@ namespace ReadingList.Models
             return result;
         }
 
-        public IEnumerable<TagDTO> GetFilteredTagList(string startsWith)
+        public IEnumerable<TagDTO> GetFilteredTagList(string contains)
         {
-            logger.LogDebug("\r\n\r\n\r\nGetFilteredTagList -- startsWith: {startsWith}", startsWith);
+            logger.LogDebug("\r\n\r\n\r\nGetFilteredTagList -- contains: {contains}", contains);
 
-            var result = (from t in dataContext.Tags
-                            .Where(t => EF.Functions.Like(t.Data, $"{startsWith}%"))
+            IEnumerable<TagDTO> result = (from t in dataContext.Tags
+                            .Where(t => EF.Functions.Like(t.Data, $"%{contains}%"))
                             .Include(bt => bt.BookTags!)
                             .ThenInclude(b => b.Book)
                             .OrderBy(t => t.Data)
-                          select new
-                          {
-                              t.TagId,
-                              t.Data,
-                              Books = string.Join("; ", t.BookTags!
-                                .OrderBy(b => b.Book.Sequence)
-                                .ThenBy(b => b.Book.Name)
-                                .Select(b => b.Book.Sequence == null ? b.Book.Name : b.Book.Sequence + " - " + b.Book.Name))
-                          }).ToList()
+                                          select new
+                                          {
+                                              t.TagId,
+                                              t.Data,
+                                              Books = string.Join("; ", t.BookTags!
+                                                .OrderBy(b => b.Book.Sequence)
+                                                .ThenBy(b => b.Book.Name)
+                                                .Select(b => b.Book.Sequence == null ? b.Book.Name : b.Book.Sequence + " - " + b.Book.Name))
+                                          }).ToList()
                             .Select(t => new TagDTO
                             {
                                 Id = t.TagId,
@@ -1038,17 +1038,17 @@ namespace ReadingList.Models
             return result;
         }
 
-        public List<TagListItem> GetFilteredTags(string startsWith)
+        public List<TagListItem> GetFilteredTags(string contains)
         {
-            logger.LogDebug("\r\n\r\n\r\nGetFilteredTags -- startsWith: {startsWith}", startsWith);
+            logger.LogDebug("\r\n\r\n\r\nGetFilteredTags -- contains: {contains}", contains);
 
-            var result = (from t in dataContext.Tags
-                            .Where(t => EF.Functions.Like(t.Data, $"{startsWith}%"))
+            IEnumerable<TagListItem> result = (from t in dataContext.Tags
+                            .Where(t => EF.Functions.Like(t.Data, $"%{contains}%"))
                             .OrderBy(t => t.Data)
-                          select new
-                          {
-                              t.Data,
-                          }).ToList()
+                                               select new
+                                               {
+                                                   t.Data,
+                                               }).ToList()
                             .Select(t => new TagListItem
                             {
                                 Text = t.Data,
@@ -1082,7 +1082,7 @@ namespace ReadingList.Models
                 return null;
             }
 
-            var result = new TagDTO
+            TagDTO result = new TagDTO
             {
                 Id = tag.TagId,
                 Data = tag.Data,
@@ -1161,16 +1161,16 @@ namespace ReadingList.Models
         {
             logger.LogDebug("\r\n\r\n\r\nGetSources");
 
-            var result = (from s in dataContext.Sources
+            IEnumerable<SourceDTO> result = (from s in dataContext.Sources
                             .Include(s => s.Books)
                             .OrderBy(s => s.Name)
-                          select new
-                          {
-                              s.SourceId,
-                              s.Name,
-                              Books = from b in s.Books
-                                      select b.Name
-                          }).ToList()
+                                             select new
+                                             {
+                                                 s.SourceId,
+                                                 s.Name,
+                                                 Books = from b in s.Books
+                                                         select b.Name
+                                             }).ToList()
                             .Select(s => new SourceDTO
                             {
                                 Id = s.SourceId,
@@ -1185,13 +1185,13 @@ namespace ReadingList.Models
         {
             logger.LogDebug("\r\n\r\n\r\nGetFilteredSources -- startsWith: {startsWith}", startsWith);
 
-            var result = (from s in dataContext.Sources
+            IEnumerable<SourceListItem> result = (from s in dataContext.Sources
                             .Where(s => EF.Functions.Like(s.Name, $"{startsWith}%"))
                             .OrderBy(s => s.Name)
-                          select new
-                          {
-                              s.Name
-                          }).ToList()
+                                                  select new
+                                                  {
+                                                      s.Name
+                                                  }).ToList()
                             .Select(s => new SourceListItem
                             {
                                 Text = s.Name
@@ -1221,7 +1221,7 @@ namespace ReadingList.Models
                 return null;
             }
 
-            var result = new SourceDTO
+            SourceDTO result = new SourceDTO
             {
                 Id = source.SourceId,
                 Name = source.Name,

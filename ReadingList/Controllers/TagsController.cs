@@ -49,23 +49,23 @@ namespace ReadingList.Controllers
             return a == null ? NotFound() : Ok(a);
         }
 
-        [HttpGet("filter/{startsWith}")]
+        [HttpGet("filter/{contains}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<TagListItem>))]
-        public IEnumerable<TagListItem> GetFilteredTags(string startsWith = "%")
+        public IEnumerable<TagListItem> GetFilteredTags(string contains = "%")
         {
-            logger.LogDebug("\r\n\r\n\r\nResponse for GET /filter/{startsWith} started", startsWith);
+            logger.LogDebug("\r\n\r\n\r\nResponse for GET /filter/{contains} started", contains);
 
-            return repository.GetFilteredTags(startsWith);
+            return repository.GetFilteredTags(contains);
         }
 
-        [HttpGet("listfilter/{startsWith}")]
+        [HttpGet("listfilter/{contains}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<TagDTO>))]
         [AllowAnonymous]
-        public IEnumerable<TagDTO> GetFilteredTagList(string startsWith = "%")
+        public IEnumerable<TagDTO> GetFilteredTagList(string contains = "%")
         {
-            logger.LogDebug("\r\n\r\n\r\nResponse for GET /listfilter/{startsWith} started", startsWith);
+            logger.LogDebug("\r\n\r\n\r\nResponse for GET /listfilter/{contains} started", contains);
 
-            return repository.GetFilteredTagList(startsWith);
+            return repository.GetFilteredTagList(contains);
         }
 
         [HttpPost]

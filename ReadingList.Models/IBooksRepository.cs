@@ -30,8 +30,8 @@
 
         Task<int> GetTagCount();
         IEnumerable<TagDTO> GetTags(int pageNumber, int pageSize);
-        IEnumerable<TagDTO> GetFilteredTagList(string startsWith);
-        List<TagListItem> GetFilteredTags(string startsWith);
+        IEnumerable<TagDTO> GetFilteredTagList(string contains);
+        List<TagListItem> GetFilteredTags(string contains);
         Task<TagDTO?> GetTag(long id);
         Task<TagDTO> AddTag(TagBindingTarget newTag);
         Task<TagDTO?> UpdateTag(TagUpdateBindingTarget changedTag);

@@ -1,6 +1,6 @@
 ﻿@page "/tags"
 @page "/tags/page/{page:int}"
-@page "/tags/page/{page:int}/filter/{startsWith}"
+@page "/tags/page/{page:int}/filter/{contains}"
 <PageTitle>Tags | Reading List</PageTitle>
 
 @inject ILoggingService Logging
@@ -9,7 +9,7 @@
 <h5 class="bg-primary text-white text-center p-2">Tags</h5>
 
 <div class="filter">
-    <InputText @bind-Value="StartsWith" type="search" @onkeyup="HandleKeyUp" />
+    <InputText @bind-Value="Contains" type="search" @onkeyup="HandleKeyUp" />
     <NavLink class="btn-primary" href="@GetFilterUrl()"><i class="fa fa-search"></i></NavLink>
 </div>
 
@@ -50,7 +50,7 @@
 @code
 {
     [Parameter] public int Page { get; set; } = 1;
-    [Parameter] public string StartsWith { get; set; } = string.Empty;
+    [Parameter] public string Contains { get; set; } = string.Empty;
 
     public int PageSize { get; set; } = 10;
     public int TotalTags { get; set; }
@@ -90,13 +90,13 @@
                 PageSize = pagination?.PageSize ?? 10;
                 //Logging.Log($"PageSize: {PageSize}.");
 
-                if (string.IsNullOrWhiteSpace(StartsWith))
+                if (string.IsNullOrWhiteSpace(Contains))
                 {
                     Tags = await Http.GetFromJsonAsync<TagDTO[]>($"/api/r1/tags/page/{Page}") ?? Array.Empty<TagDTO>();
                 }
                 else
                 {
-                    Tags = await Http.GetFromJsonAsync<TagDTO[]>($"/api/r1/tags/listfilter/{Uri.EscapeDataString(StartsWith)}") ?? Array.Empty<TagDTO>();
+                    Tags = await Http.GetFromJsonAsync<TagDTO[]>($"/api/r1/tags/listfilter/{Uri.EscapeDataString(Contains)}") ?? Array.Empty<TagDTO>();
 
                 }
             }
@@ -107,7 +107,7 @@
     {
         if (e.Key == "Enter")
         {
-            if (string.IsNullOrWhiteSpace(StartsWith))
+            if (string.IsNullOrWhiteSpace(Contains))
             {
                 Navigation.NavigateTo($"/tags/page/{Page}");
             }
@@ -118,20 +118,20 @@
         }
         else if (e.Key == "Escape")
         {
-            StartsWith = string.Empty;
+            Contains = string.Empty;
         }
     }
     string GetEditUrl(long id) => $"tags/edit/{id}";
     string GetDeleteUrl(long id) => $"tags/delete/{id}";
     string GetFilterUrl()
     {
-        if (string.IsNullOrWhiteSpace(StartsWith))
+        if (string.IsNullOrWhiteSpace(Contains))
         {
             return $"tags/page/{Page}";
         }
         else
         {
-            return $"tags/page/{Page}/filter/{Uri.EscapeDataString(StartsWith)}";
+            return $"tags/page/{Page}/filter/{Uri.EscapeDataString(Contains)}";
         }
     }
 }
