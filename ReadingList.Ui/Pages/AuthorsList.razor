@@ -27,7 +27,33 @@
                 <tr>
                     <td>@a.Id</td>
                     <td>@a.Name</td>
-                    <td>@a.Books</td>
+                    <td>
+                        @if (a.Books != null)
+                        {
+                            string[] books = a.Books.Split("; ");
+                            int i = 0;
+
+                            foreach (string s in books)
+                            {
+                                i++;
+
+                                string[] strings = s.Split('~');
+                                if (strings.Length == 2)
+                                {
+                                    _ = long.TryParse(strings[0], out long id);
+                                    string title = strings[1];
+
+                                    <NavLink class="text-reset text-decoration-none" href="@GetBookDetailsUrl(id)"> @title</NavLink>
+
+                                    if (i < books.Length)
+                                    {
+                                        <text>; </text>
+                                    }
+                                }
+                            }
+                        }
+                    </td>
+
                     <td class="text-center">
                         <AuthorizeView Roles="Admin">
                             <NavLink class="btn btn-sm btn-warning" href="@GetEditUrl(a.Id)">Edit</NavLink>
@@ -99,7 +125,6 @@
                 else
                 {
                     Authors = await Http.GetFromJsonAsync<AuthorDTO[]>($"/api/r1/authors/listfilter/{Uri.EscapeDataString(StartsWith)}") ?? Array.Empty<AuthorDTO>();
-
                 }
             }
         }
@@ -123,6 +148,9 @@
             StartsWith = string.Empty;
         }
     }
+
+
+    string GetBookDetailsUrl(long id) => $"books/page/1/details/{id}";
 
     string GetEditUrl(long id) => $"authors/edit/{id}";
     string GetDeleteUrl(long id) => $"authors/delete/{id}";

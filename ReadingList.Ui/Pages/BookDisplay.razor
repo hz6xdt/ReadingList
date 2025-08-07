@@ -1,41 +1,50 @@
 ﻿@if (Book != null)
 {
     <div class="book-details">
-        <span class="title">@Book.Name</span>
+        <span @onclick="@GoToStartDate" class="title">@Book.Name</span>
         <div class="coverContainer">
-            <NavLink href="@GetDetailsUrl(Book.Id)">
-                <img class="coverImage" src="@Book.ImageUrl" alt="cover art" />
-            </NavLink>
+            <AuthorizeView Roles="Admin">
+                <Authorized>
+                    <NavLink href="@GetEditUrl(Book.Id)">
+                        <img class="coverImage" src="@Book.ImageUrl" alt="cover art" />
+                    </NavLink>
+                </Authorized>
+                <NotAuthorized>
+                    <NavLink href="@GetDetailsUrl(Book.Id)">
+                        <img class="coverImage" src="@Book.ImageUrl" alt="cover art" />
+                    </NavLink>
+                </NotAuthorized>
+            </AuthorizeView>
         </div>
-        <div @onclick="@GoToStartDate">
-            <div style="margin-top: 1rem;">Read Dates: &nbsp;&nbsp;@Book.ReadDates</div>
+        <div>
+            <div @onclick="@GoToStartDate" style="margin-top: 1rem;">Read Dates: &nbsp;&nbsp;@Book.ReadDates</div>
             @if (@Book.Author != null)
             {
-                <div>Author: &nbsp;&nbsp;@Book.Author</div>
+                <div>Author: &nbsp;&nbsp;<NavLink class="text-reset text-decoration-none" href="@GetAuthorUrl(@Book.Author ?? string.Empty)">@Book.Author</NavLink></div>
             }
             @if (@Book.Tags != null)
             {
-                <div>Tags: &nbsp;&nbsp;@Book.Tags</div>
+                <div>Tags: &nbsp;&nbsp;<NavLink class="text-reset text-decoration-none" href="@GetTagUrl(@Book.Tags ?? string.Empty)">@Book.Tags</NavLink></div>
             }
             @if (@Book.ISBN != null)
             {
-                <div>ISBN: &nbsp;&nbsp;@Book.ISBN</div>
+                <div @onclick="@GoToStartDate">ISBN: &nbsp;&nbsp;@Book.ISBN</div>
             }
             @if (@Book.Sequence != null)
             {
-                <div>Sequence: &nbsp;&nbsp;@Book.Sequence</div>
+                <div @onclick="@GoToStartDate">Sequence: &nbsp;&nbsp;@Book.Sequence</div>
             }
             @if (@Book.Rating > 0)
             {
-                <div class="rating">Rating: &nbsp;&nbsp;<Rating IsReadOnly="true" IsCompact="true" StarCount=@Book.Rating /></div>
+                <div @onclick="@GoToStartDate" class="rating">Rating: &nbsp;&nbsp;<Rating IsReadOnly="true" IsCompact="true" StarCount=@Book.Rating /></div>
             }
             @if (@Book.Source != null)
             {
-                <div>Source: &nbsp;&nbsp;@Book.Source</div>
+                <div @onclick="@GoToStartDate">Source: &nbsp;&nbsp;@Book.Source</div>
             }
             @if (@Book.Recommend)
             {
-                <div>Recommend: &nbsp;&nbsp;@Book.Recommend</div>
+                <div @onclick="@GoToStartDate">Recommend: &nbsp;&nbsp;@Book.Recommend</div>
             }
         </div>
     </div>
@@ -49,6 +58,11 @@
     [Inject]
     public NavigationManager? NavManager { get; set; }
 
+
+    private string GetAuthorUrl(string authorName) => $"authors/page/1/filter/{authorName}";
+    private string GetTagUrl(string tagData) => $"tags/page/1/filter/{tagData.Split("; ")[0]}";
+
+    private string GetEditUrl(long id) => $"books/page/1/edit/{id}";
     private string GetDetailsUrl(long id) => $"books/page/1/details/{id}";
 
     private void GoToStartDate()

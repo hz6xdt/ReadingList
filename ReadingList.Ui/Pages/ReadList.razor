@@ -73,17 +73,28 @@
                         <div style="clear: left;"><span class="title">@b.Name</span></div>
                         <div class="row">
                             <div class="col-md-4">
-                                <img class="coverImage" src="@b.ImageUrl" alt="cover art" />
+                                <AuthorizeView Roles="Admin">
+                                    <Authorized>
+                                        <NavLink href="@GetEditUrl(b.Id)">
+                                            <img class="coverImage" src="@b.ImageUrl" alt="cover art" />
+                                        </NavLink>
+                                    </Authorized>
+                                    <NotAuthorized>
+                                        <NavLink href="@GetDetailsUrl(b.Id)">
+                                            <img class="coverImage" src="@b.ImageUrl" alt="cover art" />
+                                        </NavLink>
+                                    </NotAuthorized>
+                                </AuthorizeView>
                             </div>
                             <div class="col-md-8">
                                 <div style="margin-top: 1em;">Read Dates: &nbsp;&nbsp;@b.ReadDates</div>
                                 @if (@b.Author != null)
                                 {
-                                    <div>Author: &nbsp;&nbsp;@b.Author</div>
+                                    <div>Author: &nbsp;&nbsp;<NavLink class="text-reset text-decoration-none" href="@GetAuthorUrl(@b.Author ?? string.Empty)">@b.Author</NavLink></div>
                                 }
                                 @if (@b.Tags != null)
                                 {
-                                    <div>Tags: &nbsp;&nbsp;@b.Tags</div>
+                                    <div>Tags: &nbsp;&nbsp;<NavLink class="text-reset text-decoration-none" href="@GetTagUrl(@b.Tags ?? string.Empty)">@b.Tags</NavLink></div>
                                 }
                                 @if (@b.ISBN != null)
                                 {
@@ -151,18 +162,18 @@
             Logging.Log($"\r\n\r\n\r\nAdding {BookData.Name} to read list.");
             await Http.PostAsJsonAsync("/api/r1/readList",
                 new ReadBindingTarget
-                    {
-                        Name = BookData.Name,
-                        Sequence = BookData.Sequence,
-                        Rating = BookData.Rating,
-                        Recommend = BookData.Recommend,
-                        ISBN = BookData.ISBN,
-                        ReadDate = BookData.ReadDate,
-                        ImageUrl = BookData.ImageUrl ?? Book.DefaultCoverImageUrl,
-                        Author = BookData.Author,
-                        Tags = BookData.Tags,
-                        Source = BookData.Source
-                    });
+                {
+                    Name = BookData.Name,
+                    Sequence = BookData.Sequence,
+                    Rating = BookData.Rating,
+                    Recommend = BookData.Recommend,
+                    ISBN = BookData.ISBN,
+                    ReadDate = BookData.ReadDate,
+                    ImageUrl = BookData.ImageUrl ?? Book.DefaultCoverImageUrl,
+                    Author = BookData.Author,
+                    Tags = BookData.Tags,
+                    Source = BookData.Source
+                });
 
 
             Logging.Log("Getting current read list.");
@@ -197,4 +208,10 @@
     {
         BookData.Tags = selectedTag.Text;
     }
+
+    private string GetEditUrl(long id) => $"books/page/1/edit/{id}";
+    private string GetDetailsUrl(long id) => $"books/page/1/details/{id}";
+
+    private string GetAuthorUrl(string authorName) => $"authors/page/1/filter/{authorName}";
+    private string GetTagUrl(string tagData) => $"tags/page/1/filter/{tagData.Split("; ")[0]}";
 }

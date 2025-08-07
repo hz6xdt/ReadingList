@@ -98,7 +98,7 @@
         }
     }
 
-    string GetEditUrl(long id) => $"books/page/{Page}/edit/{id}";
+    private string GetEditUrl(long id) => $"books/page/{Page}/edit/{id}";
 
     private async Task GoBack() => await JSRuntime.InvokeVoidAsync("history.back");
 }

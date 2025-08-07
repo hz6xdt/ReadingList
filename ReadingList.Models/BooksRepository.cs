@@ -1,7 +1,7 @@
-﻿using System.Collections.ObjectModel;
-using System.Text.Json;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Collections.ObjectModel;
+using System.Text.Json;
 
 namespace ReadingList.Models
 {
@@ -9,7 +9,7 @@ namespace ReadingList.Models
     {
         public List<TimelineDTO> GetTimeline(DateOnly startDate)
         {
-            logger.LogDebug($"\r\n\r\n\r\nGetTimeLine -- startDate: {startDate}");
+            logger.LogDebug("\r\n\r\n\r\nGetTimeLine -- startDate: {startDate}", startDate);
 
             DateOnly endDate = startDate.AddMonths(6);
             bool found = false;
@@ -77,7 +77,7 @@ namespace ReadingList.Models
                               ImageUrl = b.ImageUrl
                           });
 
-            return result.ToList<TimelineDTO>();
+            return [.. result];
         }
 
 
@@ -311,6 +311,13 @@ namespace ReadingList.Models
                     }
                 }
 
+                foreach (var bt in book.BookTags)
+                {
+                    bt.Tag ??= await (from t in dataContext.Tags
+                                      where t.TagId == bt.TagId
+                                      select t).FirstAsync();
+                }
+
                 dataContext.SaveChanges();
             }
 
@@ -469,7 +476,7 @@ namespace ReadingList.Models
                                 ImageUrl = b.ImageUrl
                             });
 
-            return result.ToList();
+            return [.. result];
         }
 
 
@@ -506,7 +513,7 @@ namespace ReadingList.Models
 
             logger.LogDebug("\r\n\r\n\r\nreturning book: {book.Name}", book.Name);
 
-            BookDTO result = new BookDTO
+            BookDTO result = new()
             {
                 Id = book.BookId,
                 Name = book.Name,
@@ -607,7 +614,7 @@ namespace ReadingList.Models
             };
 
 
-            Collection<BookTag> bookTags = new Collection<BookTag>();
+            Collection<BookTag> bookTags = [];
 
             foreach (KeyValuePair<string, long?> tagEntry in tagList)
             {
@@ -622,7 +629,7 @@ namespace ReadingList.Models
 
             if (!string.IsNullOrWhiteSpace(newBook.ReadDates))
             {
-                Collection<BookReadDate> bookReadDates = new Collection<BookReadDate>();
+                Collection<BookReadDate> bookReadDates = [];
 
                 foreach (string item in newBook.ReadDates.Split(';'))
                 {
@@ -738,7 +745,7 @@ namespace ReadingList.Models
             book.ImageUrl = changedBook.ImageUrl ?? "http://2.bp.blogspot.com/_aDCnyPs488U/SyAtBDSHFHI/AAAAAAAAGDI/tFkGgFeISHI/s400/BookCoverGreenBrown.jpg";
 
 
-            Collection<BookTag> bookTags = new Collection<BookTag>();
+            Collection<BookTag> bookTags = [];
 
             foreach (KeyValuePair<string, long?> tagEntry in tagList)
             {
@@ -753,7 +760,7 @@ namespace ReadingList.Models
 
             if (!string.IsNullOrWhiteSpace(changedBook.ReadDates))
             {
-                Collection<BookReadDate> bookReadDates = new Collection<BookReadDate>();
+                Collection<BookReadDate> bookReadDates = [];
 
                 foreach (string item in changedBook.ReadDates.Split(';'))
                 {
@@ -813,7 +820,8 @@ namespace ReadingList.Models
             logger.LogDebug("\r\n\r\n\r\nGetAuthors -- page: {pageNumber} -- pageSize: {pageSize}", pageNumber, pageSize);
 
             IEnumerable<AuthorDTO> result = (from a in dataContext.Authors
-                .Include(a => a.Books)
+                .Include(a => a.Books!)
+                .ThenInclude(b => b.BookTags)
                 .OrderBy(a => a.Name)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
@@ -822,7 +830,8 @@ namespace ReadingList.Models
                                                  a.AuthorId,
                                                  a.Name,
                                                  Books = from b in a.Books
-                                                         select b.Name
+                                                         orderby b.BookTags!.First().TagId, b.Sequence, b.Name
+                                                         select b.BookId + "~" + b.Name
                                              }).ToList()
                 .Select(a => new AuthorDTO
                 {
@@ -847,7 +856,8 @@ namespace ReadingList.Models
                                                  a.AuthorId,
                                                  a.Name,
                                                  Books = from b in a.Books
-                                                         select b.Name
+                                                         orderby b.BookTags!.First().TagId, b.Sequence, b.Name
+                                                         select b.BookId + "~" + b.Name
                                              }).ToList()
                 .Select(a => new AuthorDTO
                 {
@@ -876,7 +886,7 @@ namespace ReadingList.Models
                                 Text = a.Name
                             });
 
-            return result.ToList();
+            return [.. result];
         }
 
 
@@ -892,7 +902,8 @@ namespace ReadingList.Models
                                     a.AuthorId,
                                     a.Name,
                                     Books = from b in a.Books
-                                            select b.Name
+                                            orderby b.BookTags!.First().TagId, b.Sequence, b.Name
+                                            select b.BookId + "~" + b.Name
                                 }).FirstOrDefaultAsync();
 
             if (author == null)
@@ -901,7 +912,7 @@ namespace ReadingList.Models
                 return null;
             }
 
-            AuthorDTO result = new AuthorDTO
+            AuthorDTO result = new()
             {
                 Id = author.AuthorId,
                 Name = author.Name,
@@ -997,9 +1008,10 @@ namespace ReadingList.Models
                                               t.TagId,
                                               t.Data,
                                               Books = string.Join("; ", t.BookTags!
-                                                .OrderBy(b => b.Book.Sequence)
+                                                .OrderBy(t => t.TagId)
+                                                .ThenBy(b => b.Book.Sequence)
                                                 .ThenBy(b => b.Book.Name)
-                                                .Select(b => b.Book.Sequence == null ? b.Book.Name : b.Book.Sequence + " - " + b.Book.Name))
+                                                .Select(b => b.Book.Sequence == null ? b.BookId + "~" + b.Book.Name : b.BookId + "~" + b.Book.Sequence + " - " + b.Book.Name))
                                           }).ToList()
                             .Select(t => new TagDTO
                             {
@@ -1024,9 +1036,10 @@ namespace ReadingList.Models
                                               t.TagId,
                                               t.Data,
                                               Books = string.Join("; ", t.BookTags!
-                                                .OrderBy(b => b.Book.Sequence)
+                                                .OrderBy(t => t.TagId)
+                                                .ThenBy(b => b.Book.Sequence)
                                                 .ThenBy(b => b.Book.Name)
-                                                .Select(b => b.Book.Sequence == null ? b.Book.Name : b.Book.Sequence + " - " + b.Book.Name))
+                                                .Select(b => b.Book.Sequence == null ? b.BookId + "~" + b.Book.Name : b.BookId + "~" + b.Book.Sequence + " - " + b.Book.Name))
                                           }).ToList()
                             .Select(t => new TagDTO
                             {
@@ -1054,7 +1067,7 @@ namespace ReadingList.Models
                                 Text = t.Data,
                             });
 
-            return result.ToList();
+            return [.. result];
         }
 
 
@@ -1071,9 +1084,10 @@ namespace ReadingList.Models
                                  t.TagId,
                                  t.Data,
                                  Books = string.Join("; ", t.BookTags!
-                                    .OrderBy(b => b.Book.Sequence)
-                                    .ThenBy(b => b.Book.Name)
-                                    .Select(b => b.Book.Sequence == null ? b.Book.Name : b.Book.Sequence + " - " + b.Book.Name))
+                                                .OrderBy(t => t.TagId)
+                                                .ThenBy(b => b.Book.Sequence)
+                                                .ThenBy(b => b.Book.Name)
+                                                .Select(b => b.Book.Sequence == null ? b.BookId + "~" + b.Book.Name : b.BookId + "~" + b.Book.Sequence + " - " + b.Book.Name))
                              }).FirstOrDefaultAsync();
 
             if (tag == null)
@@ -1082,7 +1096,7 @@ namespace ReadingList.Models
                 return null;
             }
 
-            TagDTO result = new TagDTO
+            TagDTO result = new()
             {
                 Id = tag.TagId,
                 Data = tag.Data,
@@ -1169,7 +1183,8 @@ namespace ReadingList.Models
                                                  s.SourceId,
                                                  s.Name,
                                                  Books = from b in s.Books
-                                                         select b.Name
+                                                         orderby b.BookTags!.First().TagId, b.Sequence, b.Name
+                                                         select b.BookId + "~" + b.Name
                                              }).ToList()
                             .Select(s => new SourceDTO
                             {
@@ -1197,7 +1212,7 @@ namespace ReadingList.Models
                                 Text = s.Name
                             });
 
-            return result.ToList();
+            return [.. result];
         }
 
         public async Task<SourceDTO?> GetSource(long id)
@@ -1212,7 +1227,8 @@ namespace ReadingList.Models
                                     s.SourceId,
                                     s.Name,
                                     Books = from b in s.Books
-                                            select b.Name
+                                            orderby b.BookTags!.First().TagId, b.Sequence, b.Name
+                                            select b.BookId + "~" + b.Name
                                 }).FirstOrDefaultAsync();
 
             if (source == null)
@@ -1221,7 +1237,7 @@ namespace ReadingList.Models
                 return null;
             }
 
-            SourceDTO result = new SourceDTO
+            SourceDTO result = new()
             {
                 Id = source.SourceId,
                 Name = source.Name,
