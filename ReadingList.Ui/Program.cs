@@ -1,3 +1,4 @@
+using ApexCharts;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
@@ -5,7 +6,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using ReadingList.Ui;
 using ReadingList.Ui.Services;
 
-var builder = WebAssemblyHostBuilder.CreateDefault(args);
+WebAssemblyHostBuilder builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
@@ -23,5 +24,14 @@ builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, JwtAuthenticationStateProvider>();
+
+builder.Services.AddApexCharts(e =>
+{
+    e.GlobalOptions = new ApexChartBaseOptions
+    {
+        Debug = true,
+        Theme = new Theme { Palette = PaletteType.Palette2 }
+    };
+});
 
 await builder.Build().RunAsync();

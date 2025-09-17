@@ -12,6 +12,7 @@
 .coverImage {
     margin: 0;
     width: 150px;
+    max-height: 250px;
     position: absolute;
     top: 50%;
     transform: translateY(-50%);

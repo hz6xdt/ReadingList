@@ -1,0 +1,171 @@
+﻿@page "/stats"
+<PageTitle>Stats | Reading List</PageTitle>
+
+@inject ILoggingService Logging
+
+
+<h5 class="bg-primary text-white text-center p-2">Stats</h5>
+
+
+
+<ApexChart @ref="uniqueBooksReadChart"
+           TItem="UniqueBooksRead"
+           Options="uniqueBooksReadChartOptions"
+           Title="Unique Books Read To Date">
+
+    <ApexPointSeries TItem="UniqueBooksRead"
+                     Items="uniqueBookReads"
+                     Name="Unique Books"
+                     SeriesType="SeriesType.Bar"
+                     XValue="b => b.ReadDate"
+                     YValue="b => b.BooksRead" />
+
+</ApexChart>
+
+
+
+<ApexChart @ref="booksReadPerYearChart"
+           TItem="BooksReadPerYear"
+           Options="booksReadPerYearChartOptions"
+           Title="Books Read Per Year">
+
+    <ApexPointSeries TItem="BooksReadPerYear"
+                     Items="booksReadPerYear"
+                     Name="Books Read"
+                     SeriesType="SeriesType.Bar"
+                     XValue="b => b.Year"
+                     YValue="b => b.BooksRead" />
+
+</ApexChart>
+
+
+@code {
+
+    private ApexChartOptions<UniqueBooksRead> uniqueBooksReadChartOptions = new()
+    {
+        Chart = new Chart
+        {
+            Height = 350,
+            OffsetY = 20,
+            Type = ChartType.Bar
+        },
+        PlotOptions = new()
+        {
+            Bar = new()
+            {
+                Horizontal = true,
+                BarHeight = "25%"
+            }
+        },
+        Colors = new()
+        {
+            "#17265d"
+        },
+        Grid = new()
+        {
+            Padding = new()
+            {
+                Left = 10, Right = 10, Top = 10, Bottom = 10
+            }
+        },
+        Xaxis = new XAxis
+        {
+            Title = new AxisTitle { Text = "Unique Books Read" }
+        },
+        Yaxis = new List<YAxis>
+        {
+            new YAxis
+            {
+                Title = new AxisTitle { Text = "As Of" },
+                Min = 0,
+                Max = 2000
+            }
+        }
+    };
+
+
+
+    private ApexChartOptions<BooksReadPerYear> booksReadPerYearChartOptions = new()
+    {
+        Chart = new Chart
+        {
+            Height = 350,
+            OffsetY = 20,
+            Type = ChartType.Bar
+        },
+        Colors = new()
+        {
+            "#447545"
+        },
+        Grid = new()
+        {
+            Padding = new()
+            {
+                Left = 10, Right = 10, Top = 10, Bottom = 10
+            }
+        },
+        Xaxis = new XAxis
+        {
+            Title = new AxisTitle { Text = "Year" },
+            Min = 1988,
+            Max = DateTime.Now.Year
+        },
+        Yaxis = new List<YAxis>
+        {
+            new YAxis
+            {
+                Title = new AxisTitle { Text = "Books Read" },
+                Min = 0,
+                Max = 200
+            }
+        }
+    };
+
+
+
+    private List<UniqueBooksRead> uniqueBookReads { get; set; } = [];
+    private List<(int Year, int Count)> uniqueBooksReadData { get; set; } = [];
+
+
+
+    [Inject]
+    public HttpClient? Http { get; set; }
+
+
+    private ApexChart<UniqueBooksRead>? uniqueBooksReadChart;
+    private ApexChart<BooksReadPerYear>? booksReadPerYearChart;
+
+
+    private int uniqueBooksReadCount { get; set; } = 0;
+    private DateOnly asOfDate { get; set; } = DateOnly.FromDateTime(DateTime.Now);
+
+    private List<BooksReadPerYear> booksReadPerYear { get; set; } = [];
+
+
+
+    protected async override Task OnInitializedAsync()
+    {
+        if (Http == null)
+        {
+            throw new InvalidOperationException("HttpClient not initialized.");
+        }
+
+
+        uniqueBooksReadCount = await Http.GetFromJsonAsync<int>($"/api/r1/stats/uniqueBooksReadCount/{asOfDate:yyyy-MM-dd}");
+        uniqueBookReads.Add(new() { ReadDate = asOfDate, BooksRead = uniqueBooksReadCount });
+
+        booksReadPerYear.AddRange(await Http.GetFromJsonAsync<List<BooksReadPerYear>>("/api/r1/stats/booksReadPerYear") ?? new List<BooksReadPerYear>());
+
+        //Logging.Log($"booksReadPerYear Count: {booksReadPerYear.Count}");
+
+        if (uniqueBooksReadChart is not null)
+        {
+            await uniqueBooksReadChart.UpdateSeriesAsync(true);
+        }
+
+        if (booksReadPerYearChart is not null)
+        {
+            await booksReadPerYearChart.UpdateSeriesAsync(true);
+        }
+    }
+}

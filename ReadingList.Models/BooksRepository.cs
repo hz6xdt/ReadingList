@@ -1,7 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace ReadingList.Models
 {
@@ -311,7 +311,7 @@ namespace ReadingList.Models
                     }
                 }
 
-                foreach (var bt in book.BookTags)
+                foreach (BookTag bt in book.BookTags)
                 {
                     bt.Tag ??= await (from t in dataContext.Tags
                                       where t.TagId == bt.TagId
@@ -1318,6 +1318,30 @@ namespace ReadingList.Models
                 }
             }
 
+            return result;
+        }
+
+
+        public async Task<int> GetUniqueBooksReadCount(DateOnly asOfDate)
+        {
+            int result = await dataContext.BookReadDates
+                .Where(brd => brd.ReadDate <= asOfDate)
+                .Select(brd => brd.BookId)
+                .Distinct()
+                .CountAsync();
+            return result;
+        }
+
+        public IEnumerable<BooksReadPerYear> GetBooksReadPerYear()
+        {
+            IEnumerable<BooksReadPerYear> result = (from brd in dataContext.BookReadDates
+                                                    group brd by brd.ReadDate.Year into g
+                                                    orderby g.Key
+                                                    select new BooksReadPerYear
+                                                    {
+                                                        Year = g.Key,
+                                                        BooksRead = g.Select(brd => brd.BookId).Count()
+                                                    }).ToList();
             return result;
         }
     }

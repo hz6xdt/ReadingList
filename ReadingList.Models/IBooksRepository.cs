@@ -45,5 +45,9 @@
         Task<SourceDTO> AddSource(SourceBindingTarget newSource);
         Task<SourceDTO?> UpdateSource(SourceUpdateBindingTarget changedSource);
         Task<DeleteResult> DeleteSource(long id);
+
+
+        Task<int> GetUniqueBooksReadCount(DateOnly asOfDate);
+        IEnumerable<BooksReadPerYear> GetBooksReadPerYear();
     }
 }
