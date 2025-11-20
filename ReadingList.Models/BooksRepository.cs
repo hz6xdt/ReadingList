@@ -1344,6 +1344,19 @@ namespace ReadingList.Models
                                                     }).ToList();
             return result;
         }
+
+        public IEnumerable<BooksPerRating> GetBooksPerRating()
+        {
+            IEnumerable<BooksPerRating> result = (from b in dataContext.Books
+                                                  group b by b.Rating into g
+                                                  orderby g.Key descending
+                                                  select new BooksPerRating
+                                                  {
+                                                      Rating = g.Key,
+                                                      Books = g.Count()
+                                                  }).ToList();
+            return result;
+        }
     }
 
     public class DeleteResult

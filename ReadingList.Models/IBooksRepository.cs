@@ -49,5 +49,6 @@
 
         Task<int> GetUniqueBooksReadCount(DateOnly asOfDate);
         IEnumerable<BooksReadPerYear> GetBooksReadPerYear();
+        IEnumerable<BooksPerRating> GetBooksPerRating();
     }
 }

@@ -39,6 +39,21 @@
 </ApexChart>
 
 
+<ApexChart @ref="booksPerRatingChart"
+           TItem="BooksPerRating"
+           Options="booksPerRatingChartOptions"
+           Title="Books per Rating">
+
+    <ApexPointSeries TItem="BooksPerRating"
+                     Items="booksPerRating"
+                     Name="Books Per Rating"
+                     SeriesType="SeriesType.Bar"
+                     XValue="b => b.Rating"
+                     YValue="b => b.Books" />
+
+</ApexChart>
+
+
 @code {
 
     private ApexChartOptions<UniqueBooksRead> uniqueBooksReadChartOptions = new()
@@ -65,7 +80,10 @@
         {
             Padding = new()
             {
-                Left = 10, Right = 10, Top = 10, Bottom = 10
+                Left = 10,
+                Right = 10,
+                Top = 10,
+                Bottom = 10
             }
         },
         Xaxis = new XAxis
@@ -79,6 +97,53 @@
                 Title = new AxisTitle { Text = "As Of" },
                 Min = 0,
                 Max = 2000
+            }
+        }
+    };
+
+
+
+    private ApexChartOptions<BooksPerRating> booksPerRatingChartOptions = new()
+    {
+        Chart = new Chart
+        {
+            Height = 350,
+            OffsetY = 20,
+            Type = ChartType.Bar
+        },
+        PlotOptions = new()
+        {
+            Bar = new()
+            {
+                Horizontal = true,
+                BarHeight = "50%"
+            }
+        },
+        Colors = new()
+        {
+            "#17265d"
+        },
+        Grid = new()
+        {
+            Padding = new()
+            {
+                Left = 10,
+                Right = 10,
+                Top = 10,
+                Bottom = 10
+            }
+        },
+        Xaxis = new XAxis
+        {
+            Title = new AxisTitle { Text = "Books" }
+        },
+        Yaxis = new List<YAxis>
+        {
+            new YAxis
+            {
+                Title = new AxisTitle { Text = "Rating" },
+                Min = 0,
+                Max = 500
             }
         }
     };
@@ -123,10 +188,6 @@
 
 
 
-    private List<UniqueBooksRead> uniqueBookReads { get; set; } = [];
-    private List<(int Year, int Count)> uniqueBooksReadData { get; set; } = [];
-
-
 
     [Inject]
     public HttpClient? Http { get; set; }
@@ -134,12 +195,17 @@
 
     private ApexChart<UniqueBooksRead>? uniqueBooksReadChart;
     private ApexChart<BooksReadPerYear>? booksReadPerYearChart;
+    private ApexChart<BooksPerRating>? booksPerRatingChart;
 
+
+    private List<UniqueBooksRead> uniqueBookReads { get; set; } = [];
+    private List<(int Year, int Count)> uniqueBooksReadData { get; set; } = [];
 
     private int uniqueBooksReadCount { get; set; } = 0;
     private DateOnly asOfDate { get; set; } = DateOnly.FromDateTime(DateTime.Now);
 
     private List<BooksReadPerYear> booksReadPerYear { get; set; } = [];
+    private List<BooksPerRating> booksPerRating { get; set; } = [];
 
 
 
@@ -156,6 +222,8 @@
 
         booksReadPerYear.AddRange(await Http.GetFromJsonAsync<List<BooksReadPerYear>>("/api/r1/stats/booksReadPerYear") ?? new List<BooksReadPerYear>());
 
+        booksPerRating.AddRange(await Http.GetFromJsonAsync<List<BooksPerRating>>("/api/r1/stats/booksPerRating") ?? new List<BooksPerRating>());
+
         //Logging.Log($"booksReadPerYear Count: {booksReadPerYear.Count}");
 
         if (uniqueBooksReadChart is not null)
@@ -166,6 +234,11 @@
         if (booksReadPerYearChart is not null)
         {
             await booksReadPerYearChart.UpdateSeriesAsync(true);
+        }
+
+        if (booksPerRatingChart is not null)
+        {
+            await booksPerRatingChart.UpdateSeriesAsync(true);
         }
     }
 }

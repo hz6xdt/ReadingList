@@ -22,5 +22,13 @@ namespace ReadingList.Controllers
             IEnumerable<BooksReadPerYear> result = repository.GetBooksReadPerYear();
             return result;
         }
+
+        [HttpGet("booksPerRating")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<(int Rating, int Books)>))]
+        public IEnumerable<BooksPerRating> GetBooksPerRating()
+        {
+            IEnumerable<BooksPerRating> result = repository.GetBooksPerRating();
+            return result;
+        }
     }
 }
