@@ -2,6 +2,8 @@
 {
     public interface IBooksRepository
     {
+        List<TimelineDTO> GetLongestUnread();
+        Task<bool> HideFromLongestUnread(long id);
         List<TimelineDTO> GetTimeline(DateOnly startDate);
         IEnumerable<BookDTO> GetReadingList();
         Task<BookDTO> AddReadingListEntry(ReadBindingTarget readingListEntry);

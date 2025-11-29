@@ -54,6 +54,71 @@
 </ApexChart>
 
 
+<div style="margin-top: 5rem;">
+
+    @if (LongestUnread.Count() == 0)
+    {
+        <div>Loading Data...</div>
+    }
+    else
+    {
+        <h5 style="margin-bottom: 2rem;" class="bg-primary text-white p-2">Longest Unread:</h5>
+
+        <ul>
+            @foreach (TimelineDTO b in LongestUnread)
+            {
+                <li>
+                    <div style="clear: left;"><span class="title">@b.Name</span></div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <AuthorizeView Roles="Admin">
+                                <Authorized>
+                                    <NavLink href="@GetEditUrl(b.Id)">
+                                        <img class="coverImage" src="@b.ImageUrl" alt="cover art" />
+                                    </NavLink>
+                                </Authorized>
+                                <NotAuthorized>
+                                    <NavLink href="@GetDetailsUrl(b.Id)">
+                                        <img class="coverImage" src="@b.ImageUrl" alt="cover art" />
+                                    </NavLink>
+                                </NotAuthorized>
+                            </AuthorizeView>
+                        </div>
+                        <div class="col-md-7">
+                            <div style="margin-top: 1em;">Last Read Date: &nbsp;&nbsp;@b.ReadDate</div>
+                            @if (@b.Author != null)
+                            {
+                                <div>Author: &nbsp;&nbsp;<NavLink class="text-reset text-decoration-none" href="@GetAuthorUrl(@b.Author ?? string.Empty)">@b.Author</NavLink></div>
+                            }
+                            @if (@b.ISBN != null)
+                            {
+                                <div>ISBN: &nbsp;&nbsp;@b.ISBN</div>
+                            }
+                            @if (@b.Sequence != null)
+                            {
+                                <div>Sequence: &nbsp;&nbsp;@b.Sequence</div>
+                            }
+                            @if (@b.Rating > 0)
+                            {
+                                <div class="rating">Rating: &nbsp;&nbsp;<Rating IsReadOnly="true" IsCompact="true" StarCount=@b.Rating /></div>
+                            }
+                            @if (@b.Recommend)
+                            {
+                                <div>Recommend: &nbsp;&nbsp;@b.Recommend</div>
+                            }
+                        </div>
+                        <div class="col-md-1">
+                            <button class="btn btn-sm btn-danger mt-2" @onclick="@(() => Hide(b.Id))">Hide</button>
+                        </div>
+                    </div>
+                </li>
+            }
+        </ul>
+    }
+</div>
+
+
+
 @code {
 
     private ApexChartOptions<UniqueBooksRead> uniqueBooksReadChartOptions = new()
@@ -166,7 +231,10 @@
         {
             Padding = new()
             {
-                Left = 10, Right = 10, Top = 10, Bottom = 10
+                Left = 10,
+                Right = 10,
+                Top = 10,
+                Bottom = 10
             }
         },
         Xaxis = new XAxis
@@ -192,6 +260,7 @@
     [Inject]
     public HttpClient? Http { get; set; }
 
+    public List<TimelineDTO> LongestUnread { get; set; } = [];
 
     private ApexChart<UniqueBooksRead>? uniqueBooksReadChart;
     private ApexChart<BooksReadPerYear>? booksReadPerYearChart;
@@ -240,5 +309,37 @@
         {
             await booksPerRatingChart.UpdateSeriesAsync(true);
         }
+
+        await UpdateLongestUnreadData();
     }
+
+    private async Task UpdateLongestUnreadData()
+    {
+        if (Http == null)
+        {
+            throw new InvalidOperationException("HttpClient not initialized.");
+        }
+
+        LongestUnread = await Http.GetFromJsonAsync<List<TimelineDTO>>("/api/r1/stats/longestUnread") ?? new List<TimelineDTO>();
+    }
+
+    public async Task Hide(long BookId)
+    {
+        if (Http == null)
+        {
+            throw new InvalidOperationException("HttpClient not initialized.");
+        }
+
+        var response = await Http.PostAsJsonAsync($"/api/r1/stats/hideFromLongestUnread/{BookId}", BookId);
+        if (response.IsSuccessStatusCode)
+        {
+            await UpdateLongestUnreadData();
+        }
+    }
+
+    private string GetEditUrl(long id) => $"books/page/1/edit/{id}";
+    private string GetDetailsUrl(long id) => $"books/page/1/details/{id}";
+
+    private string GetAuthorUrl(string authorName) => $"authors/page/1/filter/{authorName}";
+    private string GetTagUrl(string tagData) => $"tags/page/1/filter/{tagData.Split("; ")[0]}";
 }

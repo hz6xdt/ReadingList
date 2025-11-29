@@ -7,6 +7,41 @@ namespace ReadingList.Models
 {
     public class BooksRepository(DataContext dataContext, ILogger<BooksRepository> logger) : IBooksRepository
     {
+        public List<TimelineDTO> GetLongestUnread()
+        {
+            logger.LogDebug("\r\n\r\n\r\nGetLongestUnread");
+
+            string query = @"EXEC dbo.GetLongestUnreadBooks";
+
+            List<TimelineDTO> result = dataContext.Database
+                .SqlQueryRaw<TimelineDTO>(query)
+                .ToList();
+
+            return result;
+        }
+
+        public async Task<bool> HideFromLongestUnread(long id)
+        {
+            logger.LogDebug("\r\n\r\n\r\nHideFromLongestUnread");
+
+            Book? book = await dataContext.Books.FindAsync(id);
+
+            if (book == null)
+            {
+                logger.LogDebug("\r\n\r\n\r\nNo book with given ID: {id} was found to update.", id);
+                return false;
+            }
+
+            book.HideFromLongestUnread = true;
+            dataContext.Books.Update(book);
+            await dataContext.SaveChangesAsync();
+
+            logger.LogDebug("\r\n\r\n\r\nRemoved book: {book.Name} from longest unread list.", book.Name);
+
+            return true;
+        }
+
+
         public List<TimelineDTO> GetTimeline(DateOnly startDate)
         {
             logger.LogDebug("\r\n\r\n\r\nGetTimeLine -- startDate: {startDate}", startDate);
@@ -955,7 +990,7 @@ namespace ReadingList.Models
             dataContext.Authors.Update(author);
             await dataContext.SaveChangesAsync();
 
-            logger.LogDebug("\r\n\r\n\r\nupdated author: {author.Name}", author.Name);
+            logger.LogDebug("\r\n\r\n\r\nUpdated author: {author.Name}", author.Name);
 
             return author.ToAuthorDTO();
         }

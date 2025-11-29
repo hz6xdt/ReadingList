@@ -9,7 +9,7 @@
     <InputDate class="mx-1" TValue="DateOnly" @bind-Value="StartDate" />
 </div>
 
-<div style="overflow-x: scroll; display: flex; flex-direction: row; width: 97%; margin-left: 1rem; margin: 1rem;">
+<div style="overflow-x: scroll; display: flex; flex-direction: row; width: 97%; margin: 1rem;">
     <InfiniteScrolling ItemsProvider="GetItems" StartDate="@StartDate">
         <ItemTemplate Context="item">
             <BookDisplay Book="@item" />

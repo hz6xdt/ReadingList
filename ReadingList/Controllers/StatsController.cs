@@ -30,5 +30,21 @@ namespace ReadingList.Controllers
             IEnumerable<BooksPerRating> result = repository.GetBooksPerRating();
             return result;
         }
+
+        [HttpGet("longestUnread")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<TimelineDTO>))]
+        public List<TimelineDTO> GetLongestUnread()
+        {
+            List<TimelineDTO> result = repository.GetLongestUnread();
+            return result;
+        }
+
+        [HttpPost("hideFromLongestUnread/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
+        public async Task<bool> HideFromLongestUnread(long id)
+        {
+            bool result = await repository.HideFromLongestUnread(id);
+            return result;
+        }
     }
 }

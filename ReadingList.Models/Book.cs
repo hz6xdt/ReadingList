@@ -14,6 +14,7 @@ namespace ReadingList.Models
         public int? Sequence { get; set; }
         public int Rating { get; set; } = 0;
         public bool Recommend { get; set; } = false;
+        public bool HideFromLongestUnread { get; set; } = false;
         public string? ISBN { get; set; }
         [Url]
         public string ImageUrl { get; set; } = DefaultCoverImageUrl;
