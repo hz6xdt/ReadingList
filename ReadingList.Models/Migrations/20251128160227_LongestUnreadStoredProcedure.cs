@@ -16,10 +16,14 @@ namespace ReadingList.Models.Migrations
                 BEGIN
                     SET NOCOUNT ON;
                     SELECT top 40 books.BookId as Id, Books.Name, ISBN, ImageUrl, Authors.Name as Author, [Sequence],
-                        Rating, Recommend, max(BookReadDates.ReadDate) as ReadDate, '' as ReadDates, '' as Tags, '' as Source
+                        Rating, Recommend, max(BookReadDates.ReadDate) as ReadDate, null as ReadDates,
+                        STRING_AGG(Tags.Data, '; ') as Tags, MIN(Sources.Name) as Source
                     from Books
                     JOIN BookReadDates ON Books.BookID = BookReadDates.BookID
                     JOIN Authors ON Books.AuthorID = Authors.AuthorID
+                    JOIN Sources ON Books.SourceID = Sources.SourceID
+                    JOIN BookTags ON Books.BookID = BookTags.BookID
+                    JOIN Tags ON BookTags.TagID = Tags.TagID
                     where books.HideFromLongestUnread = 0
                     GROUP BY books.BookId, books.Name, Books.ISBN, books.ImageUrl, Authors.Name, [Sequence],
                         Rating, Recommend

@@ -90,6 +90,10 @@
                             {
                                 <div>Author: &nbsp;&nbsp;<NavLink class="text-reset text-decoration-none" href="@GetAuthorUrl(@b.Author ?? string.Empty)">@b.Author</NavLink></div>
                             }
+                            @if (@b.Tags != null)
+                            {
+                                <div>Tags: &nbsp;&nbsp;<NavLink class="text-reset text-decoration-none" href="@GetTagUrl(@b.Tags ?? string.Empty)">@b.Tags</NavLink></div>
+                            }
                             @if (@b.ISBN != null)
                             {
                                 <div>ISBN: &nbsp;&nbsp;@b.ISBN</div>
@@ -101,6 +105,10 @@
                             @if (@b.Rating > 0)
                             {
                                 <div class="rating">Rating: &nbsp;&nbsp;<Rating IsReadOnly="true" IsCompact="true" StarCount=@b.Rating /></div>
+                            }
+                            @if (@b.Source != null)
+                            {
+                                <div>Source: &nbsp;&nbsp;@b.Source</div>
                             }
                             @if (@b.Recommend)
                             {
