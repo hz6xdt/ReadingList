@@ -1,12 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace ReadingList.Pages
+namespace ReadingList.Pages;
+
+public class _ViewStartModel : PageModel
 {
-    public class _ViewStartModel : PageModel
+    public void OnGet()
     {
-        public void OnGet()
-        {
-        }
     }
 }

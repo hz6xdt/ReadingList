@@ -1,8 +1,7 @@
-﻿namespace ReadingList.Ui.Layout
+﻿namespace ReadingList.Ui.Layout;
+
+public sealed class InfiniteScrollingItemsProviderRequest(DateOnly startDate, CancellationToken cancellationToken)
 {
-    public sealed class InfiniteScrollingItemsProviderRequest(DateOnly startDate, CancellationToken cancellationToken)
-    {
-        public DateOnly StartDate { get; set; } = startDate;
-        public CancellationToken CancellationToken { get; } = cancellationToken;
-    }
+    public DateOnly StartDate { get; set; } = startDate;
+    public CancellationToken CancellationToken { get; } = cancellationToken;
 }

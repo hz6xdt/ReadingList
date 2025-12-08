@@ -3,104 +3,103 @@ using Microsoft.AspNetCore.Mvc;
 using ReadingList.Models;
 
 
-namespace ReadingList.Controllers
+namespace ReadingList.Controllers;
+
+[ApiController]
+[Route("api/r1/[controller]")]
+//[Authorize(AuthenticationSchemes = "Identity.Application, Bearer", Roles = "Admin")]
+[Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
+public class TagsController(IBooksRepository repository, ILogger<TagsController> logger, IConfiguration configuration) : ControllerBase
 {
-    [ApiController]
-    [Route("api/r1/[controller]")]
-    //[Authorize(AuthenticationSchemes = "Identity.Application, Bearer", Roles = "Admin")]
-    [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
-    public class TagsController(IBooksRepository repository, ILogger<TagsController> logger, IConfiguration configuration) : ControllerBase
+    [HttpGet]
+    [AllowAnonymous]
+    public async Task<int> GetTagCount()
     {
-        [HttpGet]
-        [AllowAnonymous]
-        public async Task<int> GetTagCount()
+        int result = await repository.GetTagCount();
+        return result;
+    }
+
+    [HttpGet("page/{pageNumber:int}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<TagDTO>))]
+    [AllowAnonymous]
+    public IEnumerable<TagDTO> GetPageOfTags(int pageNumber = 1)
+    {
+        int pageSize = configuration.GetValue<int>("Data:PageSize", 10);
+
+        logger.LogDebug("\r\n\r\n\r\nResponse for GET /page/{pageNumber} started, with pageSize: {pageSize}", pageNumber, pageSize);
+
+        if (pageNumber < 1)
         {
-            int result = await repository.GetTagCount();
-            return result;
+            pageNumber = 1;
         }
 
-        [HttpGet("page/{pageNumber:int}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<TagDTO>))]
-        [AllowAnonymous]
-        public IEnumerable<TagDTO> GetPageOfTags(int pageNumber = 1)
-        {
-            int pageSize = configuration.GetValue<int>("Data:PageSize", 10);
+        return repository.GetTags(pageNumber, pageSize);
+    }
 
-            logger.LogDebug("\r\n\r\n\r\nResponse for GET /page/{pageNumber} started, with pageSize: {pageSize}", pageNumber, pageSize);
+    [HttpGet("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TagDTO))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetTag(long id)
+    {
+        logger.LogDebug("\r\n\r\n\r\nResponse for GET /id started");
 
-            if (pageNumber < 1)
-            {
-                pageNumber = 1;
-            }
+        TagDTO? a = await repository.GetTag(id);
 
-            return repository.GetTags(pageNumber, pageSize);
-        }
+        return a == null ? NotFound() : Ok(a);
+    }
 
-        [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TagDTO))]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [AllowAnonymous]
-        public async Task<IActionResult> GetTag(long id)
-        {
-            logger.LogDebug("\r\n\r\n\r\nResponse for GET /id started");
+    [HttpGet("filter/{contains}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<TagListItem>))]
+    public IEnumerable<TagListItem> GetFilteredTags(string contains = "%")
+    {
+        logger.LogDebug("\r\n\r\n\r\nResponse for GET /filter/{contains} started", contains);
 
-            TagDTO? a = await repository.GetTag(id);
+        return repository.GetFilteredTags(contains);
+    }
 
-            return a == null ? NotFound() : Ok(a);
-        }
+    [HttpGet("listfilter/{contains}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<TagDTO>))]
+    [AllowAnonymous]
+    public IEnumerable<TagDTO> GetFilteredTagList(string contains = "%")
+    {
+        logger.LogDebug("\r\n\r\n\r\nResponse for GET /listfilter/{contains} started", contains);
 
-        [HttpGet("filter/{contains}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<TagListItem>))]
-        public IEnumerable<TagListItem> GetFilteredTags(string contains = "%")
-        {
-            logger.LogDebug("\r\n\r\n\r\nResponse for GET /filter/{contains} started", contains);
+        return repository.GetFilteredTagList(contains);
+    }
 
-            return repository.GetFilteredTags(contains);
-        }
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(TagDTO))]
+    public async Task<IActionResult> AddTag(TagBindingTarget target)
+    {
+        logger.LogDebug("\r\n\r\n\r\nResponse for POST started");
 
-        [HttpGet("listfilter/{contains}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<TagDTO>))]
-        [AllowAnonymous]
-        public IEnumerable<TagDTO> GetFilteredTagList(string contains = "%")
-        {
-            logger.LogDebug("\r\n\r\n\r\nResponse for GET /listfilter/{contains} started", contains);
+        TagDTO newTag = await repository.AddTag(target);
 
-            return repository.GetFilteredTagList(contains);
-        }
+        return CreatedAtAction(nameof(GetTag), new { id = newTag.Id }, newTag);
+    }
 
-        [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(TagDTO))]
-        public async Task<IActionResult> AddTag(TagBindingTarget target)
-        {
-            logger.LogDebug("\r\n\r\n\r\nResponse for POST started");
+    [HttpPut]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TagUpdateBindingTarget))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateTag(TagUpdateBindingTarget changedTag)
+    {
+        logger.LogDebug("\r\n\r\n\r\nResponse for PUT started");
 
-            TagDTO newTag = await repository.AddTag(target);
+        TagDTO? Tag = await repository.UpdateTag(changedTag);
 
-            return CreatedAtAction(nameof(GetTag), new { id = newTag.Id }, newTag);
-        }
+        return Tag == null ? NotFound() : Ok(Tag);
+    }
 
-        [HttpPut]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TagUpdateBindingTarget))]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UpdateTag(TagUpdateBindingTarget changedTag)
-        {
-            logger.LogDebug("\r\n\r\n\r\nResponse for PUT started");
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteTag(long id)
+    {
+        logger.LogDebug("\r\n\r\n\r\nResponse for DELETE started");
 
-            TagDTO? Tag = await repository.UpdateTag(changedTag);
+        Tag? Tag = await repository.DeleteTag(id);
 
-            return Tag == null ? NotFound() : Ok(Tag);
-        }
-
-        [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeleteTag(long id)
-        {
-            logger.LogDebug("\r\n\r\n\r\nResponse for DELETE started");
-
-            Tag? Tag = await repository.DeleteTag(id);
-
-            return Tag == null ? NotFound() : Ok(Tag);
-        }
+        return Tag == null ? NotFound() : Ok(Tag);
     }
 }

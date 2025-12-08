@@ -1,17 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using ReadingList.Validation;
 
-namespace ReadingList.Models
+namespace ReadingList.Models;
+
+public class AuthorUpdateBindingTarget
 {
-    public class AuthorUpdateBindingTarget
-    {
-        [Required]
-        [PrimaryKey(DbContextType = typeof(DataContext), DataType = typeof(Author))]
-        public long Id { get; set; }
+    [Required]
+    [PrimaryKey(DbContextType = typeof(DataContext), DataType = typeof(Author))]
+    public long Id { get; set; }
 
-        [Required(ErrorMessage = "Please enter the author's name in Last, First format."), StringLength(256)]
-        public required string Name { get; set; }
+    [Required(ErrorMessage = "Please enter the author's name in Last, First format."), StringLength(256)]
+    public required string Name { get; set; }
 
-        public Author ToAuthor() => new() { AuthorId = Id, Name = Name };
-    }
+    public Author ToAuthor() => new() { AuthorId = Id, Name = Name };
 }

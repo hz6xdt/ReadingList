@@ -1,10 +1,9 @@
-﻿namespace ReadingList.Ui.Services
+﻿namespace ReadingList.Ui.Services;
+
+public class ConsoleLoggingService : ILoggingService
 {
-    public class ConsoleLoggingService : ILoggingService
+    public void Log(string message)
     {
-        public void Log(string message)
-        {
-            Console.WriteLine(message);
-        }
+        Console.WriteLine(message);
     }
 }

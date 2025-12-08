@@ -3,104 +3,103 @@ using Microsoft.AspNetCore.Mvc;
 using ReadingList.Models;
 
 
-namespace ReadingList.Controllers
+namespace ReadingList.Controllers;
+
+[ApiController]
+[Route("api/r1/[controller]")]
+//[Authorize(AuthenticationSchemes = "Identity.Application, Bearer", Roles = "Admin")]
+[Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
+public class AuthorsController(IBooksRepository repository, ILogger<AuthorsController> logger, IConfiguration configuration) : ControllerBase
 {
-    [ApiController]
-    [Route("api/r1/[controller]")]
-    //[Authorize(AuthenticationSchemes = "Identity.Application, Bearer", Roles = "Admin")]
-    [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
-    public class AuthorsController(IBooksRepository repository, ILogger<AuthorsController> logger, IConfiguration configuration) : ControllerBase
+    [HttpGet]
+    [AllowAnonymous]
+    public async Task<int> GetAuthorCount()
     {
-        [HttpGet]
-        [AllowAnonymous]
-        public async Task<int> GetAuthorCount()
+        int result = await repository.GetAuthorCount();
+        return result;
+    }
+
+    [HttpGet("page/{pageNumber:int}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<AuthorDTO>))]
+    [AllowAnonymous]
+    public IEnumerable<AuthorDTO> GetPageOfAuthors(int pageNumber = 1)
+    {
+        int pageSize = configuration.GetValue<int>("Data:PageSize", 10);
+
+        logger.LogDebug("\r\n\r\n\r\nResponse for GET /page/{pageNumber} started, with pageSize: {pageSize}", pageNumber, pageSize);
+
+        if (pageNumber < 1)
         {
-            int result = await repository.GetAuthorCount();
-            return result;
+            pageNumber = 1;
         }
 
-        [HttpGet("page/{pageNumber:int}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<AuthorDTO>))]
-        [AllowAnonymous]
-        public IEnumerable<AuthorDTO> GetPageOfAuthors(int pageNumber = 1)
-        {
-            int pageSize = configuration.GetValue<int>("Data:PageSize", 10);
+        return repository.GetAuthors(pageNumber, pageSize);
+    }
 
-            logger.LogDebug("\r\n\r\n\r\nResponse for GET /page/{pageNumber} started, with pageSize: {pageSize}", pageNumber, pageSize);
+    [HttpGet("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthorDTO))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetAuthor(long id)
+    {
+        logger.LogDebug("\r\n\r\n\r\nResponse for GET /id started");
 
-            if (pageNumber < 1)
-            {
-                pageNumber = 1;
-            }
+        AuthorDTO? a = await repository.GetAuthor(id);
 
-            return repository.GetAuthors(pageNumber, pageSize);
-        }
+        return a == null ? NotFound() : Ok(a);
+    }
 
-        [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthorDTO))]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [AllowAnonymous]
-        public async Task<IActionResult> GetAuthor(long id)
-        {
-            logger.LogDebug("\r\n\r\n\r\nResponse for GET /id started");
+    [HttpGet("filter/{startsWith}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<AuthorListItem>))]
+    public List<AuthorListItem> GetFilteredAuthors(string startsWith = "%")
+    {
+        logger.LogDebug("\r\n\r\n\r\nResponse for GET /filter/{startsWith} started", startsWith);
 
-            AuthorDTO? a = await repository.GetAuthor(id);
+        return repository.GetFilteredAuthors(startsWith);
+    }
 
-            return a == null ? NotFound() : Ok(a);
-        }
+    [HttpGet("listfilter/{startsWith}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<AuthorDTO>))]
+    [AllowAnonymous]
+    public IEnumerable<AuthorDTO> GetFilteredAuthorList(string startsWith = "%")
+    {
+        logger.LogDebug("\r\n\r\n\r\nResponse for GET /listfilter/{startsWith} started", startsWith);
 
-        [HttpGet("filter/{startsWith}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<AuthorListItem>))]
-        public List<AuthorListItem> GetFilteredAuthors(string startsWith = "%")
-        {
-            logger.LogDebug("\r\n\r\n\r\nResponse for GET /filter/{startsWith} started", startsWith);
+        return repository.GetFilteredAuthorList(startsWith);
+    }
 
-            return repository.GetFilteredAuthors(startsWith);
-        }
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AuthorDTO))]
+    public async Task<IActionResult> AddAuthor(AuthorBindingTarget target)
+    {
+        logger.LogDebug("\r\n\r\n\r\nResponse for POST started");
 
-        [HttpGet("listfilter/{startsWith}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<AuthorDTO>))]
-        [AllowAnonymous]
-        public IEnumerable<AuthorDTO> GetFilteredAuthorList(string startsWith = "%")
-        {
-            logger.LogDebug("\r\n\r\n\r\nResponse for GET /listfilter/{startsWith} started", startsWith);
+        AuthorDTO newAuthor = await repository.AddAuthor(target);
 
-            return repository.GetFilteredAuthorList(startsWith);
-        }
+        return CreatedAtAction(nameof(GetAuthor), new { id = newAuthor.Id }, newAuthor);
+    }
 
-        [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AuthorDTO))]
-        public async Task<IActionResult> AddAuthor(AuthorBindingTarget target)
-        {
-            logger.LogDebug("\r\n\r\n\r\nResponse for POST started");
+    [HttpPut]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthorUpdateBindingTarget))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateAuthor(AuthorUpdateBindingTarget changedAuthor)
+    {
+        logger.LogDebug("\r\n\r\n\r\nResponse for PUT started");
 
-            AuthorDTO newAuthor = await repository.AddAuthor(target);
+        AuthorDTO? author = await repository.UpdateAuthor(changedAuthor);
 
-            return CreatedAtAction(nameof(GetAuthor), new { id = newAuthor.Id }, newAuthor);
-        }
+        return author == null ? NotFound() : Ok(changedAuthor);
+    }
 
-        [HttpPut]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthorUpdateBindingTarget))]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UpdateAuthor(AuthorUpdateBindingTarget changedAuthor)
-        {
-            logger.LogDebug("\r\n\r\n\r\nResponse for PUT started");
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteAuthor(long id)
+    {
+        logger.LogDebug("\r\n\r\n\r\nResponse for DELETE started");
 
-            AuthorDTO? author = await repository.UpdateAuthor(changedAuthor);
+        Author? author = await repository.DeleteAuthor(id);
 
-            return author == null ? NotFound() : Ok(changedAuthor);
-        }
-
-        [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeleteAuthor(long id)
-        {
-            logger.LogDebug("\r\n\r\n\r\nResponse for DELETE started");
-
-            Author? author = await repository.DeleteAuthor(id);
-
-            return author == null ? NotFound() : Ok(author);
-        }
+        return author == null ? NotFound() : Ok(author);
     }
 }

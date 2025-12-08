@@ -9,224 +9,223 @@ using ReadingList.Models;
 
 #nullable disable
 
-namespace ReadingList.Models.Migrations
+namespace ReadingList.Models.Migrations;
+
+[DbContext(typeof(DataContext))]
+[Migration("20240712204535_Initial")]
+partial class Initial
 {
-    [DbContext(typeof(DataContext))]
-    [Migration("20240712204535_Initial")]
-    partial class Initial
+    /// <inheritdoc />
+    protected override void BuildTargetModel(ModelBuilder modelBuilder)
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
-        {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.6")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+        modelBuilder
+            .HasAnnotation("ProductVersion", "8.0.6")
+            .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+        SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("ReadingList.Models.Author", b =>
-                {
-                    b.Property<long>("AuthorId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+        modelBuilder.Entity("ReadingList.Models.Author", b =>
+            {
+                b.Property<long>("AuthorId")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("AuthorId"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("AuthorId"));
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("AuthorId");
+                b.HasKey("AuthorId");
 
-                    b.ToTable("Authors");
-                });
+                b.ToTable("Authors");
+            });
 
-            modelBuilder.Entity("ReadingList.Models.Book", b =>
-                {
-                    b.Property<long>("BookId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+        modelBuilder.Entity("ReadingList.Models.Book", b =>
+            {
+                b.Property<long>("BookId")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("BookId"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("BookId"));
 
-                    b.Property<long?>("AuthorId")
-                        .HasColumnType("bigint");
+                b.Property<long?>("AuthorId")
+                    .HasColumnType("bigint");
 
-                    b.Property<string>("ISBN")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("ISBN")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("ImageUrl")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("Recommend")
-                        .HasColumnType("bit");
+                b.Property<bool>("Recommend")
+                    .HasColumnType("bit");
 
-                    b.Property<int?>("Sequence")
-                        .HasColumnType("int");
+                b.Property<int?>("Sequence")
+                    .HasColumnType("int");
 
-                    b.Property<long?>("SourceId")
-                        .HasColumnType("bigint");
+                b.Property<long?>("SourceId")
+                    .HasColumnType("bigint");
 
-                    b.HasKey("BookId");
+                b.HasKey("BookId");
 
-                    b.HasIndex("AuthorId");
+                b.HasIndex("AuthorId");
 
-                    b.HasIndex("SourceId");
+                b.HasIndex("SourceId");
 
-                    b.ToTable("Books");
-                });
+                b.ToTable("Books");
+            });
 
-            modelBuilder.Entity("ReadingList.Models.BookReadDate", b =>
-                {
-                    b.Property<long>("BookReadDateId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+        modelBuilder.Entity("ReadingList.Models.BookReadDate", b =>
+            {
+                b.Property<long>("BookReadDateId")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("BookReadDateId"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("BookReadDateId"));
 
-                    b.Property<long>("BookId")
-                        .HasColumnType("bigint");
+                b.Property<long>("BookId")
+                    .HasColumnType("bigint");
 
-                    b.Property<DateOnly>("ReadDate")
-                        .HasColumnType("Date");
+                b.Property<DateOnly>("ReadDate")
+                    .HasColumnType("Date");
 
-                    b.HasKey("BookReadDateId");
+                b.HasKey("BookReadDateId");
 
-                    b.HasIndex("BookId");
+                b.HasIndex("BookId");
 
-                    b.ToTable("BookReadDates");
-                });
+                b.ToTable("BookReadDates");
+            });
 
-            modelBuilder.Entity("ReadingList.Models.BookTag", b =>
-                {
-                    b.Property<long>("BookTagId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+        modelBuilder.Entity("ReadingList.Models.BookTag", b =>
+            {
+                b.Property<long>("BookTagId")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("BookTagId"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("BookTagId"));
 
-                    b.Property<long>("BookId")
-                        .HasColumnType("bigint");
+                b.Property<long>("BookId")
+                    .HasColumnType("bigint");
 
-                    b.Property<long>("TagId")
-                        .HasColumnType("bigint");
+                b.Property<long>("TagId")
+                    .HasColumnType("bigint");
 
-                    b.HasKey("BookTagId");
+                b.HasKey("BookTagId");
 
-                    b.HasIndex("BookId");
+                b.HasIndex("BookId");
 
-                    b.HasIndex("TagId");
+                b.HasIndex("TagId");
 
-                    b.ToTable("BookTags");
-                });
+                b.ToTable("BookTags");
+            });
 
-            modelBuilder.Entity("ReadingList.Models.Source", b =>
-                {
-                    b.Property<long>("SourceId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+        modelBuilder.Entity("ReadingList.Models.Source", b =>
+            {
+                b.Property<long>("SourceId")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("SourceId"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("SourceId"));
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("SourceId");
+                b.HasKey("SourceId");
 
-                    b.ToTable("Sources");
-                });
+                b.ToTable("Sources");
+            });
 
-            modelBuilder.Entity("ReadingList.Models.Tag", b =>
-                {
-                    b.Property<long>("TagId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+        modelBuilder.Entity("ReadingList.Models.Tag", b =>
+            {
+                b.Property<long>("TagId")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("TagId"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("TagId"));
 
-                    b.Property<string>("Data")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Data")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("TagId");
+                b.HasKey("TagId");
 
-                    b.ToTable("Tags");
-                });
+                b.ToTable("Tags");
+            });
 
-            modelBuilder.Entity("ReadingList.Models.Book", b =>
-                {
-                    b.HasOne("ReadingList.Models.Author", "Author")
-                        .WithMany("Books")
-                        .HasForeignKey("AuthorId");
+        modelBuilder.Entity("ReadingList.Models.Book", b =>
+            {
+                b.HasOne("ReadingList.Models.Author", "Author")
+                    .WithMany("Books")
+                    .HasForeignKey("AuthorId");
 
-                    b.HasOne("ReadingList.Models.Source", "Source")
-                        .WithMany("Books")
-                        .HasForeignKey("SourceId");
+                b.HasOne("ReadingList.Models.Source", "Source")
+                    .WithMany("Books")
+                    .HasForeignKey("SourceId");
 
-                    b.Navigation("Author");
+                b.Navigation("Author");
 
-                    b.Navigation("Source");
-                });
+                b.Navigation("Source");
+            });
 
-            modelBuilder.Entity("ReadingList.Models.BookReadDate", b =>
-                {
-                    b.HasOne("ReadingList.Models.Book", "Book")
-                        .WithMany("BookReadDates")
-                        .HasForeignKey("BookId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+        modelBuilder.Entity("ReadingList.Models.BookReadDate", b =>
+            {
+                b.HasOne("ReadingList.Models.Book", "Book")
+                    .WithMany("BookReadDates")
+                    .HasForeignKey("BookId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("Book");
-                });
+                b.Navigation("Book");
+            });
 
-            modelBuilder.Entity("ReadingList.Models.BookTag", b =>
-                {
-                    b.HasOne("ReadingList.Models.Book", "Book")
-                        .WithMany("BookTags")
-                        .HasForeignKey("BookId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+        modelBuilder.Entity("ReadingList.Models.BookTag", b =>
+            {
+                b.HasOne("ReadingList.Models.Book", "Book")
+                    .WithMany("BookTags")
+                    .HasForeignKey("BookId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.HasOne("ReadingList.Models.Tag", "Tag")
-                        .WithMany("BookTags")
-                        .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                b.HasOne("ReadingList.Models.Tag", "Tag")
+                    .WithMany("BookTags")
+                    .HasForeignKey("TagId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("Book");
+                b.Navigation("Book");
 
-                    b.Navigation("Tag");
-                });
+                b.Navigation("Tag");
+            });
 
-            modelBuilder.Entity("ReadingList.Models.Author", b =>
-                {
-                    b.Navigation("Books");
-                });
+        modelBuilder.Entity("ReadingList.Models.Author", b =>
+            {
+                b.Navigation("Books");
+            });
 
-            modelBuilder.Entity("ReadingList.Models.Book", b =>
-                {
-                    b.Navigation("BookReadDates");
+        modelBuilder.Entity("ReadingList.Models.Book", b =>
+            {
+                b.Navigation("BookReadDates");
 
-                    b.Navigation("BookTags");
-                });
+                b.Navigation("BookTags");
+            });
 
-            modelBuilder.Entity("ReadingList.Models.Source", b =>
-                {
-                    b.Navigation("Books");
-                });
+        modelBuilder.Entity("ReadingList.Models.Source", b =>
+            {
+                b.Navigation("Books");
+            });
 
-            modelBuilder.Entity("ReadingList.Models.Tag", b =>
-                {
-                    b.Navigation("BookTags");
-                });
+        modelBuilder.Entity("ReadingList.Models.Tag", b =>
+            {
+                b.Navigation("BookTags");
+            });
 #pragma warning restore 612, 618
-        }
     }
 }

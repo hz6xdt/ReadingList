@@ -5,20 +5,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ReadingList.Models.Validation
+namespace ReadingList.Models.Validation;
+
+public class ISBNRangeAttribute : ValidationAttribute
 {
-    public class ISBNRangeAttribute : ValidationAttribute
+    public override bool IsValid(object? value)
     {
-        public override bool IsValid(object? value)
+        if (value == null)
         {
-            if (value == null)
-            {
-                return true;
-            }
-            else
-            {
-                return (value as string)?.Length == 10 || (value as string)?.Length == 13;
-            }            
+            return true;
         }
+        else
+        {
+            return (value as string)?.Length == 10 || (value as string)?.Length == 13;
+        }            
     }
 }

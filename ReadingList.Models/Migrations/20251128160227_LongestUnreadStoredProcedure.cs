@@ -2,15 +2,15 @@
 
 #nullable disable
 
-namespace ReadingList.Models.Migrations
+namespace ReadingList.Models.Migrations;
+
+/// <inheritdoc />
+public partial class LongestUnreadStoredProcedure : Migration
 {
     /// <inheritdoc />
-    public partial class LongestUnreadStoredProcedure : Migration
+    protected override void Up(MigrationBuilder migrationBuilder)
     {
-        /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.Sql(@"
+        migrationBuilder.Sql(@"
                 CREATE OR ALTER PROCEDURE dbo.GetLongestUnreadBooks
                 AS
                 BEGIN
@@ -29,14 +29,13 @@ namespace ReadingList.Models.Migrations
                         Rating, Recommend
                     ORDER BY max(BookReadDates.ReadDate);
                 END");
-        }
+    }
 
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.Sql(@"
+    /// <inheritdoc />
+    protected override void Down(MigrationBuilder migrationBuilder)
+    {
+        migrationBuilder.Sql(@"
                 DROP PROCEDURE IF EXISTS dbo.GetLongestUnreadBooks;
             ");
-        }
     }
 }

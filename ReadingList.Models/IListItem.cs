@@ -1,8 +1,7 @@
-﻿namespace ReadingList.Models
+﻿namespace ReadingList.Models;
+
+public interface IListItem
 {
-    public interface IListItem
-    {
-        public string Text { get; set; }
-        public bool IsSelected { get; set; }
-    }
+    public string Text { get; set; }
+    public bool IsSelected { get; set; }
 }

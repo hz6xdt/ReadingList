@@ -3,34 +3,33 @@ using Microsoft.AspNetCore.Mvc;
 using ReadingList.Models;
 
 
-namespace ReadingList.Controllers
+namespace ReadingList.Controllers;
+
+[ApiController]
+[Route("api/r1/[controller]")]
+//[Authorize(AuthenticationSchemes = "Identity.Application, Bearer", Roles = "Admin")]
+[Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
+public class ReadListController(IBooksRepository repository, ILogger<ReadListController> logger) : ControllerBase
 {
-    [ApiController]
-    [Route("api/r1/[controller]")]
-    //[Authorize(AuthenticationSchemes = "Identity.Application, Bearer", Roles = "Admin")]
-    [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
-    public class ReadListController(IBooksRepository repository, ILogger<ReadListController> logger) : ControllerBase
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<BookDTO>))]
+    [AllowAnonymous]
+    public IEnumerable<BookDTO> GetReadingList()
     {
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<BookDTO>))]
-        [AllowAnonymous]
-        public IEnumerable<BookDTO> GetReadingList()
-        {
-            logger.LogDebug("\r\n\r\n\r\nResponse for GET / started");
+        logger.LogDebug("\r\n\r\n\r\nResponse for GET / started");
 
-            return repository.GetReadingList();
-        }
+        return repository.GetReadingList();
+    }
 
 
-        [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BookDTO))]
-        public async Task<IActionResult> AddReadingListEntry(ReadBindingTarget target)
-        {
-            logger.LogDebug("\r\n\r\n\r\nResponse for POST started");
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BookDTO))]
+    public async Task<IActionResult> AddReadingListEntry(ReadBindingTarget target)
+    {
+        logger.LogDebug("\r\n\r\n\r\nResponse for POST started");
 
-            BookDTO newBook = await repository.AddReadingListEntry(target);
+        BookDTO newBook = await repository.AddReadingListEntry(target);
 
-            return Ok(newBook);
-        }
+        return Ok(newBook);
     }
 }

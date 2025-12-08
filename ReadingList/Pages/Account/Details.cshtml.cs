@@ -1,12 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace ReadingList.Pages.Account
+namespace ReadingList.Pages.Account;
+
+public class DetailsModel : PageModel
 {
-    public class DetailsModel : PageModel
+    public void OnGet()
     {
-        public void OnGet()
-        {
-        }
     }
 }

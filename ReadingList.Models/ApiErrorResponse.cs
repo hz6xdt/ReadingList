@@ -1,13 +1,12 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace ReadingList.Models
-{
-    public class ApiErrorResponse
-    {
-        [JsonPropertyName("message")]
-        public string? Message { get; set; }
+namespace ReadingList.Models;
 
-        [JsonPropertyName("errors")]
-        public IEnumerable<string>? Errors { get; set; }
-    }
+public class ApiErrorResponse
+{
+    [JsonPropertyName("message")]
+    public string? Message { get; set; }
+
+    [JsonPropertyName("errors")]
+    public IEnumerable<string>? Errors { get; set; }
 }

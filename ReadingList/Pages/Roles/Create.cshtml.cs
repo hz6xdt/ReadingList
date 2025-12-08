@@ -1,12 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace ReadingList.Pages.Roles
+namespace ReadingList.Pages.Roles;
+
+public class CreateModel : PageModel
 {
-    public class CreateModel : PageModel
+    public void OnGet()
     {
-        public void OnGet()
-        {
-        }
     }
 }

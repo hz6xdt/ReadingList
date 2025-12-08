@@ -1,7 +1,6 @@
-﻿namespace ReadingList.Ui.Services
+﻿namespace ReadingList.Ui.Services;
+
+public interface ILoggingService
 {
-    public interface ILoggingService
-    {
-        void Log(string message);
-    }
+    void Log(string message);
 }
