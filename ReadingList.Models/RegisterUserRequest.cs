@@ -11,5 +11,6 @@ public class RegisterUserRequest
     public required string Username { get; set; }
 
     [StringLength(256, MinimumLength = 6)]
+    [Required(ErrorMessage = "Email is required")]
     public required string Email { get; set; }
 }
