@@ -1,6 +1,4 @@
-﻿using Azure;
-
-namespace ReadingList.Models;
+﻿namespace ReadingList.Models;
 
 public class Tag
 {
